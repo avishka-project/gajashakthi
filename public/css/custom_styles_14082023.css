@@ -1,0 +1,36 @@
+.filter-btn{
+    margin-top: 6px;
+    min-width: 100px;
+}
+
+div .dt-buttons{
+    float : left;
+}
+
+.dataTables_length{
+    float : left;
+}
+
+table.dataTable thead {background-color:#d5dbec}
+table thead {background-color:#d5dbec}
+
+.title-style {
+    position: relative;
+    z-index: 3;
+  }
+  
+  .title-style span {
+    background-color: #eff3f9;
+    padding-right: 10px;
+  }
+  
+  .title-style:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 0.5em;
+    border-top: 1px solid black;
+    z-index: -1;
+  }
