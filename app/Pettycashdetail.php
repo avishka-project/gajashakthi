@@ -10,7 +10,7 @@ class Pettycashdetail extends Model
 
     protected $fillable =[
 
-        'bill_date','emp_id','bill_no','description','cost','float_balance','category','pettycash_id', 'status',
+        'bill_date','emp_type','emp_id','non_reg_emp','bill_no','description','cost','float_balance','category','pettycash_id', 'status',
          'create_by', 'update_by'
     ];
 }

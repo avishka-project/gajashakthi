@@ -1750,7 +1750,7 @@ let editrowCounter =1000;
     function addNewRow() {
         const newRow = `
             <tr>
-                <td><input type="text" name="edit_inventorylist_id[]" id="inventorylist_id${editrowCounter}" value=""></td>
+                <td><input style="width:100px" type="text" name="edit_inventorylist_id[]" id="inventorylist_id${editrowCounter}" value="" readonly></td>
                 <td>
                     <select required name="edit_inventorylist_select[]" id="inventorylist_select${editrowCounter}" onchange="getItemeditDetails(this.value, ${editrowCounter})" size="1" onfocus="this.size = 8" onchange="this.blur()" onblur="this.size = 1; this.blur()">
                         <option value="">Select Inventory Item</option>
@@ -1759,10 +1759,10 @@ let editrowCounter =1000;
                         @endforeach
                     </select>
                 </td>
-                <td><input type="text" name="edit_uom[]" id="uom${editrowCounter}" value=""></td>
-                <td><input type="number" name="edit_qty[]" id="qty${editrowCounter}" value="0" onkeyup="editsum(this.value, ${editrowCounter})"></td>
-                <td><input type="number" name="edit_unit_price[]" id="unit_price${editrowCounter}" value="0" onkeyup="editsum(this.value, ${editrowCounter})"></td>
-                <td><input type="text" name="edit_total[]" id="total${editrowCounter}" value=""></td>  
+                <td><input style="width:100px" type="text" name="edit_uom[]" id="uom${editrowCounter}" value="" readonly></td>
+                <td><input style="width:100px" type="number" name="edit_qty[]" id="qty${editrowCounter}" value="0" onkeyup="editsum(this.value, ${editrowCounter})"></td>
+                <td><input style="width:100%" type="number" name="edit_unit_price[]" id="unit_price${editrowCounter}" value="0" onkeyup="editsum(this.value, ${editrowCounter})"></td>
+                <td><input style="width:100%" type="text" name="edit_total[]" id="total${editrowCounter}" value="" readonly></td>  
                 <td class="d-none"><input type="text" name="edit_insertstatus[]" id="edit_insertstatus${editrowCounter}" value="NewData"></td>  
                 <td><button class="btn btn-sm btn-danger py-0" type="button" onclick="rem_item($(this))"><i class="fa fa-times"></i></button></td>  
             </tr>

@@ -97,12 +97,24 @@ class PettycashController extends Controller
             $description = $rowfilteredArray['description'];
             $cost = $rowfilteredArray['rs'];
             $category = $rowfilteredArray['category'];
-            $emp_id = $rowfilteredArray['paid_to'];
             $float_balance = $rowfilteredArray['floatbalance'];
+            $emp_type = $rowfilteredArray['emp_type'];
+            $paid_to = $rowfilteredArray['paid_to'];
+            $bill_no = $rowfilteredArray['bill_no'];
+
+            $reg_emp=null;
+            $non_reg_emp=null;
+            if($emp_type=="Reg_Emp"){
+                $reg_emp= $paid_to;
+            }else if($emp_type=="Non_reg_Emp"){
+                $non_reg_emp= $paid_to;
+            }
         
             $pettycashdetail = new Pettycashdetail();
             $pettycashdetail->bill_date = $bill_date;
-            $pettycashdetail->emp_id = $emp_id;
+            $pettycashdetail->emp_type = $emp_type;
+            $pettycashdetail->emp_id = $reg_emp;
+            $pettycashdetail->non_reg_emp = $non_reg_emp;
             $pettycashdetail->bill_no = $bill_no;
             $pettycashdetail->description = $description;
             $pettycashdetail->cost = $cost;
@@ -222,6 +234,8 @@ class PettycashController extends Controller
             $subarray = [
                 'id' => $detail->id,
                 'bill_date' => $detail->bill_date,
+                'emp_type' => $detail->emp_type,
+                'non_reg_emp' => $detail->non_reg_emp,
                 'emp_id' => $detail->emp_id,
                 'emp_name' => $detail->emp_name_with_initial,
                 'emp_serviceno' => $detail->service_no,
@@ -289,12 +303,24 @@ class PettycashController extends Controller
             $description = $rowfilteredArray['description'];
             $cost = $rowfilteredArray['rs'];
             $category = $rowfilteredArray['category'];
-            $emp_id = $rowfilteredArray['paid_to'];
             $float_balance = $rowfilteredArray['floatbalance'];
+            $emp_type = $rowfilteredArray['emp_type'];
+            $paid_to = $rowfilteredArray['paid_to'];
+            $bill_no = $rowfilteredArray['bill_no'];
+
+            $reg_emp=null;
+            $non_reg_emp=null;
+            if($emp_type=="Reg_Emp"){
+                $reg_emp= $paid_to;
+            }else if($emp_type=="Non_reg_Emp"){
+                $non_reg_emp= $paid_to;
+            }
         
             $pettycashdetail = new Pettycashdetail();
             $pettycashdetail->bill_date = $bill_date;
-            $pettycashdetail->emp_id = $emp_id;
+            $pettycashdetail->emp_type = $emp_type;
+            $pettycashdetail->emp_id = $reg_emp;
+            $pettycashdetail->non_reg_emp = $non_reg_emp;
             $pettycashdetail->bill_no = $bill_no;
             $pettycashdetail->description = $description;
             $pettycashdetail->cost = $cost;
@@ -572,9 +598,10 @@ class PettycashController extends Controller
         foreach ($types as $rowlist) {
             $tblinvoice.='
             <tr>
-            <td style="font-size:14px; border:2px solid black; text-align:center;height: 25px;" class="text-center">'. $count.'</td>
-            <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.$rowlist->bill_date.'</td>
-            <td colspan="4" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.($rowlist->emp_id==null?'':$rowlist->service_no.'-'.$rowlist->emp_name_with_initial).'</td>
+            <td style="font-size:11px; border:2px solid black; text-align:center;height: 25px;" class="text-center">'. $count.'</td>
+            <td colspan="3" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.$rowlist->bill_date.'</td>
+            <td colspan="3" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.$rowlist->emp_type.'</td>
+            <td colspan="6" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.($rowlist->emp_type=="Reg_Emp"?($rowlist->emp_id==null?'':$rowlist->service_no.'-'.$rowlist->emp_name_with_initial):($rowlist->non_reg_emp==null?'':$rowlist->non_reg_emp)).'</td>
             <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.$rowlist->bill_no.'</td>
             <td colspan="4" style="font-size:11px; border:2px solid black; black; text-align:justify;padding-left:4px;height: 25px;" class="text-justify">'.$rowlist->description.'</td>
             <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.number_format(($rowlist->cost),2).'</td>
@@ -690,9 +717,10 @@ class PettycashController extends Controller
                     <td style="text-align: center; margin-bottom:50px; padding-right: 0px;" colspan="2">
                         <table class="tg" style="table-layout: fixed; width: 100%" cellspacing="0" cellpadding="0">
                             <tr style="text-align:right; font-weight:bold; font-size:5px;">
-                            <td style="text-align: center; font-size:15px;border:2px solid black;">Seq</td>
-                                <td colspan="2" style="text-align: center; font-size:12px;border:2px solid black;">Bill Date</td>
-                                <td colspan="4" style="text-align: center; font-size:12px;border:2px solid black;">Employee</td>
+                                <td style="text-align: center; font-size:12px;border:2px solid black;">Seq</td>
+                                <td colspan="3" style="text-align: center; font-size:12px;border:2px solid black;">Bill Date</td>
+                                <td colspan="3" style="text-align: center; font-size:12px;border:2px solid black;">Emp Type</td>
+                                <td colspan="6" style="text-align: center; font-size:12px;border:2px solid black;">Employee</td>
                                 <td colspan="2" style="text-align: center; font-size:12px;border:2px solid black;">Bill No</td>
                                 <td colspan="4" style="text-align: center; font-size:12px;border:2px solid black;">Description</td>
                                 <td colspan="2" style="text-align: center; font-size:12px;border:2px solid black;">Rs.</td>
@@ -704,7 +732,7 @@ class PettycashController extends Controller
                             </tbody>
                             <tfoot>
                             <tr style="font-weight:bold;">
-                            <td colspan="13" style="border:2px solid black;text-align:center;font-size:12px;height: 25px;" class="text-center">TOTAL</td>
+                            <td colspan="19" style="border:2px solid black;text-align:center;font-size:12px;height: 25px;" class="text-center">TOTAL</td>
                             <td colspan="2" style="border:2px solid black;text-align:center;font-size:12px;height: 25px;">'.number_format(($totalcost),2).'</td>
                             <td colspan="5" style="border:2px solid black;text-align:center;height: 25px;"></td>
                             </tr>

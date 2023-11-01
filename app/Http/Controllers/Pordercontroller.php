@@ -232,7 +232,7 @@ public function requestlist()
      // Generate a unique identifier
 
      $htmlTable .= '<tr>';
-     $htmlTable .= '<td><input type="text" name="edit_inventorylist_id[]" id="inventorylist_id' . $uniqueIdentifier . '" value="' . $row->inventorylist_id . '"></td>';
+     $htmlTable .= '<td><input style="width:100px" type="text" name="edit_inventorylist_id[]" id="inventorylist_id' . $uniqueIdentifier . '" value="' . $row->inventorylist_id . '" readonly></td>';
      $htmlTable .= '<td>';
      $htmlTable .= '<select required name="edit_inventorylist_select[]" id="inventorylist_select' . $uniqueIdentifier . '" size="1" onfocus="this.size = 8"  onblur="this.size = 1; this.blur()" onchange="getItemeditDetails(this.value, '.$uniqueIdentifier.')">';
     foreach ($inventoryListData as $inventory) {
@@ -242,10 +242,10 @@ public function requestlist()
  
      $htmlTable .= '</select>';
      $htmlTable .= '</td>';
-     $htmlTable .= '<td><input type="text" name="edit_uom[]" id="uom' . $uniqueIdentifier . '" value="' . $row->uom . '"></td>';
-     $htmlTable .= '<td><input type="number" name="edit_qty[]" id="qty' . $uniqueIdentifier . '" value="' . $row->qty . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')"></td>';
-     $htmlTable .= '<td><input type="number" name="edit_unit_price[]" id="unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')"></td>';
-     $htmlTable .= '<td><input type="text" name="edit_total[]" id="total' . $uniqueIdentifier . '" value="' . $total . '"></td>';
+     $htmlTable .= '<td><input style="width:100px" type="text" name="edit_uom[]" id="uom' . $uniqueIdentifier . '" value="' . $row->uom . '" readonly></td>';
+     $htmlTable .= '<td><input style="width:100px" type="number" name="edit_qty[]" id="qty' . $uniqueIdentifier . '" value="' . $row->qty . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')"></td>';
+     $htmlTable .= '<td><input style="width:100%" type="number" name="edit_unit_price[]" id="unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')"></td>';
+     $htmlTable .= '<td><input style="width:100%" type="text" name="edit_total[]" id="total' . $uniqueIdentifier . '" value="' . $total . '" readonly></td>';
      $htmlTable .= '<td class="d-none"><input type="text" name="edit_insertstatus[]" id="edit_insertstatus' . $uniqueIdentifier . '" value="ExistingData"></td>';
      $htmlTable .= '<td class="d-none"><input type="text" name="porderdetail_id[]" id="porderdetail_id' . $uniqueIdentifier . '" value="' . $row->id . '"></td>';
      $htmlTable .= '<td id ="actionrow"><button class="btn btn-sm btn-danger py-0" type="button" onclick="rem_item($(this))"><i class="fa fa-times"></i></button></td>'; 

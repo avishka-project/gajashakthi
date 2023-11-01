@@ -316,7 +316,8 @@ class VehicleallocateController extends Controller
         $matchingData = DB::table('employees')
             ->where(function ($query) use ($searchTerm) {
                 $query->where('service_no', '=', $searchTerm)
-                       ->orWhere('emp_name_with_initial', 'like', '%' . $searchTerm . '%');
+                       ->orWhere('emp_name_with_initial', 'like', '%' . $searchTerm . '%')
+                       ->orWhere('emp_national_id', '=', $searchTerm);
             })
             ->limit(1)
             ->get();

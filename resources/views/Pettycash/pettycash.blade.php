@@ -140,7 +140,7 @@
                                                     <tr>
                                                         <th>Seq </th>
                                                         <th>Bill Date</th>
-                                                        <th>Paid To</th>
+                                                        <th colspan="2">Paid To</th>
                                                         <th>Bill No</th>
                                                         <th>Description</th>
                                                         <th>Rs.</th>
@@ -154,7 +154,7 @@
                                                 <tfoot>
                                                     <tr
                                                         style="font-weight: bold;font-size: 18px;background-color: #d5dbec;">
-                                                        <td class="text-center" colspan="5">Total:</td>
+                                                        <td class="text-center" colspan="6">Total:</td>
                                                         <td id="view_total" class="text-right">0</td>
                                                     </tr>
                                                 </tfoot>
@@ -267,7 +267,7 @@
                                                 <th>Seq </th>
                                                 <th class="d-none">ID </th>
                                                 <th>Bill Date</th>
-                                                <th>Paid To</th>
+                                                <th colspan="2">Paid To</th>
                                                 <th>Bill No</th>
                                                 <th>Description</th>
                                                 <th class="text-right">Rs.</th>
@@ -281,7 +281,7 @@
                                         <tfoot>
                                             <tr
                                                 style="font-weight: bold;font-size: 18px;background-color: #d5dbec;">
-                                                <td class="text-center" colspan="5">Total:</td>
+                                                <td class="text-center" colspan="6">Total:</td>
                                                 <td id="app_view_total" class="text-right">0</td>
                                                 
                                             </tr>
@@ -352,7 +352,7 @@
                                         <tr>
                                             <th>Seq </th>
                                             <th>Bill Date</th>
-                                            <th>Paid To</th>
+                                            <th colspan="2">Paid To</th>
                                             <th>Bill No</th>
                                             <th>Description</th>
                                             <th class="text-right">Rs.</th>
@@ -366,7 +366,7 @@
                                     <tfoot>
                                         <tr
                                             style="font-weight: bold;font-size: 18px;background-color: #d5dbec;">
-                                            <td class="text-center" colspan="5">Total:</td>
+                                            <td class="text-center" colspan="6">Total:</td>
                                             <td id="view_view_total" class="text-right">0</td>
                                             
                                         </tr>
@@ -571,7 +571,8 @@
                 for (var i = 1; i <= Counter; i++) {
                     var rowValues = {
                         bill_date: $("#bill_date" + i).val(),
-                        paid_to: $("#emp" + i).val(),
+                        emp_type: getempTypeValue(i),
+                        paid_to: getPaidToValue(i),
                         bill_no: $("#bill_no" + i).val(),
                         description: $("#description" + i).val(),
                         rs: $("#rs" + i).val(),
@@ -586,6 +587,29 @@
                 var filteredArray = valuesArray.filter(function (rowValues) {
                     return !isEmptyRow(rowValues);
                 });
+
+                    function getPaidToValue(i) {
+                    var emptypeValue = $("#emptype" + i).val();
+                    if (emptypeValue === "Reg_Emp") {
+                        return $("#emp" + i).val();
+                    } else if (emptypeValue === "Non_reg_Emp") {
+                        return $("#non_reg_emp" + i).val();
+                    } else {
+                        return ""; // Handle the case when emptype is not selected
+                    }
+                }
+                function getempTypeValue(i) {
+                    var regemp = $("#emp" + i).val();
+                    var nonregemp = $("#non_reg_emp" + i).val();
+
+                    // console.log("reg"+regemp,"nonreg"+nonregemp);
+
+                    if ((regemp === '' && nonregemp === '') || (regemp === null && nonregemp === null)) {
+                        return "";
+                    }else {
+                        return $("#emptype" + i).val();
+                    }
+                }
 
                 function isEmptyRow(rowValues) {
                     for (var key in rowValues) {
@@ -1039,6 +1063,27 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         billDateCell.appendChild(dateInput);
         newRow.appendChild(billDateCell);
 
+        // Create a new column to the left of emptype with the select options
+        var emptypeCell = document.createElement("td");
+        var emptypeInput = document.createElement("select");
+        emptypeInput.id = "emptype" + Counter;
+        emptypeInput.name = "emptype" + Counter;
+
+        // Create and append the "Reg Emp" option
+        var optionRegEmp = document.createElement("option");
+        optionRegEmp.value = "Reg_Emp";
+        optionRegEmp.text = "Reg Emp";
+        emptypeInput.appendChild(optionRegEmp);
+        // Create and append the "Non-reg Emp" option
+        var optionNonRegEmp = document.createElement("option");
+        optionNonRegEmp.value = "Non_reg_Emp";
+        optionNonRegEmp.text = "Non-reg Emp";
+        emptypeInput.appendChild(optionNonRegEmp);
+
+        emptypeCell.appendChild(emptypeInput);
+        // Add the new column with select options to the left of empCell
+        newRow.insertBefore(emptypeCell, empCell);
+       
         // Add the Employee column with an select 2 dropdown
         var empCell = document.createElement("td");
         var empInput = document.createElement("select");
@@ -1053,12 +1098,49 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         empInput.appendChild(defaultEmpOption);
        employeeselct2(Counter);
 
+        // Add the "Nonreg Emp" column with a specific width (55%)
+        var non_reg_empCell = document.createElement("td");
+        var non_reg_empInput = document.createElement("input");
+        non_reg_empInput.type = "text";
+        non_reg_empInput.id = "non_reg_emp" + Counter;
+        non_reg_empInput.name = "non_reg_emp" + Counter;
+        non_reg_empCell.appendChild(non_reg_empInput);
+                // billNoCell.style.width = "55%";
+        newRow.appendChild(non_reg_empCell);
+
+                                    // Add change event listener to the emptypeInput
+                                    emptypeInput.addEventListener("change", function () {
+                                    if (emptypeInput.value === "Reg_Emp") {
+                                        // Show "Reg Emp" in empCell and reset non_reg_empInput
+                                        empCell.style.display = "block";
+                                        non_reg_empCell.style.display = "none";
+                                        non_reg_empInput.value = ""; // Reset non_reg_empInput
+                                    } else if (emptypeInput.value === "Non_reg_Emp") {
+                                        // Show "Non-reg Emp" in non_reg_empCell and reset empInput
+                                        empCell.style.display = "none";
+                                        non_reg_empCell.style.display = "block";
+                                        empInput.value = ""; // Reset empInput
+                                    } else {
+                                        // Hide both empCell and non_reg_empCell and reset both inputs
+                                        empCell.style.display = "none";
+                                        non_reg_empCell.style.display = "none";
+                                        non_reg_empInput.value = ""; // Reset non_reg_empInput
+                                        empInput.value = ""; // Reset empInput
+                                    }
+                                });
+
+
+                            // Initialize the display based on the default value
+                            emptypeInput.dispatchEvent(new Event("change"));
+
         // Add the "Bill No" column with a specific width (55%)
         var billNoCell = document.createElement("td");
         var billNoInput = document.createElement("input");
         billNoInput.type = "text";
         billNoInput.id = "bill_no" + Counter;
         billNoInput.name = "bill_no" + Counter;
+        billNoCell.style.width = "100px";
+        billNoInput.style.width = "100px";
         billNoCell.appendChild(billNoInput);
         // billNoCell.style.width = "55%";
         newRow.appendChild(billNoCell);
@@ -1186,13 +1268,34 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         billDateCell.appendChild(dateInput);
         newRow.appendChild(billDateCell);
 
+        // Create a new column to the left of emptype with the select options
+        var emptypeCell = document.createElement("td");
+        var emptypeInput = document.createElement("select");
+        emptypeInput.id = "emptype" + Counter;
+        emptypeInput.name = "emptype" + Counter;
+     
+        // Create and append the "Reg Emp" option
+        var optionRegEmp = document.createElement("option");
+        optionRegEmp.value = "Reg_Emp";
+        optionRegEmp.text = "Reg Emp";
+        emptypeInput.appendChild(optionRegEmp);
+        // Create and append the "Non-reg Emp" option
+        var optionNonRegEmp = document.createElement("option");
+        optionNonRegEmp.value = "Non_reg_Emp";
+        optionNonRegEmp.text = "Non-reg Emp";
+        emptypeInput.appendChild(optionNonRegEmp);
+
+        emptypeInput.value = rowData.emp_type; 
+        emptypeCell.appendChild(emptypeInput);
+        newRow.insertBefore(emptypeCell, empCell);
+
          // Add the Employee column with an select 2 dropdown
          var empCell = document.createElement("td");
         var empInput = document.createElement("select");
         empInput.id = "emp" + Counter;
         empInput.name = "emp" + Counter;
-        empCell.style.width = "15%";
-        empInput.style.width = "15%";
+        // empCell.style.width = "15%";
+        // empInput.style.width = "15%";
         empCell.appendChild(empInput);
         newRow.appendChild(empCell);
 
@@ -1203,6 +1306,42 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
 
         employeeselct2(Counter);
 
+         // Add the "Nonreg Emp" column with a specific width (55%)
+         var non_reg_empCell = document.createElement("td");
+        var non_reg_empInput = document.createElement("input");
+        non_reg_empInput.type = "text";
+        non_reg_empInput.id = "non_reg_emp" + Counter;
+        non_reg_empInput.name = "non_reg_emp" + Counter;
+        non_reg_empInput.value = rowData.non_reg_emp; 
+        non_reg_empCell.appendChild(non_reg_empInput);
+                // billNoCell.style.width = "55%";
+        newRow.appendChild(non_reg_empCell);
+
+                                    // Add change event listener to the emptypeInput
+                                    emptypeInput.addEventListener("change", function () {
+                                    if (emptypeInput.value === "Reg_Emp") {
+                                        // Show "Reg Emp" in empCell and reset non_reg_empInput
+                                        empCell.style.display = "block";
+                                        non_reg_empCell.style.display = "none";
+                                        non_reg_empInput.value = ""; // Reset non_reg_empInput
+                                    } else if (emptypeInput.value === "Non_reg_Emp") {
+                                        // Show "Non-reg Emp" in non_reg_empCell and reset empInput
+                                        empCell.style.display = "none";
+                                        non_reg_empCell.style.display = "block";
+                                        empInput.value = ""; // Reset empInput
+                                    } else {
+                                        // Hide both empCell and non_reg_empCell and reset both inputs
+                                        empCell.style.display = "none";
+                                        non_reg_empCell.style.display = "none";
+                                        non_reg_empInput.value = ""; // Reset non_reg_empInput
+                                        empInput.value = ""; // Reset empInput
+                                    }
+                                });
+
+
+                            // Initialize the display based on the default value
+                            emptypeInput.dispatchEvent(new Event("change"));
+
         // Add the "Bill No" column with a specific width (55%)
         var billNoCell = document.createElement("td");
         var billNoInput = document.createElement("input");
@@ -1210,6 +1349,8 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         billNoInput.id = "bill_no" + Counter;
         billNoInput.name = "bill_no" + Counter;
         billNoInput.value = rowData.bill_no;
+        billNoCell.style.width = "100px";
+        billNoInput.style.width = "100px";
         billNoCell.appendChild(billNoInput);
         // billNoCell.style.width = "55%";
         newRow.appendChild(billNoCell);
@@ -1232,7 +1373,8 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         rsInput.name = "rs" + Counter;
         rsInput.value = rowData.rs;
         rsCell.appendChild(rsInput);
-        // rsCell.style.width = "55%";
+        rsCell.style.width = "80px";
+        rsInput.style.width = "80px";
         newRow.appendChild(rsCell);
 
          // Add the "float balance" column with a specific width (55%)
@@ -1364,17 +1506,74 @@ seqCounter1 += 1;
         billDateCell.appendChild(dateInput);
         newRow.appendChild(billDateCell);
 
+        // Create a new column to the left of emptype with the select options
+        var emptypeCell = document.createElement("td");
+        var emptypeInput = document.createElement("select");
+        emptypeInput.id = "emptype" + Counter1;
+        emptypeInput.name = "emptype" + Counter1;
+
+        // Create and append the "Reg Emp" option
+        var optionRegEmp = document.createElement("option");
+        optionRegEmp.value = "Reg_Emp";
+        optionRegEmp.text = "Reg Emp";
+        emptypeInput.appendChild(optionRegEmp);
+        // Create and append the "Non-reg Emp" option
+        var optionNonRegEmp = document.createElement("option");
+        optionNonRegEmp.value = "Non_reg_Emp";
+        optionNonRegEmp.text = "Non-reg Emp";
+        emptypeInput.appendChild(optionNonRegEmp);
+
+        emptypeCell.appendChild(emptypeInput);
+        // Add the new column with select options to the left of empCell
+        newRow.insertBefore(emptypeCell, empCell);
+
         // Add the Employee column with an select 2 dropdown
         var empCell = document.createElement("td");
         var empInput = document.createElement("select");
         empInput.id = "emp" + Counter1;
         empInput.name = "emp" + Counter1;
-        empCell.style.width = "15%";
-        empInput.style.width = "15%";
+        // empCell.style.width = "15%";
+        // empInput.style.width = "15%";
         empCell.appendChild(empInput);
         newRow.appendChild(empCell);
 
         employeeselct2(Counter1);
+
+        // Add the "Nonreg Emp" column with a specific width (55%)
+        var non_reg_empCell = document.createElement("td");
+        var non_reg_empInput = document.createElement("input");
+        non_reg_empInput.type = "text";
+        non_reg_empInput.id = "non_reg_emp" + Counter1;
+        non_reg_empInput.name = "non_reg_emp" + Counter1;
+        non_reg_empCell.appendChild(non_reg_empInput);
+                // billNoCell.style.width = "55%";
+        newRow.appendChild(non_reg_empCell);
+
+                                    // Add change event listener to the emptypeInput
+                                    emptypeInput.addEventListener("change", function () {
+                                    if (emptypeInput.value === "Reg_Emp") {
+                                        // Show "Reg Emp" in empCell and reset non_reg_empInput
+                                        empCell.style.display = "block";
+                                        non_reg_empCell.style.display = "none";
+                                        non_reg_empInput.value = ""; // Reset non_reg_empInput
+                                    } else if (emptypeInput.value === "Non_reg_Emp") {
+                                        // Show "Non-reg Emp" in non_reg_empCell and reset empInput
+                                        empCell.style.display = "none";
+                                        non_reg_empCell.style.display = "block";
+                                        empInput.value = ""; // Reset empInput
+                                    } else {
+                                        // Hide both empCell and non_reg_empCell and reset both inputs
+                                        empCell.style.display = "none";
+                                        non_reg_empCell.style.display = "none";
+                                        non_reg_empInput.value = ""; // Reset non_reg_empInput
+                                        empInput.value = ""; // Reset empInput
+                                    }
+                                });
+
+
+                            // Initialize the display based on the default value
+                            emptypeInput.dispatchEvent(new Event("change"));
+
 
         // Add the "Bill No" column with a specific width (55%)
         var billNoCell = document.createElement("td");
@@ -1382,6 +1581,8 @@ seqCounter1 += 1;
         billNoInput.type = "text";
         billNoInput.id = "bill_no" + Counter1;
         billNoInput.name = "bill_no" + Counter1;
+        billNoCell.style.width = "100px";
+        billNoInput.style.width = "100px";
         billNoCell.appendChild(billNoInput);
         // billNoCell.style.width = "55%";
         newRow.appendChild(billNoCell);
@@ -1401,6 +1602,8 @@ seqCounter1 += 1;
         rsInput.id = "rs" + Counter1;
         rsInput.type = "text";
         rsInput.name = "rs" + Counter1;
+        rsCell.style.width = "80px";
+        rsInput.style.width = "80px";
         rsCell.appendChild(rsInput);
         // rsCell.style.width = "55%";
         newRow.appendChild(rsCell);
@@ -1519,6 +1722,30 @@ seqCounter1 += 1;
         billDateCell.appendChild(dateInput);
         newRow.appendChild(billDateCell);
 
+         // Create a new column to the left of emptype with the select options
+         var emptypeCell = document.createElement("td");
+        var emptypeInput = document.createElement("select");
+        emptypeInput.id = "app_emptype" + Counter;
+        emptypeInput.name = "app_emptype" + Counter;
+        emptypeInput.readOnly = true;
+        emptypeInput.style.border = "none";
+        emptypeInput.style.appearance = "none";
+     
+        // Create and append the "Reg Emp" option
+        var optionRegEmp = document.createElement("option");
+        optionRegEmp.value = "Reg_Emp";
+        optionRegEmp.text = "Reg Emp";
+        emptypeInput.appendChild(optionRegEmp);
+        // Create and append the "Non-reg Emp" option
+        var optionNonRegEmp = document.createElement("option");
+        optionNonRegEmp.value = "Non_reg_Emp";
+        optionNonRegEmp.text = "Non-reg Emp";
+        emptypeInput.appendChild(optionNonRegEmp);
+
+        emptypeInput.value = rowData.emp_type; 
+        emptypeCell.appendChild(emptypeInput);
+        newRow.insertBefore(emptypeCell, empCell);
+
          // Add the Employee column with an select 2 dropdown
          var empCell = document.createElement("td");
         var empInput = document.createElement("select");
@@ -1535,6 +1762,44 @@ seqCounter1 += 1;
         defaultOption.text = (rowData.emp_id==null?'':rowData.emp_serviceno+"-"+rowData.emp_name);
         empInput.appendChild(defaultOption);
 
+         // Add the "Nonreg Emp" column with a specific width (55%)
+         var non_reg_empCell = document.createElement("td");
+        var non_reg_empInput = document.createElement("input");
+        non_reg_empInput.type = "text";
+        non_reg_empInput.id = "app_non_reg_emp" + Counter;
+        non_reg_empInput.name = "app_non_reg_emp" + Counter;
+        non_reg_empInput.value = rowData.non_reg_emp; 
+        non_reg_empInput.readOnly = true;
+        non_reg_empInput.style.border = "none";
+        non_reg_empCell.appendChild(non_reg_empInput);
+                // billNoCell.style.width = "55%";
+        newRow.appendChild(non_reg_empCell);
+
+                                    // Add change event listener to the emptypeInput
+                                    emptypeInput.addEventListener("change", function () {
+                                    if (emptypeInput.value === "Reg_Emp") {
+                                        // Show "Reg Emp" in empCell and reset non_reg_empInput
+                                        empCell.style.display = "block";
+                                        non_reg_empCell.style.display = "none";
+                                        non_reg_empInput.value = ""; // Reset non_reg_empInput
+                                    } else if (emptypeInput.value === "Non_reg_Emp") {
+                                        // Show "Non-reg Emp" in non_reg_empCell and reset empInput
+                                        empCell.style.display = "none";
+                                        non_reg_empCell.style.display = "block";
+                                        empInput.value = ""; // Reset empInput
+                                    } else {
+                                        // Hide both empCell and non_reg_empCell and reset both inputs
+                                        empCell.style.display = "none";
+                                        non_reg_empCell.style.display = "none";
+                                        non_reg_empInput.value = ""; // Reset non_reg_empInput
+                                        empInput.value = ""; // Reset empInput
+                                    }
+                                });
+
+
+                            // Initialize the display based on the default value
+                            emptypeInput.dispatchEvent(new Event("change"));
+
         // Add the "Bill No" column with a specific width (55%)
         var billNoCell = document.createElement("td");
         var billNoInput = document.createElement("input");
@@ -1544,6 +1809,8 @@ seqCounter1 += 1;
         billNoInput.value = rowData.bill_no;
         billNoInput.readOnly = true;
         billNoInput.style.border = "none";
+        billNoCell.style.width = "100px";
+        billNoInput.style.width = "100px";
         billNoCell.appendChild(billNoInput);
         // billNoCell.style.width = "55%";
         newRow.appendChild(billNoCell);
@@ -1571,6 +1838,8 @@ seqCounter1 += 1;
         rsInput.readOnly = true;
         rsInput.style.border = "none";
         rsInput.style.textAlign = "right";
+        rsCell.style.width = "80px";
+        rsInput.style.width = "80px";
         newRow.appendChild(rsCell);
 
          // Add the "float balance" column with a specific width (55%)
@@ -1678,6 +1947,30 @@ for (var i = 0; i < app_array.length; i++) {
         billDateCell.appendChild(dateInput);
         newRow.appendChild(billDateCell);
 
+        // Create a new column to the left of emptype with the select options
+        var emptypeCell = document.createElement("td");
+        var emptypeInput = document.createElement("select");
+        emptypeInput.id = "view_emptype" + Counter;
+        emptypeInput.name = "view_emptype" + Counter;
+        emptypeInput.readOnly = true;
+        emptypeInput.style.border = "none";
+        emptypeInput.style.appearance = "none";
+     
+        // Create and append the "Reg Emp" option
+        var optionRegEmp = document.createElement("option");
+        optionRegEmp.value = "Reg_Emp";
+        optionRegEmp.text = "Reg Emp";
+        emptypeInput.appendChild(optionRegEmp);
+        // Create and append the "Non-reg Emp" option
+        var optionNonRegEmp = document.createElement("option");
+        optionNonRegEmp.value = "Non_reg_Emp";
+        optionNonRegEmp.text = "Non-reg Emp";
+        emptypeInput.appendChild(optionNonRegEmp);
+
+        emptypeInput.value = rowData.emp_type; 
+        emptypeCell.appendChild(emptypeInput);
+        newRow.insertBefore(emptypeCell, empCell);
+
          // Add the Employee column with an select 2 dropdown
          var empCell = document.createElement("td");
         var empInput = document.createElement("select");
@@ -1694,6 +1987,44 @@ for (var i = 0; i < app_array.length; i++) {
         defaultOption.text = (rowData.emp_id==null?'':rowData.emp_serviceno+"-"+rowData.emp_name);
         empInput.appendChild(defaultOption);
 
+         // Add the "Nonreg Emp" column with a specific width (55%)
+         var non_reg_empCell = document.createElement("td");
+        var non_reg_empInput = document.createElement("input");
+        non_reg_empInput.type = "text";
+        non_reg_empInput.id = "view_non_reg_emp" + Counter;
+        non_reg_empInput.name = "view_non_reg_emp" + Counter;
+        non_reg_empInput.value = rowData.non_reg_emp; 
+        non_reg_empInput.readOnly = true;
+        non_reg_empInput.style.border = "none";
+        non_reg_empCell.appendChild(non_reg_empInput);
+                // billNoCell.style.width = "55%";
+        newRow.appendChild(non_reg_empCell);
+
+                                    // Add change event listener to the emptypeInput
+                                    emptypeInput.addEventListener("change", function () {
+                                    if (emptypeInput.value === "Reg_Emp") {
+                                        // Show "Reg Emp" in empCell and reset non_reg_empInput
+                                        empCell.style.display = "block";
+                                        non_reg_empCell.style.display = "none";
+                                        non_reg_empInput.value = ""; // Reset non_reg_empInput
+                                    } else if (emptypeInput.value === "Non_reg_Emp") {
+                                        // Show "Non-reg Emp" in non_reg_empCell and reset empInput
+                                        empCell.style.display = "none";
+                                        non_reg_empCell.style.display = "block";
+                                        empInput.value = ""; // Reset empInput
+                                    } else {
+                                        // Hide both empCell and non_reg_empCell and reset both inputs
+                                        empCell.style.display = "none";
+                                        non_reg_empCell.style.display = "none";
+                                        non_reg_empInput.value = ""; // Reset non_reg_empInput
+                                        empInput.value = ""; // Reset empInput
+                                    }
+                                });
+
+
+                            // Initialize the display based on the default value
+                            emptypeInput.dispatchEvent(new Event("change"));
+
         // Add the "Bill No" column with a specific width (55%)
         var billNoCell = document.createElement("td");
         var billNoInput = document.createElement("input");
@@ -1703,6 +2034,8 @@ for (var i = 0; i < app_array.length; i++) {
         billNoInput.value = rowData.bill_no;
         billNoInput.readOnly = true;
         billNoInput.style.border = "none";
+        billNoCell.style.width = "100px";
+        billNoInput.style.width = "100px";
         billNoCell.appendChild(billNoInput);
         // billNoCell.style.width = "55%";
         newRow.appendChild(billNoCell);
@@ -1730,6 +2063,8 @@ for (var i = 0; i < app_array.length; i++) {
         rsInput.readOnly = true;
         rsInput.style.border = "none";
         rsInput.style.textAlign = "right";
+        rsCell.style.width = "80px";
+        rsInput.style.width = "80px";
         newRow.appendChild(rsCell);
 
  // Add the "float balance" column with a specific width (55%)
