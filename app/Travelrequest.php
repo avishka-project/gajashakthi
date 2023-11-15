@@ -10,7 +10,7 @@ class Travelrequest extends Model
 
     protected $fillable =[
 
-         'location_id', 'month','amount','remark',
+         'request_type','location_id', 'month','amount','remark',
          'status', 'approve_status', 
          'approve_01', 'approve_01_time','approve_01_by',
          'approve_02', 'approve_02_time','approve_02_by',

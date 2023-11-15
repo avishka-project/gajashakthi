@@ -39,6 +39,9 @@ class Deaddonationcontroller extends Controller
         $deaddonation->relative_id = $request->input('relatives');
         $deaddonation->dateofdead = $request->input('date');
         $deaddonation->causesofdead = $request->input('reason');
+        $deaddonation->funeral_pace = $request->input('funeral_place');
+        $deaddonation->funeral_date = $request->input('funeral_date');
+        $deaddonation->subregion_id = $request->input('voregion_id');
         $deaddonation->status = '1';
         $deaddonation->approve_status = '0';
         $deaddonation->approve_01 = '0';
@@ -53,6 +56,9 @@ class Deaddonationcontroller extends Controller
 
         $deaddonationallocation = new Deaddonationallocation();
         $deaddonationallocation->deaddonation_id = $requestID;
+        $deaddonationallocation->funeral_pace = $request->input('funeral_place');
+        $deaddonationallocation->funeral_date = $request->input('funeral_date');
+        $deaddonationallocation->subregion_id = $request->input('voregion_id');
         $deaddonationallocation->status = '1';
         $deaddonationallocation->approve_status = '0';
         $deaddonationallocation->approve_01 = '0';
@@ -65,6 +71,9 @@ class Deaddonationcontroller extends Controller
         
         $deaddonationincomplete = new Deaddonationincomplete();
         $deaddonationincomplete->deaddonation_id = $requestID;
+        $deaddonationincomplete->funeral_pace = $request->input('funeral_place');
+        $deaddonationincomplete->funeral_date = $request->input('funeral_date');
+        $deaddonationincomplete->subregion_id = $request->input('voregion_id');
         $deaddonationincomplete->status = '1';
         $deaddonationincomplete->approve_status = '0';
         $deaddonationincomplete->approve_01 = '0';
@@ -77,6 +86,9 @@ class Deaddonationcontroller extends Controller
         
         $deaddonationlastallocation = new Deaddonationlastallocation();
         $deaddonationlastallocation->deaddonation_id = $requestID;
+        $deaddonationlastallocation->funeral_pace = $request->input('funeral_place');
+        $deaddonationlastallocation->funeral_date = $request->input('funeral_date');
+        $deaddonationlastallocation->subregion_id = $request->input('voregion_id');
         $deaddonationlastallocation->status = '1';
         $deaddonationlastallocation->approve_status = '0';
         $deaddonationlastallocation->approve_01 = '0';
@@ -104,7 +116,8 @@ class Deaddonationcontroller extends Controller
         $types = DB::table('deaddonations')
             ->leftjoin('employees', 'deaddonations.employee_id', '=', 'employees.id')
             ->leftjoin('employee_dependents', 'deaddonations.relative_id', '=', 'employee_dependents.id')
-            ->select('deaddonations.*','employees.emp_name_with_initial AS emp_name_with_initial','employee_dependents.emp_dep_relation AS emp_dep_relation')
+            ->leftjoin('subregions', 'employees.subregion_id', '=', 'subregions.id')
+            ->select('deaddonations.*','employees.emp_name_with_initial AS emp_name_with_initial','employee_dependents.emp_dep_relation AS emp_dep_relation','subregions.subregion')
             ->whereIn('deaddonations.status', [1, 2])
             ->where('deaddonations.approve_status', 0)
             ->get();
@@ -255,15 +268,16 @@ class Deaddonationcontroller extends Controller
             'update_by' => Auth::id(),
             'updated_at' => $current_date_time,
         );
-        Deaddonationallocation::findOrFail($id)
-        ->update($form_data4);
+        
+        Deaddonationallocation::where('deaddonation_id', $id)
+            ->update($form_data4);
 
         $form_data5 = array(
             'status' =>  '3',
             'update_by' => Auth::id(),
             'updated_at' => $current_date_time,
         );
-        Deaddonationincomplete::findOrFail($id)
+        Deaddonationincomplete::where('deaddonation_id', $id)
         ->update($form_data5);
 
         $form_data6 = array(
@@ -271,16 +285,16 @@ class Deaddonationcontroller extends Controller
             'update_by' => Auth::id(),
             'updated_at' => $current_date_time,
         );
-        Deaddonationlastallocation::findOrFail($id)
+        Deaddonationlastallocation::where('deaddonation_id', $id)
         ->update($form_data6);
 
 
-        $id = Request('relative_id');
+        $relative_id = Request('relative_id');
         $form_data2 = array(
             'life_status' => null
         );
 
-        Employee_dependent::findOrFail($id)
+        Employee_dependent::findOrFail($relative_id)
     ->update($form_data2);
 
 
@@ -406,7 +420,8 @@ class Deaddonationcontroller extends Controller
         $id = Request('id');
         if (request()->ajax()){
         $data = DB::table('employees')
-        ->select('employees.*')
+        ->leftjoin('subregions', 'employees.subregion_id', '=', 'subregions.id')
+        ->select('employees.*','subregions.subregion','subregions.id AS subregion_id')
         ->where('employees.id', $id)
         ->get(); 
         return response() ->json(['result'=> $data[0]]);

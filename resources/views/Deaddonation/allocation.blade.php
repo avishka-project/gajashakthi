@@ -8,7 +8,8 @@
         <div class="page-header-content py-3">
             <h1 class="page-header-title">
                 <div class="page-header-icon"><i class="fas fa-users"></i></div>
-                <span>Assign Allocation</span>
+                <span>Dead donation first Payment
+                </span>
                 
             </h1>
         </div>
@@ -33,6 +34,7 @@
                                 <tr>
                                     <th>ID </th>
                                     <th>Employee</th>
+                                    <th>VO Region</th>
                                     <th>Relative</th>
                                     <th>Date Of Dead</th>
                                     <th class="text-right">Action</th>
@@ -219,6 +221,10 @@
                     name: 'emp_name_with_initial'
                 },
                 {
+                    data: 'subregion',
+                    name: 'subregion'
+                },
+                {
                     data: 'emp_dep_relation',
                     name: 'emp_dep_relation'
                 },
@@ -338,10 +344,12 @@
 
         var user_id;
         var relative_id;
+        var deaddonation_id;
 
         $(document).on('click', '.delete', function () {
             user_id = $(this).attr('id');
             relative_id = $(this).attr('relative_id');
+            deaddonation_id = $(this).attr('deaddonation_id');
             $('#confirmModal').modal('show');
         });
 
@@ -357,7 +365,8 @@
                 dataType: "json",
                 data: {
                     id: user_id,
-                    relative_id: relative_id
+                    relative_id: relative_id,
+                    deaddonation_id:deaddonation_id
                 },
                 beforeSend: function () {
                     $('#ok_button').text('Deleting...');
@@ -366,7 +375,7 @@
                     setTimeout(function () {
                         $('#confirmModal').modal('hide');
                         $('#dataTable').DataTable().ajax.reload();
-                        alert('Data Deleted');
+                        // alert('Data Deleted');
                     }, 2000);
                     location.reload()
                 }
@@ -487,7 +496,7 @@
                     setTimeout(function () {
                         $('#approveconfirmModal').modal('hide');
                         $('#dataTable').DataTable().ajax.reload();
-                        alert('Data Approved');
+                        // alert('Data Approved');
                     }, 2000);
                     location.reload()
                 }

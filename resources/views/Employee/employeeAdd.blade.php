@@ -93,7 +93,7 @@
                         <table class="table table-striped table-bordered table-sm small nowrap display" style="width: 100%" id="emptable">
                             <thead>
                                 <tr>
-                                    <th>Emp ID</th>
+                                    {{-- <th>Emp ID</th> --}}
                                     <th>Name</th>
                                     <th>Service No</th>
                                     <th>Office</th>
@@ -735,16 +735,16 @@ $(document).ready(function () {
             ],
                 "order": [[ 5, "desc" ]],
                 "columns": [
-                    {
-                        "targets": -1,
-                        "data": null,
-                        "render": function(data, type, full) {
+                    // {
+                    //     "targets": -1,
+                    //     "data": null,
+                    //     "render": function(data, type, full) {
 
-                            var link ='';
-                            link+='<a href="viewEmployee/' + full['id'] + '" class="text-decoration-none text-dark" >' + full['emp_id'] +'</a>';
-                            return link;
-                        }
-                    },
+                    //         var link ='';
+                    //         link+='<a href="viewEmployee/' + full['id'] + '" class="text-decoration-none text-dark" >' + full['emp_id'] +'</a>';
+                    //         return link;
+                    //     }
+                    // },
                     {
                         "targets": -1,
                         "data": null,

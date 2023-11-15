@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App;
 use App\Pettycash;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -570,6 +571,7 @@ class PettycashController extends Controller
             ->get();
     
         $tblinvoice='';
+        $categorySummary='';
       
         $totalcost='';
         $empno='';
@@ -587,13 +589,35 @@ class PettycashController extends Controller
             $empname=$datalist->emp_name_with_initial;
             $department=$datalist->departmentname;
             $date=$datalist->date;
-            $pettycashfloat=$datalist->pettycashfloat;
+            $pettycashfloat = number_format($datalist->pettycashfloat, 2);
             $firstapproval=$datalist->first_app_emp;
             $secondapproval=$datalist->second_app_emp;
             $thirdapproval=$datalist->third_app_emp;
         }
        
         $count = 1;
+
+        $categoryData = DB::table('pettycashdetails')
+    ->leftJoin('pettycashcategories', 'pettycashcategories.id', '=', 'pettycashdetails.category')
+    ->select('pettycashdetails.*', 'pettycashcategories.pettycash_category AS pettycash_category')
+    ->whereIn('pettycashdetails.status', [1, 2])
+    ->where('pettycashdetails.pettycash_id', $id)
+    ->groupBy('pettycashdetails.category')
+    ->select('pettycash_category', DB::raw('SUM(cost) as cost_sum'))
+    ->get();
+
+    $categoryArray = $categoryData->toArray();
+
+    
+    foreach ($categoryArray as $rowlist) {
+        $categorySummary .= '
+        <tr>
+            <td style="font-size: 14px;" class="text-left"><b>' . $rowlist->pettycash_category . ' :- ' . $rowlist->cost_sum . '.00</b></td>
+        </tr>
+        
+        ';
+    }
+    
         
         foreach ($types as $rowlist) {
             $tblinvoice.='
@@ -606,9 +630,9 @@ class PettycashController extends Controller
             <td colspan="4" style="font-size:11px; border:2px solid black; black; text-align:justify;padding-left:4px;height: 25px;" class="text-justify">'.$rowlist->description.'</td>
             <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.number_format(($rowlist->cost),2).'</td>
             <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.number_format(($rowlist->float_balance),2).'</td>
-            <td colspan="3" style="font-size:11px; border:2px solid black; black; text-align:justify;padding-left:4px;height: 25px;" class="text-justify">'.$rowlist->pettycash_category.'</td>   
+            <td colspan="3" style="font-size:11px; border:2px solid black; black; text-align:justify;padding-left:4px;height: 25px;" class="text-left">'.$rowlist->pettycash_category.'</td>   
         </tr>
-        4
+        
             ';
             $count++;
         }
@@ -741,14 +765,7 @@ class PettycashController extends Controller
                     </td>
                 </tr>
             <tr>
-            
             </tr>
-            <tr>
-                <td style=font-size: 12px; padding-right: 10px" colspan="2">
-    
-                </td>
-            </tr>
-
       
                 <tr style="border: 1px solid;font-weight:bold;">
                     <td style="text-align: center; font-size:20px; padding-top: 20px; padding-right: 30px" colspan="2">
@@ -757,7 +774,13 @@ class PettycashController extends Controller
                 </tr>
             </table>
             <table style="width:100%;">
-             <tr>
+            '.$categorySummary.'
+            <tr>
+             <td style="text-align: center; font-size:14px;padding-bottom: 25px;"></td>
+             </tr>
+            </table>
+            <table style="width:100%;">
+             <tr >
              <th style="text-align: center; font-size:14px;">Prepaired By :-</th>
              <th style="text-align: center; font-size:14px;">1st Approval</th>
              <th style="text-align: center; font-size:14px;">2nd Approval</th>
@@ -805,18 +828,24 @@ class PettycashController extends Controller
     // echo '<script>window.open("' . $pdfUrl . '", "_blank");</script>';
     // // return response()->json(['success' => true, 'url' => $pdfUrl]);
     
-    $pdf = PDF::loadHTML($html)->setPaper('legal', 'portrait');
+    // $pdf = PDF::loadHTML($html)->setPaper('legal', 'portrait');
+    // $pdfContent = $pdf->output();
+    
+    // $pdfBase64 = base64_encode($pdfContent);
+    
+    // $responseData = [
+    //     'pdf' => $pdfBase64,
+    //     'message' => 'PDF generated successfully',
+    // ];
+    
+    // // Return the JSON response
+    // return response()->json($responseData);
+ 
+    $pdf = PDF::loadHTML($html);
+
+    // Return the PDF as base64-encoded data
     $pdfContent = $pdf->output();
-    
-    $pdfBase64 = base64_encode($pdfContent);
-    
-    $responseData = [
-        'pdf' => $pdfBase64,
-        'message' => 'PDF generated successfully',
-    ];
-    
-    // Return the JSON response
-    return response()->json($responseData);
+    return response()->json(['pdf' => base64_encode($pdfContent)]);
     
     }
     

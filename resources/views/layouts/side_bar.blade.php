@@ -206,6 +206,14 @@
                                 @endcan
                             </nav>
                         </div>
+
+                        @if(auth()->user()->can('Stock-list'))
+                            <a class="nav-link p-0 px-3 py-1 sidebar-text-color" id="stock_link"
+                                href="{{ route('stock') }}">
+                                <div class="nav-link-icon"></div>
+                                {{ __('Stock') }}
+                            </a>
+                            @endif
                         </nav>
                     </div>
                     <a class="nav-link p-0 px-3 py-2 sidebar-text-color" id="newbusinessproposal_link"
@@ -381,17 +389,15 @@
                                     @endcan
                                     @can('Deaddonationallocation-list')
                                     <a href="{{ route('assignallocation')}}" id="assignallocation_link"
-                                        class="nav-link p-0 px-3 py-1 sidebar-text-color"> Assign
-                                        Allocation</a>
+                                        class="nav-link p-0 px-3 py-1 sidebar-text-color"> First Payment</a>
                                     @endcan
                                     @can('Deaddonationincomplete-list')
                                     <a href="{{ route('incomplete')}}" id="incomplete_link"
-                                        class="nav-link p-0 px-3 py-1 sidebar-text-color"> Incomplete</a>
+                                        class="nav-link p-0 px-3 py-1 sidebar-text-color"> Document Verification</a>
                                     @endcan
                                     @can('Deaddonationlastallocation-list')
                                     <a href="{{ route('lastallocation')}}" id="lastallocation_link"
-                                        class="nav-link p-0 px-3 py-1 sidebar-text-color"> last
-                                        Allocation</a>
+                                        class="nav-link p-0 px-3 py-1 sidebar-text-color"> Second payment</a>
                                     @endcan
                                     @can('Deaddonationdetail-view')
                                     <a href="{{ route('deaddonationdetail')}}" id="deaddonationdetail_link"

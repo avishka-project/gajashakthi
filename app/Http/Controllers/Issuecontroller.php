@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\inventory_list_price_summary;
 use App\Issue;
 use App\Issuedetail;
+use App\Return_stock;
+use App\Returnstock;
+use App\Stock;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,9 +22,45 @@ class Issuecontroller extends Controller
     }
     public function index()
     {
-        $items = DB::table('items')->select('items.*')
-        ->whereIn('items.status', [1, 2])
-        ->where('items.approve_status', 1)
+        $approvel01permission = 0;
+        $approvel02permission = 0;
+        $approvel03permission = 0;
+
+        $listpermission = 0;
+        $editpermission = 0;
+        $deletepermission = 0;
+        $statuspermission = 0;
+        
+        if (Auth::user()->can('Approve-Level-01')) {
+            $approvel01permission = 1;
+        } 
+        if (Auth::user()->can('Approve-Level-02')) {
+            $approvel02permission = 1;
+        } 
+        if (Auth::user()->can('Approve-Level-03')) {
+            $approvel03permission = 1;
+        } 
+        if (Auth::user()->can('Issue-list')) {
+            $listpermission = 1;
+        } 
+        if (Auth::user()->can('Issue-edit')) {
+            $editpermission = 1;
+        }
+        if (Auth::user()->can('Issue-status')) {
+            $statuspermission = 1;
+        }
+        if (Auth::user()->can('Issue-delete')) {
+            $deletepermission = 1;
+        }
+
+        $items = DB::table('inventorylists')->select('inventorylists.*')
+        ->whereIn('inventorylists.status', [1, 2])
+        ->where('inventorylists.approve_status', 1)
+        ->get();
+
+        $stores = DB::table('storelists')->select('storelists.*')
+        ->whereIn('storelists.status', [1, 2])
+        ->where('storelists.approve_status', 1)
         ->get();
 
         $employees = DB::table('employees')->select('employees.*')
@@ -28,9 +68,9 @@ class Issuecontroller extends Controller
         // ->where('employees.approve_status', 1)
         ->get();
 
-        $locations = DB::table('branches')->select('branches.*')
-        // ->whereIn('branches.status', [1, 2])
-        // ->where('branches.approve_status', 1)
+        $locations = DB::table('customerbranches')->select('customerbranches.*')
+        ->whereIn('customerbranches.status', [1, 2])
+        ->where('customerbranches.approve_status', 1)
         ->get();
 
         $departments = DB::table('departments')->select('departments.*')
@@ -38,7 +78,7 @@ class Issuecontroller extends Controller
         // ->where('branches.approve_status', 1)
         ->get();
 
-        return view('Issues.issue', compact('items','employees','locations','departments'));
+        return view('Issues.issue', compact('items','employees','locations','departments','stores','approvel01permission','approvel02permission','approvel03permission','listpermission','editpermission','deletepermission','statuspermission'));
     }
 
     public function insert(Request $request){
@@ -47,18 +87,21 @@ class Issuecontroller extends Controller
         if(!$permission) {
                 return response()->json(['error' => 'UnAuthorized'], 401);
             }
-       
+            $current_date_time = Carbon::now()->toDateTimeString();
     
         $user = Auth::user();
 
         $issue = new Issue();
         $issue->issuing = $request->input('issuing');
         $issue->location_id = $request->input('location');
+        $issue->department_id = $request->input('department');
         $issue->employee_id = $request->input('employee');
         $issue->month = $request->input('month');
         $issue->issue_type = $request->input('issuetype');
         $issue->payment_type = $request->input('paymenttype');
         $issue->remark = $request->input('remark');
+        $issue->add_to_return = 'No';
+        $issue->return_status = '0';
         $issue->status = '1';
         $issue->approve_status = '0';
         $issue->approve_01 = '0';
@@ -73,10 +116,25 @@ class Issuecontroller extends Controller
         $tableData = $request->input('tableData');
 
         foreach ($tableData as $rowtabledata) {
-            $item = $rowtabledata['col_5'];
-            $rate = $rowtabledata['col_2'];
-            $qty = $rowtabledata['col_3'];
-            $total = $rowtabledata['col_4'];
+            $item = $rowtabledata['col_6'];
+            $rate = $rowtabledata['col_3'];
+            $qty = $rowtabledata['col_4'];
+            $total = $rowtabledata['col_5'];
+            $storelist_id = $rowtabledata['col_8'];
+            $asset_value = $rowtabledata['col_7'];
+            $grnstock_id = $rowtabledata['col_9'];
+            $returnstock_id = $rowtabledata['col_10'];
+
+            $stock_id='';
+            if($grnstock_id!=='' && $returnstock_id==''){
+                $stock_id=$grnstock_id;
+
+            }
+            else if($returnstock_id!=='' && $grnstock_id==''){
+                $stock_id=$returnstock_id;
+
+            }
+
 
             $issuedetail = new Issuedetail();
             $issuedetail->issue_id = $requestID;
@@ -84,6 +142,9 @@ class Issuecontroller extends Controller
             $issuedetail->rate = $rate;
             $issuedetail->qty = $qty;
             $issuedetail->total = $total;
+            $issuedetail->storelist_id = $storelist_id;
+            $issuedetail->asset_value = $asset_value;
+            $issuedetail->stock_id = $stock_id;
             $issuedetail->status = '1';
             $issuedetail->create_by = Auth::id();
             $issuedetail->update_by = '0';
@@ -190,8 +251,8 @@ return response() ->json(['result'=>  $responseData]);
 
         $recordID =$id ;
        $data = DB::table('issuedetails')
-       ->leftjoin('items', 'issuedetails.item_id', '=', 'items.id')
-       ->select('issuedetails.*', 'items.item_name', DB::raw('(issuedetails.id) AS issuedetailsID'))
+       ->leftjoin('inventorylists', 'issuedetails.item_id', '=', 'inventorylists.id')
+       ->select('issuedetails.*', 'inventorylists.inventorylist_id', 'inventorylists.name AS inventorylistname','inventorylists.uniform_size', DB::raw('(issuedetails.id) AS issuedetailsID'))
        ->where('issuedetails.issue_id', $recordID)
        ->where('issuedetails.status', 1)
        ->get(); 
@@ -201,12 +262,18 @@ return response() ->json(['result'=>  $responseData]);
        foreach ($data as $row) {
           
         $htmlTable .= '<tr>';
-        $htmlTable .= '<td>' . $row->item_name . '</td>'; 
+        $htmlTable .= '<td>' . $row->inventorylist_id . '-' . $row->inventorylistname . ' '.($row->uniform_size==null?'':$row->uniform_size.'"').'</td>'; 
+        $htmlTable .= '<td>' . $row->asset_value . '</td>'; 
         $htmlTable .= '<td>' . $row->rate . '</td>'; 
         $htmlTable .= '<td>' . $row->qty . '</td>'; 
         $htmlTable .= '<td>' . $row->total . '</td>'; 
         $htmlTable .= '<td class="d-none">' . $row->item_id . '</td>'; 
+        $htmlTable .= '<td class="d-none">' . $row->asset_value . '</td>'; 
+        $htmlTable .= '<td class="d-none">' . $row->storelist_id . '</td>'; 
+        $htmlTable .= '<td class="d-none">' . $row->stock_id . '</td>'; 
+        $htmlTable .= '<td class="d-none"></td>'; 
         $htmlTable .= '<td class="d-none">ExistingData</td>'; 
+        $htmlTable .= '<td class="d-none">' . $row->issuedetailsID . '</td>'; 
         $htmlTable .= '<td id ="actionrow"><button type="button" id="'.$row->issuedetailsID.'" class="btnEditlist btn btn-primary btn-sm ">
             <i class="fas fa-pen"></i>
             </button>&nbsp;
@@ -260,11 +327,12 @@ return response() ->json(['result'=>  $responseData]);
             // $issue->approve_03 = '0';
             // $issue->update_by = Auth::id();
             // $issue->save();
-    
+
             $id =  $request->hidden_id ;
             $form_data = array(
                 'issuing' =>  $request->input('issuing'),
                 'location_id' =>  $request->input('location'),
+                'department_id' =>  $request->input('department'),
                 'employee_id' =>  $request->input('editempid'),
                 'month' =>  $request->input('month'),
                 'issue_type' =>  $request->input('issuetype'),
@@ -288,29 +356,59 @@ return response() ->json(['result'=>  $responseData]);
             $tableData = $request->input('tableData');
     
             foreach ($tableData as $rowtabledata) {
-                if($rowtabledata['col_6'] == "Updated"){
+                if($rowtabledata['col_11'] == "Updated"){
            
-                    $item = $rowtabledata['col_5'];
-                    $rate = $rowtabledata['col_2'];
-                    $qty = $rowtabledata['col_3'];
-                    $total = $rowtabledata['col_4'];
-                    $detailID = $rowtabledata['col_7'];
+                    $item = $rowtabledata['col_6'];
+                    $rate = $rowtabledata['col_3'];
+                    $qty = $rowtabledata['col_4'];
+                    $total = $rowtabledata['col_5'];
+                    $asset_value = $rowtabledata['col_7'];
+                    $storelist_id = $rowtabledata['col_8'];
+                    $grnstock_id = $rowtabledata['col_9'];
+                    $returnstock_id = $rowtabledata['col_10'];
+                    $detailID = $rowtabledata['col_12'];
+
+                    $stock_id='';
+                    if($grnstock_id!=='' && $returnstock_id==''){
+                        $stock_id=$grnstock_id;
+        
+                    }
+                    else if($returnstock_id!=='' && $grnstock_id==''){
+                        $stock_id=$returnstock_id;
+        
+                    }
         
                     $issuedetail = Issuedetail::where('id', $detailID)->first();
-                    $issuedetail->issue_id = $hidden_id;
                     $issuedetail->item_id = $item;
                     $issuedetail->rate = $rate;
                     $issuedetail->qty = $qty;
                     $issuedetail->total = $total;
+                    $issuedetail->storelist_id = $storelist_id;
+                    $issuedetail->asset_value = $asset_value;
+                    $issuedetail->stock_id = $stock_id;
                     $issuedetail->update_by = Auth::id();
                     $issuedetail->save();
 
                     
-                }else if($rowtabledata['col_6'] == "NewData") {
-                    $item = $rowtabledata['col_5'];
-                    $rate = $rowtabledata['col_2'];
-                    $qty = $rowtabledata['col_3'];
-                    $total = $rowtabledata['col_4'];
+                }else if($rowtabledata['col_11'] == "NewData") {
+                    $item = $rowtabledata['col_6'];
+                    $rate = $rowtabledata['col_3'];
+                    $qty = $rowtabledata['col_4'];
+                    $total = $rowtabledata['col_5'];
+                    $storelist_id = $rowtabledata['col_8'];
+                    $asset_value = $rowtabledata['col_7'];
+                    $grnstock_id = $rowtabledata['col_9'];
+                    $returnstock_id = $rowtabledata['col_10'];
+        
+                    $stock_id='';
+                    if($grnstock_id!=='' && $returnstock_id==''){
+                        $stock_id=$grnstock_id;
+        
+                    }
+                    else if($returnstock_id!=='' && $grnstock_id==''){
+                        $stock_id=$returnstock_id;
+        
+                    }
                         if($item != 0){
                             $issuedetail = new Issuedetail();
                             $issuedetail->issue_id = $hidden_id;
@@ -318,6 +416,9 @@ return response() ->json(['result'=>  $responseData]);
                             $issuedetail->rate = $rate;
                             $issuedetail->qty = $qty;
                             $issuedetail->total = $total;
+                            $issuedetail->storelist_id = $storelist_id;
+                            $issuedetail->asset_value = $asset_value;
+                            $issuedetail->stock_id = $stock_id;
                             $issuedetail->status = '1';
                             $issuedetail->create_by = Auth::id();
                             $issuedetail->update_by = '0';
@@ -358,9 +459,9 @@ return response() ->json(['result'=>  $responseData]);
     private function app_reqestcountlist($id){
 
         $recordID =$id ;
-       $data = DB::table('issuedetails')
-       ->leftjoin('items', 'issuedetails.item_id', '=', 'items.id')
-       ->select('issuedetails.*', 'items.item_name', DB::raw('(issuedetails.id) AS issuedetailsID'))
+      $data = DB::table('issuedetails')
+       ->leftjoin('inventorylists', 'issuedetails.item_id', '=', 'inventorylists.id')
+       ->select('issuedetails.*', 'inventorylists.inventorylist_id', 'inventorylists.name AS inventorylistname','inventorylists.uniform_size', DB::raw('(issuedetails.id) AS issuedetailsID'))
        ->where('issuedetails.issue_id', $recordID)
        ->where('issuedetails.status', 1)
        ->get(); 
@@ -370,11 +471,13 @@ return response() ->json(['result'=>  $responseData]);
        foreach ($data as $row) {
           
         $htmlTable .= '<tr>';
-        $htmlTable .= '<td>' . $row->item_name . '</td>'; 
+        $htmlTable .= '<td>' . $row->inventorylist_id . '-' . $row->inventorylistname . ' '.($row->uniform_size==null?'':$row->uniform_size.'"').'</td>'; 
+        $htmlTable .= '<td>' . $row->asset_value . '</td>'; 
         $htmlTable .= '<td>' . $row->rate . '</td>'; 
         $htmlTable .= '<td>' . $row->qty . '</td>'; 
         $htmlTable .= '<td>' . $row->total . '</td>'; 
         $htmlTable .= '<td class="d-none">' . $row->item_id . '</td>'; 
+        $htmlTable .= '<td class="d-none">' . $row->stock_id . '</td>'; 
         $htmlTable .= '<td class="d-none">ExistingData</td>'; 
         $htmlTable .= '</tr>';
        }
@@ -544,15 +647,188 @@ return response() ->json(['result'=>  $responseData]);
         }
     }
 
-    public function getsaleprice(Request $request){
+    public function getitem($store_id)
+{
+    $items = DB::table('stocks')
+    ->leftjoin('inventorylists', 'stocks.item_id', '=', 'inventorylists.id')
+    ->select('stocks.item_id','inventorylists.inventorylist_id','inventorylists.name','inventorylists.uniform_size')
+    ->where('stocks.store_id', '=', $store_id)
+    ->groupBy('stocks.item_id')
+    // ->where('stocks.qty', '>', 0)
+    ->get();
 
-        $id = Request('id');
-        if (request()->ajax()){
-        $data = DB::table('items')
-        ->select('items.*')
-        ->where('items.id', $id)
-        ->get(); 
-        return response() ->json(['result'=> $data[0]]);
-    }
+    return response()->json($items);
 }
+
+
+    // data bachno get & filtering item part
+    public function getBachno($itemId,$store_id)
+{
+    $stocks = DB::table('stocks')->select('stocks.*')
+    ->where('item_id', '=', $itemId)
+    ->where('store_id', '=', $store_id)
+     ->where('stocks.qty', '>', 0)
+    ->get();
+
+    return response()->json($stocks);
+}
+
+public function getQtyPriceList(Request $request){
+
+    $id = Request('id');
+    if (request()->ajax()){
+        $data = DB::table('stocks')
+        ->leftJoin('issuedetails', 'stocks.id', '=', 'issuedetails.stock_id')
+        ->leftJoin('issues', 'issues.id', '=', 'issuedetails.issue_id')
+        ->select('stocks.*', DB::raw('SUM(CASE WHEN issues.approve_status = 0 AND issues.status IN (1, 2) AND issuedetails.status IN (1, 2) THEN issuedetails.qty ELSE 0 END) AS issueQty'))
+        ->where('stocks.id', $id)
+        ->whereIn('stocks.status', [1, 2])
+        ->groupBy('stocks.id')
+        ->get();
+    return response() ->json(['result'=> $data[0]]);
+}
+}
+
+// Return item get part
+public function getreturnitem($store_id)
+{
+    $returnitems = DB::table('return_stocks')
+    ->leftjoin('inventorylists', 'return_stocks.item_id', '=', 'inventorylists.id')
+    ->select('return_stocks.item_id','inventorylists.inventorylist_id','inventorylists.name','inventorylists.uniform_size')
+    ->where('return_stocks.store_id', '=', $store_id)
+    ->groupBy('return_stocks.item_id')
+    // ->where('return_stocks.qty', '>', 0)
+    ->get();
+
+    return response()->json($returnitems);
+}
+
+// return itemm quality get part
+public function getReturnItemQuality($itemId,$store_id)
+{
+    $returnstocks = DB::table('return_stocks')->select('return_stocks.*')
+    ->where('item_id', '=', $itemId)
+    ->where('store_id', '=', $store_id)
+    ->where('return_stocks.qty', '>', 0)
+    ->get();
+
+    return response()->json($returnstocks);
+}
+
+// return Item Qty and Price Get
+public function getReturnItemQtyPriceList(Request $request){
+
+    $id = Request('id');
+    if (request()->ajax()){
+    $data = DB::table('return_stocks')
+    ->leftJoin('issuedetails', 'return_stocks.id', '=', 'issuedetails.stock_id')
+    ->leftJoin('issues', 'issues.id', '=', 'issuedetails.issue_id')
+    ->select('return_stocks.*', DB::raw('SUM(CASE WHEN issues.approve_status = 0 AND issues.status IN (1, 2) AND issuedetails.status IN (1, 2) THEN issuedetails.qty ELSE 0 END) AS issueQty'))
+    ->where('return_stocks.id', $id)
+    ->whereIn('return_stocks.status', [1, 2])
+    ->groupBy('return_stocks.id')
+    ->get(); 
+    return response() ->json(['result'=> $data[0]]);
+}
+}
+
+
+public function stockupdate(Request $request){
+    $user = Auth::user();
+    $permission =$user->can('Approve-Level-03');
+    if(!$permission) {
+            return response()->json(['error' => 'UnAuthorized'], 401);
+        }
+   
+
+    $user = Auth::user();
+    $current_date_time = Carbon::now()->toDateTimeString();
+    $tableData = $request->input('tableData');
+
+    foreach ($tableData as $rowtabledata) {
+        $item = $rowtabledata['col_6'];
+        $qty = $rowtabledata['col_4'];
+        $assestvalue = $rowtabledata['col_2'];
+        $stockid = $rowtabledata['col_7'];
+
+        if($assestvalue=='brandnew'){
+
+            $currentQuantity = Stock::where('id', $stockid)->value('qty');
+            $newQuantity = $currentQuantity - $qty;
+            $form_data = array(
+                'qty' =>  $newQuantity,
+                'updated_at' => $current_date_time,
+                'update_by' => Auth::id(),
+            );
+            Stock::findOrFail($stockid)
+            ->update($form_data);
+        }
+        else if($assestvalue=='used'){
+
+            $currentQuantity = Return_stock::where('id', $stockid)->value('qty');
+            $newQuantity = $currentQuantity - $qty;
+            $form_data = array(
+                'qty' =>  $newQuantity,
+                'updated_at' => $current_date_time,
+                'update_by' => Auth::id(),
+            );
+            Return_stock::findOrFail($stockid)
+            ->update($form_data);
+        }
+    }
+    return response()->json(['success' => 'Stock Updated']);
+
+}
+
+
+public function updateprice(Request $request){
+
+    $user = Auth::user();
+  
+    $permission =$user->can('Issue-edit');
+    if(!$permission) {
+            return response()->json(['error' => 'UnAuthorized'], 401);
+        }
+    
+        $assetvalue = Request('assetvalue');
+        $itemid = Request('itemid');
+        $itemname = Request('itemname');
+        $batchno_id = Request('batchno_id');
+        $returnItemQuality_id = Request('returnItemQuality_id');
+        $unite_price = Request('unite_price');
+
+    $current_date_time = Carbon::now()->toDateTimeString();
+
+  if($assetvalue=="brandnew" && $batchno_id!=""){
+    $form_data = array(
+        'unit_price' =>  $unite_price,
+        'update_by' => Auth::id(),
+        'updated_at' => $current_date_time,
+    );
+    Stock::findOrFail($batchno_id)
+    ->update($form_data);
+  }
+  else if($assetvalue=="used" && $returnItemQuality_id!=""){
+    $form_data = array(
+        'unit_price' =>  $unite_price,
+        'update_by' => Auth::id(),
+        'updated_at' => $current_date_time,
+    );
+    Return_stock::findOrFail($returnItemQuality_id)
+    ->update($form_data);
+  }
+   
+
+  $pricesummary = new inventory_list_price_summary();
+  $pricesummary->asset_value = $assetvalue;
+  $pricesummary->item_id = $itemid;
+  $pricesummary->item_name = $itemname;
+  $pricesummary->unit_price = $unite_price;
+  $pricesummary->status = '1';
+  $pricesummary->create_by = Auth::id();
+  $pricesummary->save();
+    return response()->json(['success' => 'Unite Price successfully Updated']);
+
+}
+
 }

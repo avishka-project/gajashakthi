@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Grn;
 use App\Grndetail;
+use App\inventory_list_price_summary;
 use App\Porder;
+use App\Porderdetail;
 use App\Stock;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -20,9 +22,14 @@ class GRNcontroller extends Controller
     }
     public function index()
     {
-        $items = DB::table('items')->select('items.*')
-        ->whereIn('items.status', [1, 2])
-        ->where('items.approve_status', 1)
+        $items = DB::table('inventorylists')->select('inventorylists.*')
+        ->whereIn('inventorylists.status', [1, 2])
+        // ->where('inventorylists.approve_status', 1)
+        ->get();
+
+        $stores = DB::table('storelists')->select('storelists.*')
+        ->whereIn('storelists.status', [1, 2])
+        ->where('storelists.approve_status', 1)
         ->get();
 
         $suppliers = DB::table('suppliers')->select('suppliers.*')
@@ -33,8 +40,9 @@ class GRNcontroller extends Controller
         $porders = DB::table('porders')->select('porders.*')
         ->whereIn('porders.status', [1, 2])
         ->where('porders.approve_status', 1)
+        // ->where('porders.grn_status', 0)
         ->get();
-        return view('GRN.grn', compact('items','suppliers','porders'));
+        return view('GRN.grn', compact('items','suppliers','porders','stores'));
     }
 
     public function getsupplier($porderid)
@@ -115,12 +123,18 @@ public function insert(Request $request){
     $user = Auth::user();
 
     $grn = new Grn();
-    $grn->grn_date = $request->input('orderdate');
-    $grn->batch_no = $request->input('batchno');
-    $grn->total = $request->input('totalValue');
-    $grn->remark = $request->input('comment');
-    $grn->supplier_id = $request->input('supplier');
     $grn->porder_id = $request->input('porder');
+    $grn->grn_date = $request->input('orderdate');
+    $grn->bill_date = $request->input('billdate');
+    $grn->batch_no = $request->input('batchno');
+    $grn->supplier_id = $request->input('supplier');
+    $grn->terms = $request->input('terms');
+    $grn->store_id = $request->input('store');
+    $grn->sub_total = $request->input('sub_total');
+    $grn->discount = $request->input('discount');
+    $grn->total = $request->input('net_total');
+    $grn->remark = $request->input('remark');
+   
     $grn->confirm_status = '0';
     $grn->status = '1';
     $grn->approve_status = '0';
@@ -135,26 +149,50 @@ public function insert(Request $request){
     $date=$request->input('orderdate');
     $batch_no=$request->input('batchno');
 
-    $tableData = $request->input('tableData');
-
-    foreach ($tableData as $rowtabledata) {
-        $item = $rowtabledata['col_5'];
-        $rate = $rowtabledata['col_2'];
-        $qty = $rowtabledata['col_3'];
-        $total = $rowtabledata['col_4'];
+    $DataArray = $request->input('DataArray');
+    foreach ($DataArray as $rowDataArray) {
+        $itemid= $rowDataArray['itemName'];
+        $qty = $rowDataArray['qty'];
+        $unitPrice = $rowDataArray['unitPrice'];
+        $total = $rowDataArray['total'];
+        $detailID = $rowDataArray['porderdetail_id'];
 
         $grndetail = new Grndetail();
         $grndetail->date = $date;
-        $grndetail->item_id = $item;
+        $grndetail->item_id = $itemid;
         $grndetail->qty = $qty;
-        $grndetail->unit_price = $rate;
+        $grndetail->unit_price = $unitPrice;
         $grndetail->total = $total;
         $grndetail->grn_id = $requestID;
+        $grndetail->porderdetail_id = $detailID;
         $grndetail->status = '1';
         $grndetail->create_by = Auth::id();
         $grndetail->update_by = '0';
         $grndetail->save();
 
+    }
+
+    // update porder qty
+    foreach ($DataArray as $rowDataArray) {
+        if($rowDataArray['edit_insertstatus'] == "ExistingData"){
+            $qty = $rowDataArray['qty'];
+            $detailID = $rowDataArray['porderdetail_id'];
+
+            $data = DB::table('porderdetails')
+            ->select('porderdetails.*')
+            ->where('porderdetails.id', $detailID)
+            ->where('porderdetails.status', 1)
+            ->get(); 
+            $orderqty = '';
+            foreach ($data as $row) {
+             $orderqty=$row->grn_issue_qty;
+            }
+            $newqty=$orderqty+ $qty;
+            $porderdetail = Porderdetail::where('id', $detailID)->first();
+            $porderdetail->grn_issue_qty = $newqty;
+            $porderdetail->update_by = Auth::id();
+            $porderdetail->save();
+        }
     }
 
 
@@ -181,7 +219,7 @@ public function requestlist()
                     if($permission){
                         if($row->approve_01 == 0){
                             $btn .= ' <button name="appL1" id="'.$row->id.'" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
-                            $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
+                            $btn .= ' <button name="edit" id="'.$row->id.'" porder_id="'.$row->porder_id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                             $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
                     }
@@ -189,7 +227,7 @@ public function requestlist()
                     if($permission){
                         if($row->approve_01 == 1 && $row->approve_02 == 0){
                             $btn .= ' <button name="appL2" id="'.$row->id.'" class="appL2 btn btn-outline-warning btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
-                            $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
+                            $btn .= ' <button name="edit" id="'.$row->id.'" porder_id="'.$row->porder_id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                              $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
                     }
@@ -197,7 +235,7 @@ public function requestlist()
                     if($permission){
                         if($row->approve_02 == 1 && $row->approve_03 == 0 ){
                             $btn .= ' <button name="appL3" id="'.$row->id.'" batch_no="'.$row->batch_no.'" porder_id="'.$row->porder_id.'" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
-                            $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
+                            $btn .= ' <button name="edit" id="'.$row->id.'" porder_id="'.$row->porder_id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                              $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
                     }
@@ -238,17 +276,18 @@ public function requestlist()
 
     public function edit(Request $request){
         $user = Auth::user();
-        $permission =$user->can('Grn-edit');
+        $user = Auth::user();
+        $permission =$user->can('Porder-edit');
         if(!$permission) {
                 return response()->json(['error' => 'UnAuthorized'], 401);
             }
 
         $id = Request('id');
         if (request()->ajax()){
-            $data = DB::table('grns')
-            ->select('grns.*')
-            ->where('grns.id', $id)
-            ->get();
+        $data = DB::table('grns')
+        ->select('grns.*')
+        ->where('grns.id', $id)
+        ->get(); 
 
         $requestlist = $this->reqestcountlist($id); 
     
@@ -264,40 +303,155 @@ public function requestlist()
     private function reqestcountlist($id){
 
         $recordID =$id ;
-       $data = DB::table('grndetails')
-       ->leftjoin('grns', 'grndetails.grn_id', '=', 'grns.id')
-       ->leftjoin('items', 'grndetails.item_id', '=', 'items.id')
-       ->select('grndetails.*', 'items.item_name', DB::raw('(grndetails.id) AS grndetailsID'))
-       ->where('grndetails.grn_id', $recordID)
-       ->where('grndetails.status', 1)
-       ->get(); 
+    $data = DB::table('grndetails')
+    ->leftjoin('grns', 'grndetails.grn_id', '=', 'grns.id')
+    ->leftjoin('inventorylists', 'grndetails.item_id', '=', 'inventorylists.id')
+    ->select('grndetails.*', 'inventorylists.name','inventorylists.inventorylist_id','inventorylists.id AS inven_id','inventorylists.uom', DB::raw('(grndetails.id) AS grndetailsID'))
+    ->where('grndetails.grn_id', $recordID)
+    ->where('grndetails.status', 1)
+    ->get();  
 
+    $data1 = DB::table('grns')
+    ->join('porders', 'grns.porder_id', '=', 'porders.id')
+    ->join('porderdetails', 'porderdetails.porder_id', '=', 'porders.id')
+    ->select('porderdetails.qty AS PorderQty')
+    ->where('grns.id', $recordID)
+    ->where('grns.status', 1)
+    ->get();  
 
-       $htmlTable = '';
-       foreach ($data as $row) {
+    $dataArray = [];
 
-        $total=$row->unit_price*$row->qty;
-          
-        $htmlTable .= '<tr>';
-        $htmlTable .= '<td>' . $row->item_name . '</td>'; 
-        $htmlTable .= '<td>' . $row->unit_price . '</td>'; 
-        $htmlTable .= '<td>' . $row->qty . '</td>'; 
-        $htmlTable .= '<td>' . $total . '</td>'; 
-        $htmlTable .= '<td class="d-none">' . $row->item_id . '</td>'; 
-        $htmlTable .= '<td class="d-none">ExistingData</td>'; 
-        $htmlTable .= '<td id ="actionrow"><button type="button" id="'.$row->grndetailsID.'" class="btnEditlist btn btn-primary btn-sm ">
-            <i class="fas fa-pen"></i>
-            </button>&nbsp;
-            <button type="button" rowid="'.$row->grndetailsID.'" cost="'.$total.'" id="btnDeleterow"  class="btnDeletelist btn btn-danger btn-sm " >
-            <i class="fas fa-trash-alt"></i>
-            </button></td>'; 
-        $htmlTable .= '<td class="d-none"><input type ="hidden" id ="hiddenid" name="hiddenid" value="'.$row->grndetailsID.'"></td>'; 
-        $htmlTable .= '</tr>';
-       }
+    foreach ($data1 as $row) {
+        $dataArray[] = [
+            'PorderQty' => $row->PorderQty,
+        ];
+    }
+    // dd($dataArray);
+
+    $inventoryListData = DB::table('inventorylists')
+     ->select('inventorylists.*')
+     ->whereIn('inventorylists.status', [1, 2])
+    //  ->where('inventorylists.approve_status', 1)
+     ->get();  
+
+   $uniqueIdentifier = 1;
+   $count=0;
+   $htmlTable = '';
+   foreach ($data as $row) {
+      
+    $total = $row->unit_price * $row->qty;
+     // Generate a unique identifier
+
+     $htmlTable .= '<tr>';
+     $htmlTable .= '<td><input style="width:100px;border: none;" type="text" name="edit1_inventorylist_id[]" id="edit1_inventorylist_id' . $uniqueIdentifier . '" value="' . $row->inventorylist_id . '" readonly></td>';
+     $htmlTable .= '<td>';
+     $htmlTable .= '<select required name="edit1_inventorylist_select[]" id="edit1_inventorylist_select' . $uniqueIdentifier . '" size="1" onfocus="this.size = 8"  onblur="this.size = 1; this.blur()" onchange="getItemeditDetailsEdit(this.value, '.$uniqueIdentifier.')">';
+    foreach ($inventoryListData as $inventory) {
+         $selected = ($inventory->id == $row->inven_id) ? 'selected' : '';
+         $htmlTable .= '<option value="' . $inventory->id . '" '.$selected.' >' . $inventory->inventorylist_id . ' - ' . $inventory->name  . ' ' . ($inventory->uniform_size==null?"":$inventory->uniform_size.'"') . '</option>';
+     }
+ 
+     $htmlTable .= '</select>';
+     $htmlTable .= '</td>';
+     $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit1_uom[]" id="edit1_uom' . $uniqueIdentifier . '" value="' . $row->uom . '" readonly></td>';
+     $htmlTable .= '<td><span style="color:red">(' . $dataArray[$count]['PorderQty'] .')</span><input style="width:70%;" type="number" name="edit1_qty[]" id="edit1_qty' . $uniqueIdentifier . '" value="' . ($row->qty) . '" onkeyup="editsum1(this.value, '.$uniqueIdentifier.')"></td>';
+     $htmlTable .= '<td><input style="border: none;width:70%;" type="number" name="edit1_unit_price[]" id="edit1_unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum1(this.value, '.$uniqueIdentifier.')" readonly></td>';
+     $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit1_total[]" id="edit1_total' . $uniqueIdentifier . '" value="' .($row->total). '" readonly></td>';
+     $htmlTable .= '<td class="d-none"><input type="text" name="edit1_insertstatus[]" id="edit1_insertstatus' . $uniqueIdentifier . '" value="PorderExistingData"></td>';
+     $htmlTable .= '<td class="d-none"><input type="text" name="edit1_grndetail_id[]" id="edit1_grndetail_id' . $uniqueIdentifier . '" value="' . $row->id . '"></td>';
+     $htmlTable .= '<td class="d-none"><input type="text" name="edit1_porderdetail_id[]" id="edit1_porderdetail_id' . $uniqueIdentifier . '" value="' . $row->porderdetail_id . '"></td>';
+     $htmlTable .= '</tr>';
+
+    $uniqueIdentifier++;
+    $count++;
+   }
 
        return $htmlTable;
 
    }
+
+   public function editwithoutporder(Request $request){
+    $user = Auth::user();
+    $user = Auth::user();
+    $permission =$user->can('Porder-edit');
+    if(!$permission) {
+            return response()->json(['error' => 'UnAuthorized'], 401);
+        }
+
+    $id = Request('id');
+    if (request()->ajax()){
+    $data = DB::table('grns')
+    ->select('grns.*')
+    ->where('grns.id', $id)
+    ->get(); 
+
+    $requestlist = $this->reqestcountlist2($id); 
+
+    $responseData = array(
+        'mainData' => $data[0],
+        'requestdata' => $requestlist,
+    );
+
+    return response() ->json(['result'=>  $responseData]);
+}
+}
+
+private function reqestcountlist2($id){
+
+    $recordID =$id ;
+$data = DB::table('grndetails')
+->leftjoin('grns', 'grndetails.grn_id', '=', 'grns.id')
+->leftjoin('inventorylists', 'grndetails.item_id', '=', 'inventorylists.id')
+->select('grndetails.*', 'inventorylists.name','inventorylists.inventorylist_id','inventorylists.id AS inven_id','inventorylists.uom', DB::raw('(grndetails.id) AS grndetailsID'))
+->where('grndetails.grn_id', $recordID)
+->where('grndetails.status', 1)
+->get();  
+
+// dd($dataArray);
+
+$inventoryListData = DB::table('inventorylists')
+ ->select('inventorylists.*')
+ ->whereIn('inventorylists.status', [1, 2])
+//  ->where('inventorylists.approve_status', 1)
+ ->get();  
+
+$uniqueIdentifier = 1;
+$count=0;
+$htmlTable = '';
+foreach ($data as $row) {
+  
+$total = $row->unit_price * $row->qty;
+ // Generate a unique identifier
+
+ $htmlTable .= '<tr>';
+ $htmlTable .= '<td><input style="width:100px;border: none;" type="text" name="edit1_inventorylist_id[]" id="edit1_inventorylist_id' . $uniqueIdentifier . '" value="' . $row->inventorylist_id . '" readonly></td>';
+ $htmlTable .= '<td>';
+ $htmlTable .= '<select required name="edit1_inventorylist_select[]" id="edit1_inventorylist_select' . $uniqueIdentifier . '" size="1" onfocus="this.size = 8"  onblur="this.size = 1; this.blur()" onchange="getItemeditDetailsEdit(this.value, '.$uniqueIdentifier.')">';
+foreach ($inventoryListData as $inventory) {
+     $selected = ($inventory->id == $row->inven_id) ? 'selected' : '';
+     $htmlTable .= '<option value="' . $inventory->id . '" '.$selected.' >' . $inventory->inventorylist_id . ' - ' . $inventory->name  . ' ' . ($inventory->uniform_size==null?"":$inventory->uniform_size.'"') . '</option>';
+ }
+
+ $htmlTable .= '</select>';
+ $htmlTable .= '</td>';
+ $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit1_uom[]" id="edit1_uom' . $uniqueIdentifier . '" value="' . $row->uom . '" readonly></td>';
+ $htmlTable .= '<td><span style="color:red">(' . $row->qty .')</span><input style="width:70%;" type="number" name="edit1_qty[]" id="edit1_qty' . $uniqueIdentifier . '" value="' . ($row->qty) . '" onkeyup="editsum1(this.value, '.$uniqueIdentifier.')"></td>';
+ $htmlTable .= '<td><span style="color:red">(' . $row->unit_price .')</span><input style="width:70%;" type="number" name="edit1_unit_price[]" id="edit1_unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum1(this.value, '.$uniqueIdentifier.')"></td>';
+ $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit1_total[]" id="edit1_total' . $uniqueIdentifier . '" value="' .($row->total). '"></td>';
+ $htmlTable .= '<td class="d-none"><input type="text" name="edit1_insertstatus[]" id="edit1_insertstatus' . $uniqueIdentifier . '" value="ExistingData"></td>';
+ $htmlTable .= '<td class="d-none"><input type="text" name="edit1_grndetail_id[]" id="edit1_grndetail_id' . $uniqueIdentifier . '" value="' . $row->id . '"></td>';
+ $htmlTable .= '<td class="d-none"><input type="text" name="edit1_porderdetail_id[]" id="edit1_porderdetail_id' . $uniqueIdentifier . '" value="0"></td>';
+ $htmlTable .= '<td><button class="btn btn-sm btn-danger py-0" type="button" onclick="rem_item($(this))"><i class="fa fa-times"></i></button></td>';
+ $htmlTable .= '</tr>';
+
+$uniqueIdentifier++;
+$count++;
+}
+
+   return $htmlTable;
+
+}
+
    public function editlist(Request $request){
     $id = Request('id');
     if (request()->ajax()){
@@ -321,15 +475,18 @@ public function update(Request $request){
 
         $hidden_id = $request->input('hidden_id');
 
-
         $id =  $request->hidden_id ;
         $form_data = array(
-            'batch_no' =>  $request->input('batchno'),
-            'grn_date' =>  $request->input('orderdate'),
-            'total' =>  $request->input('totalValue'),
-            'remark' =>  $request->input('comment'),
-            'supplier_id' =>  $request->input('supplier'),
-            'porder_id' =>  $request->input('porder'),
+            'grn_date' => $request->input('orderdate'),
+            'bill_date' => $request->input('billdate'),
+            'batch_no' => $request->input('batchno'),
+            'supplier_id' => $request->input('supplier'),
+            'terms' => $request->input('terms'),
+            'store_id' => $request->input('store'),
+            'sub_total' => $request->input('sub_total'),
+            'discount' => $request->input('discount'),
+            'total' => $request->input('net_total'),
+            'remark' => $request->input('remark'),
                 'confirm_status' =>  '0',
                 'approve_status' =>  '0',
                 'approve_01' =>  '0',
@@ -342,49 +499,46 @@ public function update(Request $request){
             Grn::findOrFail($id)
         ->update($form_data);
 
-        // DB::table('customerrequestdetails')
-        // ->where('customerrequest_id', $hidden_id)
-        // ->delete();
+        DB::table('grndetails')
+        ->where('grndetails.grn_id', $hidden_id)
+        ->delete();
         $date=$request->input('orderdate');
         $tableData = $request->input('tableData');
 
-        foreach ($tableData as $rowtabledata) {
-            if($rowtabledata['col_6'] == "Updated"){
-       
-                $item = $rowtabledata['col_5'];
-                $rate = $rowtabledata['col_2'];
-                $qty = $rowtabledata['col_3'];
-                $detailID = $rowtabledata['col_7'];
+        $DataArray = $request->input('DataArray');
+        foreach ($DataArray as $rowDataArray) {
+            $itemid= $rowDataArray['itemName'];
+            $qty = $rowDataArray['qty'];
+            $unitPrice = $rowDataArray['unitPrice'];
+            $total = $rowDataArray['total'];
+            $detailID = $rowDataArray['porderdetail_id'];
     
-                $porderdetail = Grndetail::where('id', $detailID)->first();
-                $porderdetail->grn_id = $hidden_id;
-                $porderdetail->date = $date;
-                $porderdetail->item_id = $item;
-                $porderdetail->unit_price = $rate;
-                $porderdetail->qty = $qty;
-                $porderdetail->update_by = Auth::id();
-                $porderdetail->save();
-
-                
-            }else if($rowtabledata['col_6'] == "NewData") {
-                $item = $rowtabledata['col_5'];
-                $rate = $rowtabledata['col_2'];
-                $qty = $rowtabledata['col_3'];
-                    if($item != 0){
-                        $porderdetail = new Grndetail();
-                        $porderdetail->grn_id = $hidden_id;
-                        $porderdetail->date = $date;
-                        $porderdetail->item_id = $item;
-                        $porderdetail->unit_price = $rate;
-                        $porderdetail->qty = $qty;
-                        $porderdetail->status = '1';
-                        $porderdetail->create_by = Auth::id();
-                        $porderdetail->update_by = '0';
-                        $porderdetail->save();
-                    }
-              }
+            $grndetail = new Grndetail();
+            $grndetail->date = $date;
+            $grndetail->item_id = $itemid;
+            $grndetail->qty = $qty;
+            $grndetail->unit_price = $unitPrice;
+            $grndetail->total = $total;
+            $grndetail->grn_id = $hidden_id;
+            $grndetail->porderdetail_id = $detailID;
+            $grndetail->status = '1';
+            $grndetail->create_by = Auth::id();
+            $grndetail->update_by = '0';
+            $grndetail->save();
+    
         }
-    
+      // update porder qty
+      foreach ($DataArray as $rowDataArray) {
+        if($rowDataArray['edit_insertstatus'] == "PorderExistingData"){
+            $qty = $rowDataArray['qty'];
+            $detailID = $rowDataArray['porderdetail_id'];
+
+            $porderdetail = Porderdetail::where('id', $detailID)->first();
+            $porderdetail->grn_issue_qty = $qty;
+            $porderdetail->update_by = Auth::id();
+            $porderdetail->save();
+        }
+    }
     
     return response()->json(['success' => 'GRN Order is Successfully Updated']);
 }
@@ -418,14 +572,15 @@ return response() ->json(['result'=>  $responseData]);
 private function app_reqestcountlist($id){
 
     $recordID =$id ;
-    $data = DB::table('grndetails')
-       ->leftjoin('grns', 'grndetails.grn_id', '=', 'grns.id')
-       ->leftjoin('items', 'grndetails.item_id', '=', 'items.id')
-       ->select('grndetails.*', 'items.item_name', DB::raw('(grndetails.id) AS grndetailsID'))
-       ->where('grndetails.grn_id', $recordID)
-       ->where('grndetails.status', 1)
-       ->get();   
-
+    $recordID =$id ;
+$data = DB::table('grndetails')
+->leftjoin('grns', 'grndetails.grn_id', '=', 'grns.id')
+->leftjoin('inventorylists', 'grndetails.item_id', '=', 'inventorylists.id')
+->select('grndetails.*', 'inventorylists.name','inventorylists.uniform_size','inventorylists.inventorylist_id','inventorylists.id AS inven_id','inventorylists.uom', DB::raw('(grndetails.id) AS grndetailsID'))
+->where('grndetails.grn_id', $recordID)
+->where('grndetails.status', 1)
+->get();  
+ 
 
    $htmlTable = '';
    foreach ($data as $row) {
@@ -433,11 +588,13 @@ private function app_reqestcountlist($id){
     $total=$row->unit_price*$row->qty;
 
     $htmlTable .= '<tr>';
-    $htmlTable .= '<td>' . $row->item_name . '</td>'; 
-    $htmlTable .= '<td>' . $row->unit_price . '</td>'; 
-    $htmlTable .= '<td>' . $row->qty . '</td>'; 
-    $htmlTable .= '<td>' . $total . '</td>'; 
-    $htmlTable .= '<td class="d-none">' . $row->item_id . '</td>'; 
+    $htmlTable .= '<td class="text-center">' . $row->inventorylist_id . '</td>'; 
+    $htmlTable .= '<td class="text-center">' . $row->name  . ' ' . ($row->uniform_size==null?"":$row->uniform_size.'"') . '</td>'; 
+    $htmlTable .= '<td class="text-center">' . $row->uom . '</td>'; 
+    $htmlTable .= '<td class="text-center">' . $row->qty . '</td>'; 
+    $htmlTable .= '<td class="text-right">' . number_format($row->unit_price, 2) . '</td>';
+    $htmlTable .= '<td class="text-right">' .  number_format($total,2) . '</td>'; 
+    $htmlTable .= '<td class="d-none">' . $row->inven_id . '</td>'; 
     $htmlTable .= '<td class="d-none">ExistingData</td>'; 
     $htmlTable .= '</tr>';
    }
@@ -572,36 +729,35 @@ public function stockupdate(Request $request){
     $user = Auth::user();
 
 
-    $id=$request->input('hidden_id');
+    $store_id=$request->input('store_id');
     $batch_no=$request->input('batchno');
 
     $tableData = $request->input('tableData');
-
+    $assetvalue="brandnew";
     foreach ($tableData as $rowtabledata) {
-        $item = $rowtabledata['col_5'];
-        $rate = $rowtabledata['col_2'];
-        $qty = $rowtabledata['col_3'];
-        $total = $rowtabledata['col_4'];
+        $item = $rowtabledata['col_7'];
+        $qty = $rowtabledata['col_4'];
+        $unit_price = $rowtabledata['col_5'];
+        $itemname = $rowtabledata['col_2'];
 
-       // Check if a matching record exists in the Stock table
-    $existingStock = Stock::where('batch_no', $batch_no)
-    ->where('item_id', $item)
-    ->first();
-
-    if ($existingStock) {
-    // Update the stock quantity
-    $existingStock->qty += $qty;
-    $existingStock->save();
-    } else {
-    // Create a new stock record
     $newStock = new Stock();
     $newStock->batch_no = $batch_no;
     $newStock->qty = $qty;
+    $newStock->unit_price = $unit_price;
     $newStock->item_id = $item;
+    $newStock->store_id = $store_id;
     $newStock->status = '1';
+    $newStock->create_by = Auth::id();
     $newStock->save();
-}
-    
+
+    $pricesummary = new inventory_list_price_summary();
+    $pricesummary->asset_value = $assetvalue;
+    $pricesummary->item_id = $item;
+    $pricesummary->item_name = $itemname;
+    $pricesummary->unit_price = $unit_price;
+    $pricesummary->status = '1';
+    $pricesummary->create_by = Auth::id();
+    $pricesummary->save();
     }
     return response()->json(['success' => 'Stock Updated']);
 
@@ -687,8 +843,8 @@ public function view(Request $request)
     $id = $request->input('id');
 
         $types = DB::table('grndetails')
-        ->leftjoin('items', 'grndetails.item_id', '=', 'items.id')
-        ->select('grndetails.*','items.item_name AS item_name')
+        ->leftjoin('inventorylists', 'grndetails.item_id', '=', 'inventorylists.id')
+        ->select('grndetails.*','inventorylists.id AS inventoryid','inventorylists.inventorylist_id AS itemcode','inventorylists.name AS inventoryname','inventorylists.uniform_size AS uniform_size')
         ->whereIn('grndetails.status', [1, 2])
         ->where('grndetails.grn_id', $id)
         ->get();
@@ -725,19 +881,17 @@ public function viewDetails(Request $request){
     return response()->json(['result' => $suppliers,$data]);
 }
 
-public function getitemcode(Request $request){
+public function getbatchno(Request $request){
     $id = Request('id');
     if (request()->ajax()){
-    $data = DB::table('inventorylists')
-    ->leftJoin('suppliers', 'items.supplier_id', '=', 'suppliers.id')
-    ->select('suppliers.id AS supplierid','items.id AS itemid')
+    $data = DB::table('suppliers')
+    ->select('suppliers.id AS supplierid')
     ->where('suppliers.id', $id)
     ->get(); 
 
     foreach ($data as $row) {
 
         $supplierid=$row->supplierid;
-        $itemid=$row->itemid;
     }
 
     $data1 = DB::table('grns')
@@ -753,10 +907,98 @@ public function getitemcode(Request $request){
         $count=substr($count, -3);
         $batchno=date('dmY').$count;
     }
-    $data2= $supplierid.$itemid.$batchno;
+    $data2= $supplierid.$batchno;
 
-    return response() ->json(['result'=> $data2]);
+    $terms = DB::table('suppliers')
+    ->select('suppliers.payment_terms AS payment_terms')
+    ->where('suppliers.id', $id)
+    ->get(); 
+    $payment_terms='';
+    foreach ($terms as $row) {
+
+        $payment_terms=$row->payment_terms;
+    }
+
+    return response() ->json(['result'=> $data2,$payment_terms]);
 }
 }
+
+    public function porderdetails(Request $request){
+        $user = Auth::user();
+        $permission =$user->can('Porder-edit');
+        if(!$permission) {
+                return response()->json(['error' => 'UnAuthorized'], 401);
+            }
+
+            $id = Request('id');
+            if (request()->ajax()){
+            $porders = DB::table('porders')
+            ->leftjoin('suppliers', 'porders.supplier_id', '=', 'suppliers.id')
+            ->leftjoin('storelists', 'porders.store_id', '=', 'storelists.id')
+            ->select('porders.*','suppliers.id AS supplier_name','suppliers.payment_terms AS payment_terms','storelists.id AS storename')
+            ->where('porders.id', '=', $id)->get();
+
+        $requestlist = $this->porderdetailsTablelist($id); 
+    
+        $responseData = array(
+            'mainData' => $porders[0],
+            'requestdata' => $requestlist,
+        );
+
+        return response() ->json(['result'=>  $responseData]);
+    }
+    }
+    
+
+    private function porderdetailsTablelist($id){
+
+        $recordID =$id ;
+    $data = DB::table('porderdetails')
+    ->leftjoin('porders', 'porderdetails.porder_id', '=', 'porders.id')
+    ->leftjoin('inventorylists', 'porderdetails.inventorylist_id', '=', 'inventorylists.id')
+    ->select('porderdetails.*', 'inventorylists.name','inventorylists.inventorylist_id','inventorylists.id AS inven_id','inventorylists.uom', DB::raw('(porderdetails.id) AS porderdetailsID'))
+    ->where('porderdetails.porder_id', $recordID)
+    ->where('porderdetails.status', 1)
+    ->get();  
+
+    $inventoryListData = DB::table('inventorylists')
+     ->select('inventorylists.*')
+     ->whereIn('inventorylists.status', [1, 2])
+    //  ->where('inventorylists.approve_status', 1)
+     ->get();  
+
+   $uniqueIdentifier = 1;
+   $htmlTable = '';
+   foreach ($data as $row) {
+      
+    $total = $row->unit_price * $row->qty;
+     // Generate a unique identifier
+
+     $htmlTable .= '<tr>';
+     $htmlTable .= '<td><input style="width:100px;border: none;" type="text" name="edit_inventorylist_id[]" id="inventorylist_id' . $uniqueIdentifier . '" value="' . $row->inventorylist_id . '" readonly></td>';
+     $htmlTable .= '<td>';
+     $htmlTable .= '<select readonly required style="border: none; -webkit-appearance: none; -moz-appearance: none; appearance: none;" name="edit_inventorylist_select[]" id="inventorylist_select' . $uniqueIdentifier . '" size="1" onfocus="this.size = 8"  onblur="this.size = 1; this.blur()" onchange="getItemeditDetails(this.value, '.$uniqueIdentifier.')">';
+    foreach ($inventoryListData as $inventory) {
+         $selected = ($inventory->id == $row->inven_id) ? 'selected' : '';
+         $htmlTable .= '<option value="' . $inventory->id . '" '.$selected.' >' . $inventory->inventorylist_id . ' - ' . $inventory->name  . ' ' . ($inventory->uniform_size==null?"":$inventory->uniform_size.'"') . '</option>';
+     }
+ 
+     $htmlTable .= '</select>';
+     $htmlTable .= '</td>';
+     $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit_uom[]" id="uom' . $uniqueIdentifier . '" value="' . $row->uom . '" readonly></td>';
+     $htmlTable .= '<td><span style="color:red">(' . ($row->qty - $row->grn_issue_qty) . ')</span><input style="width:70%;" type="number" name="edit_qty[]" id="qty' . $uniqueIdentifier . '" value="' . ($row->qty - $row->grn_issue_qty) . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')" ></td>';
+     $htmlTable .= '<td><input style="border: none;width:70%;" type="number" name="edit_unit_price[]" id="unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')"></td>';
+     $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit_total[]" id="total' . $uniqueIdentifier . '" value="' .(($row->qty - $row->grn_issue_qty) * $row->unit_price). '" readonly></td>';
+     $htmlTable .= '<td class="d-none"><input type="text" name="edit_insertstatus[]" id="edit_insertstatus' . $uniqueIdentifier . '" value="ExistingData"></td>';
+     $htmlTable .= '<td class="d-none"><input type="text" name="porderdetail_id[]" id="porderdetail_id' . $uniqueIdentifier . '" value="' . $row->id . '"></td>';
+     $htmlTable .= '<td><button class="btn btn-sm btn-danger py-0" type="button" onclick="rem_item($(this))"><i class="fa fa-times"></i></button></td>';
+     $htmlTable .= '</tr>';
+
+    $uniqueIdentifier++;
+   }
+
+       return $htmlTable;
+
+   }
    
 }

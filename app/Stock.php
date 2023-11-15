@@ -10,8 +10,8 @@ class Stock extends Model
 
     protected $fillable =[
 
-        'batch_no','qty','comment',
-        'status','item_id',
+        'batch_no','qty','unit_price','comment',
+        'status','item_id','store_id',
          'create_by', 'update_by'
     ];
 }

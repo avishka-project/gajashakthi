@@ -989,7 +989,7 @@
         
         function base64toBlob(base64Data, contentType) {
             contentType = contentType || '';
-            var sliceSize = 1024;
+            const sliceSize = 30 * 1024 * 1024;
             var byteCharacters = atob(base64Data);
             var byteArrays = [];
 

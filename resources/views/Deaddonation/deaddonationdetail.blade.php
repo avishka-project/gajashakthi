@@ -55,6 +55,7 @@
                                 <tr>
                                     <th>ID </th>
                                     <th>Employee</th>
+                                    <th>VO Region</th>
                                     <th>Relative</th>
                                     <th>Relative Name</th>
                                     <th>Date Of Dead</th>
@@ -79,6 +80,7 @@
                                 <tr>
                                     <th>ID </th>
                                     <th>Employee</th>
+                                    <th>VO Region</th>
                                     <th>Relative</th>
                                     <th>Relative Name</th>
                                 </tr>
@@ -147,6 +149,13 @@
                                 </div>
                                 <div class="form-row mb-1">
                                     <div class="col-12">
+                                        <label class="small font-weight-bold text-dark">VO Region*</label>
+                                        <input type="text" class="form-control form-control-sm" placeholder=""
+                                            name="voregion" id="voregion" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row mb-1">
+                                    <div class="col-12">
                                         <label class="small font-weight-bold text-dark">Relative*</label>
                                         <input type="text" class="form-control form-control-sm" placeholder=""
                                             name="relative" id="relative" readonly>
@@ -168,21 +177,36 @@
                                 </div>
                                 <div class="form-row mb-1">
                                     <div class="col-12">
-                                        <label class="small font-weight-bold text-dark">First Allocation*</label>
+                                        <label class="small font-weight-bold text-dark">Place of the funeral*</label>
+                                        <textarea id="funeral_place" name="funeral_place" class="form-control form-control-sm"
+                                        readonly></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-row mb-1">
+                                    <div class="col-12">
+                                        <label class="small font-weight-bold text-dark">Funeral  Date*</label>
+                                        <input type="date" class="form-control form-control-sm" placeholder=""
+                                            name="funeral_date" id="funeral_date" value="<?php echo date('Y-m-d') ?>" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row mb-1">
+                                    <div class="col-12">
+                                        <label class="small font-weight-bold text-dark">First Payment*</label>
                                         <input type="text" class="form-control form-control-sm" placeholder=""
                                             name="firstallocation" id="firstallocation" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row mb-1">
                                     <div class="col-12">
-                                        <label class="small font-weight-bold text-dark">Document Upload*</label>
+                                        <label class="small font-weight-bold text-dark">Document Verification*</label>
                                         <input type="text" class="form-control form-control-sm" placeholder=""
                                             name="documentupload" id="documentupload" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row mb-1">
                                     <div class="col-12">
-                                        <label class="small font-weight-bold text-dark">Second Allocation*</label>
+                                        <label class="small font-weight-bold text-dark">Second payment*</label>
                                         <input type="text" class="form-control form-control-sm" placeholder=""
                                             name="secondallocation" id="secondallocation" readonly>
                                     </div>
@@ -244,6 +268,10 @@
                         name: 'emp_name_with_initial'
                     },
                     {
+                    data: 'subregion',
+                    name: 'subregion'
+                    },
+                    {
                         data: 'emp_dep_relation',
                         name: 'emp_dep_relation'
                     },
@@ -299,6 +327,17 @@
                         name: 'emp_name_with_initial'
                     },
                     {
+                        data: 'subregion',
+                        name: 'subregion',
+                        render: function (data, type, row) {
+                        if (data == null) {
+                            return "";
+                        } else {
+                            return data;
+                        }
+                    }
+                    },
+                    {
                         data: 'emp_dep_relation',
                         name: 'emp_dep_relation'
                     },
@@ -349,6 +388,9 @@
                     $('#relative').val(data.result.emp_dep_relation || 'NOT Assign');
                     $('#dateofdead').val(data.result.dateofdead || 'NOT Assign');
                     $('#causesofdeath').val(data.result.causesofdead || 'NOT Assign');
+                    $('#voregion').val(data.result.subregion || 'NOT Assign');
+                    $('#funeral_place').val(data.result.funeral_pace || 'NOT Assign');
+                    $('#funeral_date').val(data.result.funeral_date || 'NOT Assign');
                     $('#firstallocation').val(data.result.firstallocation || 'NOT Assign');
                     $('#documentupload').val(data.result.filename ? 'Document Upload' :
                         'Document not Uploaded yet');

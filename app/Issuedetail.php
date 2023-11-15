@@ -10,7 +10,7 @@ class Issuedetail extends Model
 
     protected $fillable =[
 
-        'item_id','rate','qty','total','issue_id','status',
+        'item_id','rate','qty','total','storelist_id','asset_value','stock_id','issue_id','status',
          'create_by', 'update_by'
     ];
 }

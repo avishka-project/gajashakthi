@@ -60,7 +60,8 @@ class Deaddonationlastallocationcontroller extends Controller
             ->leftjoin('employees', 'deaddonations.employee_id', '=', 'employees.id')
             ->leftjoin('deaddonationincompletes', 'deaddonations.id', '=', 'deaddonationincompletes.deaddonation_id')
             ->leftjoin('employee_dependents', 'deaddonations.relative_id', '=', 'employee_dependents.id')
-            ->select('deaddonationlastallocations.*','deaddonations.relative_id AS relative_id','deaddonations.dateofdead AS dateofdead','employees.emp_name_with_initial AS emp_name_with_initial','employee_dependents.emp_dep_relation AS emp_dep_relation')
+            ->leftjoin('subregions', 'employees.subregion_id', '=', 'subregions.id')
+            ->select('deaddonationlastallocations.*','deaddonations.relative_id AS relative_id','deaddonations.dateofdead AS dateofdead','employees.emp_name_with_initial AS emp_name_with_initial','employee_dependents.emp_dep_relation AS emp_dep_relation','subregions.subregion')
             ->whereIn('deaddonationlastallocations.status', [1, 2])
             ->where('deaddonationlastallocations.approve_status', 0)
             ->where('deaddonationincompletes.approve_status', 1)
@@ -111,7 +112,7 @@ class Deaddonationlastallocationcontroller extends Controller
                         }
                         $permission = $user->can('Deaddonationlastallocation-delete');
                         if($permission){
-                            $btn .= ' <button name="delete" id="'.$row->id.'" relative_id="'.$row->relative_id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
+                            $btn .= ' <button name="delete" id="'.$row->id.'" relative_id="'.$row->relative_id.'" deaddonation_id="'.$row->deaddonation_id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
               
                 return $btn;
@@ -183,13 +184,14 @@ class Deaddonationlastallocationcontroller extends Controller
             }
         
             $id = Request('id');
+            $deaddonation_id= Request('deaddonation_id');
         $current_date_time = Carbon::now()->toDateTimeString();
         $form_data3 = array(
             'status' =>  '3',
             'update_by' => Auth::id(),
             'updated_at' => $current_date_time,
         );
-        Deaddonation::findOrFail($id)
+        Deaddonation::findOrFail($deaddonation_id)
         ->update($form_data3);
 
         $form_data4 = array(
@@ -197,7 +199,7 @@ class Deaddonationlastallocationcontroller extends Controller
             'update_by' => Auth::id(),
             'updated_at' => $current_date_time,
         );
-        Deaddonationallocation::findOrFail($id)
+        Deaddonationallocation::where('deaddonation_id', $deaddonation_id)
         ->update($form_data4);
 
         $form_data5 = array(
@@ -205,7 +207,7 @@ class Deaddonationlastallocationcontroller extends Controller
             'update_by' => Auth::id(),
             'updated_at' => $current_date_time,
         );
-        Deaddonationincomplete::findOrFail($id)
+        Deaddonationincomplete::where('deaddonation_id', $deaddonation_id)
         ->update($form_data5);
 
         $form_data6 = array(
@@ -216,12 +218,12 @@ class Deaddonationlastallocationcontroller extends Controller
         Deaddonationlastallocation::findOrFail($id)
         ->update($form_data6);
 
-        $id = Request('relative_id');
+        $relative_id = Request('relative_id');
         $form_data2 = array(
             'life_status' => null
         );
 
-        Employee_dependent::findOrFail($id)
+        Employee_dependent::findOrFail($relative_id)
     ->update($form_data2);
 
     

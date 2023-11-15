@@ -821,7 +821,7 @@ public function getserviceno(Request $request) {
             $query->where('service_no', '=', $searchTerm);
         })
         ->where('emp_category', $emp_category)
-        ->limit(1)
+        ->limit(10)
         ->get();
 
     if ($matchingData->count() > 0) {
@@ -839,7 +839,7 @@ public function getempname(Request $request) {
                    ->orWhere('emp_name_with_initial', 'like', '%' . $searchTerm . '%');
         })
         ->where('emp_category', $emp_category)
-        ->limit(1)
+        ->limit(10)
         ->get();
 
     if ($matchingData->count() > 0) {
@@ -855,7 +855,7 @@ public function getempnic(Request $request) {
             $query->where('emp_national_id', '=', $searchTerm);
         })
         ->where('emp_category', $emp_category)
-        ->limit(1)
+        ->limit(10)
         ->get();
 
     if ($matchingData->count() > 0) {

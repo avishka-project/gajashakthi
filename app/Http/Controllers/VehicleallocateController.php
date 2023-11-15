@@ -317,9 +317,10 @@ class VehicleallocateController extends Controller
             ->where(function ($query) use ($searchTerm) {
                 $query->where('service_no', '=', $searchTerm)
                        ->orWhere('emp_name_with_initial', 'like', '%' . $searchTerm . '%')
-                       ->orWhere('emp_national_id', '=', $searchTerm);
+                       ->orWhere('emp_national_id', '=', $searchTerm)
+                       ->where('deleted', 0);
             })
-            ->limit(1)
+            ->limit(10)
             ->get();
     
         if ($matchingData->count() > 0) {

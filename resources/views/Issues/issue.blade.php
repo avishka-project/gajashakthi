@@ -14,7 +14,7 @@
         <div class="page-header-content py-3">
             <h1 class="page-header-title">
                 <div class="page-header-icon"><i class="fas fa-users"></i></div>
-                <span>Issue</span>
+                <span>Item Request</span>
             </h1>
         </div>
         </div>
@@ -96,7 +96,7 @@
                                             <select name="location" id="location" class="form-control form-control-sm">
                                                 <option value="">Select Location</option>
                                                 @foreach($locations as $location)
-                                                <option value="{{$location->id}}">{{$location->location}}</option>
+                                                <option value="{{$location->id}}">{{$location->branch_name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -189,17 +189,6 @@
                                 <hr>
                                 <div class="form-row mb-1">
                                     <div class="col-12">
-                                        <label class="small font-weight-bold text-dark">Store*</label>
-                                        <select name="item" id="item" class="form-control form-control-sm" required>
-                                            <option value="">Select Store</option>
-                                            {{-- @foreach($items as $item)
-                                            <option value="{{$item->id}}">{{$item->item_name}}</option>
-                                            @endforeach --}}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-row mb-1">
-                                    <div class="col-12">
                                         <label class="small font-weight-bold text-dark">Asset value*</label>
                                         <select name="assetvalue" id="assetvalue" class="form-control form-control-sm" required>
                                             <option value="">Select Asset value</option>
@@ -210,15 +199,41 @@
                                 </div>
                                 <div class="form-row mb-1">
                                     <div class="col-12">
-                                        <label class="small font-weight-bold text-dark">Item*</label>
-                                        <select name="item" id="item" class="form-control form-control-sm"
-                                            onchange="getsaleprice()" required>
-                                            <option value="">Select Item</option>
-                                            @foreach($items as $item)
-                                            <option value="{{$item->id}}">{{$item->item_name}}</option>
+                                        <label class="small font-weight-bold text-dark">Store*</label>
+                                        <select name="store" id="store" class="form-control form-control-sm" required>
+                                            <option value="">Select Store</option>
+                                            @foreach($stores as $store)
+                                            <option value="{{$store->id}}">{{$store->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
+                                </div>
+                                <div class="form-row mb-1">
+                                    <div class="col-6">
+                                        <label class="small font-weight-bold text-dark">Item*</label>
+                                        <select name="item" id="item" class="form-control form-control-sm"required>
+                                            <option value="">Select Item</option>
+                                            
+                                        </select>
+                                    </div>
+                                    <diV id="DivBatchNo" class="col-6">
+                                    <div class="col-12">
+                                        <label class="small font-weight-bold text-dark">Batch No*</label>
+                                        <select name="batchno" id="batchno" class="form-control form-control-sm" required>
+                                            <option value="">Select Batch No</option>
+                                            
+                                        </select>
+                                    </div>
+                                    </diV>
+                                    <diV id="DivUsedQuality" style="display: none;" class="col-6">
+                                        <div class="col-12">
+                                            <label class="small font-weight-bold text-dark">Quality*</label>
+                                            <select name="usedquality" id="usedquality" class="form-control form-control-sm" required>
+                                                <option value="">Select Quality</option>
+                                                
+                                            </select>
+                                        </div>
+                                        </diV>
                                 </div>
                                 <div class="form-row mb-1">
                                     <div class="col">
@@ -234,7 +249,7 @@
                                     </div>
                                     </div>
                                     <div class="col">
-                                        <label class="small font-weight-bold text-dark">QTY*</label>
+                                        <label class="small font-weight-bold text-dark">QTY*<span style="color: red" id="stockqty"></span></label>
                                         <input type="number" id="qty" name="qty" class="form-control form-control-sm"
                                             required>
                                     </div>
@@ -270,7 +285,7 @@
                                 <tbody id="tableorderlist"></tbody>
                                 <tfoot>
                                     <tr style="font-weight: bold;font-size: 18px">
-                                        <td colspan="3">Total:</td>
+                                        <td colspan="4">Total:</td>
                                         <td id="totalField" class="text-left">0</td>
                                     </tr>
                                 </tfoot>
@@ -335,6 +350,31 @@
         </div>
     </div>
 
+    <div class="modal fade" id="confirmModal3" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header p-2">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col text-center">
+                        <h4 class="font-weight-normal">Are you sure you want to Update Price?</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer p-2">
+                <button type="button" name="ok_button3" id="ok_button3"
+                    class="btn btn-danger px-3 btn-sm">OK</button>
+                <button type="button" class="btn btn-dark px-3 btn-sm" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <div class="modal fade" id="approveconfirmModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -357,7 +397,7 @@
                                             readonly>
                                             <option value="">Select Type</option>
                                             <option value="location">Location</option>
-                                            <option value="location">Department</option>
+                                            <option value="department">Department</option>
                                             <option value="employee">Employee</option>
                                         </select>
                                     </div>
@@ -371,7 +411,7 @@
                                                 class="form-control form-control-sm" readonly>
                                                 <option value="">Select Location</option>
                                                 @foreach($locations as $location)
-                                                <option value="{{$location->id}}">{{$location->location}}</option>
+                                                <option value="{{$location->id}}">{{$location->branch_name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -379,10 +419,10 @@
                                     <div id="app_departmentDiv" style="display: none;" class="col-12">
                                         <div class="col-12">
                                             <label class="small font-weight-bold text-dark">Department*</label>
-                                            <select name="app_department" id="app_department" class="form-control form-control-sm">
+                                            <select name="app_department" id="app_department" class="form-control form-control-sm" readonly>
                                                 <option value="">Select Department</option>
-                                                @foreach($locations as $location)
-                                                <option value="{{$location->id}}">{{$location->location}}</option>
+                                                @foreach($departments as $department)
+                                                <option value="{{$department->id}}">{{$department->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -447,8 +487,9 @@
                                 <thead>
                                     <tr>
                                         <th>Item</th>
+                                        <th>Asset Value</th>
                                         <th>Rate</th>
-                                        <th>QTy</th>
+                                        <th>Qty</th>
                                         <th>Total</th>
                                         <th class="d-none">ItemID</th>
                                         {{-- <th>Action</th> --}}
@@ -457,7 +498,7 @@
                                 <tbody id="app_tableorderlist"></tbody>
                                 <tfoot>
                                     <tr style="font-weight: bold;font-size: 18px">
-                                        <td colspan="3">Total:</td>
+                                        <td colspan="4">Total:</td>
                                         <td id="app_totalField" class="text-left">0</td>
                                     </tr>
                                 </tfoot>
@@ -496,7 +537,7 @@
                                             class="form-control form-control-sm" readonly>
                                             <option value="">Select Type</option>
                                             <option value="location">Location</option>
-                                            <option value="location">Department</option>
+                                            <option value="department">Department</option>
                                             <option value="employee">Employee</option>
                                         </select>
                                     </div>
@@ -506,25 +547,25 @@
                                     <div id="view_locationDiv" style="display: none;" class="col-12">
                                         <div class="col-12">
                                             <label class="small font-weight-bold text-dark">Location*</label>
-                                            <select name="view_location" id="view_location"
-                                                class="form-control form-control-sm" readonly>
+                                            <select name="view_location" id="view_location" class="form-control form-control-sm" readonly>
                                                 <option value="">Select Location</option>
                                                 @foreach($locations as $location)
-                                                <option value="{{$location->id}}">{{$location->location}}</option>
+                                                <option value="{{$location->id}}">{{$location->branch_name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
-                                    </d <div id="view_departmentDiv" style="display: none;" class="col-12">
+                                    </div>
+                                    <div id="view_departmentDiv" style="display: none;" class="col-12">
                                         <div class="col-12">
                                             <label class="small font-weight-bold text-dark">Department*</label>
-                                            <select name="view_department" id="view_department" class="form-control form-control-sm">
+                                            <select name="view_department" id="view_department" class="form-control form-control-sm" readonly>
                                                 <option value="">Select Department</option>
-                                                @foreach($locations as $location)
-                                                <option value="{{$location->id}}">{{$location->location}}</option>
+                                                @foreach($departments as $department)
+                                                <option value="{{$department->id}}">{{$department->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
-                                    </div>iv>
+                                    </div>
 
                                     <div id="view_employeeDiv" style="display: none;" class="col-12">
                                         <div class="col-12">
@@ -583,6 +624,7 @@
                                 <thead>
                                     <tr>
                                         <th>Item</th>
+                                        <th>Asset Value</th>
                                         <th>Rate</th>
                                         <th>QTy</th>
                                         <th>Total</th>
@@ -593,7 +635,7 @@
                                 <tbody id="view_tableorderlist"></tbody>
                                 <tfoot>
                                     <tr style="font-weight: bold;font-size: 18px">
-                                        <td colspan="3">Total:</td>
+                                        <td colspan="4">Total:</td>
                                         <td id="view_totalField" class="text-left">0</td>
                                     </tr>
                                 </tfoot>
@@ -618,64 +660,151 @@
         $('#collapsgrninfo').addClass('show');
         $('#issue_link').addClass('active');
 
+        var approvel01 = {{$approvel01permission}};
+        var approvel02 = {{$approvel02permission}};
+        var approvel03 = {{$approvel03permission}};
+
+        var listcheck = {{$listpermission}};
+        var editcheck = {{$editpermission}};
+        var statuscheck = {{$statuspermission}};
+        var deletecheck = {{$deletepermission}};
+
+
+
         $('#dataTable').DataTable({
-            processing: true,
-            serverSide: true,
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
             ajax: {
-                "url": "{!! route('issuelist') !!}",
+                url: scripturl + '/issuelist.php',
+
+                type: "POST", // you can use GET
+                // data: {
+                //     },
 
             },
-            columns: [{
-                    data: 'id',
-                    name: 'id'
+            dom: "<'row'<'col-sm-5'B><'col-sm-2'l><'col-sm-5'f>>" + "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+            responsive: true,
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            "buttons": [{
+                    extend: 'csv',
+                    className: 'btn btn-success btn-sm',
+                    title: 'Item Request Details',
+                    text: '<i class="fas fa-file-csv mr-2"></i> CSV',
                 },
                 {
-                    data: 'issuing',
-                    name: 'issuing'
-                },
-                {
-                    data: 'location',
-                    name: 'location'
-                },
-                {
-                    data: 'emp_name_with_initial',
-                    name: 'emp_name_with_initial'
-                },
-                {
-                    data: 'location',
-                    name: 'location'
-                },
-                {
-                    data: 'month',
-                    name: 'month'
-                },
-                {
-                    data: 'issue_type',
-                    name: 'issue_type'
-                },
-                {
-                    data: 'payment_type',
-                    name: 'payment_type'
-                },
-                {
-                    data: 'remark',
-                    name: 'remark'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, row) {
-                        return '<div style="text-align: right;">' + data + '</div>';
-                    }
+                    extend: 'print',
+                    title: 'Item Request Details',
+                    className: 'btn btn-primary btn-sm',
+                    text: '<i class="fas fa-print mr-2"></i> Print',
+                    customize: function (win) {
+                        $(win.document.body).find('table')
+                            .addClass('compact')
+                            .css('font-size', 'inherit');
+                    },
                 },
             ],
-            "bDestroy": true,
             "order": [
-                [2, "desc"]
-            ]
+                [0, "desc"]
+            ],
+            "columns": [{
+                    "data": "id",
+                    "className": 'text-dark'
+                },
+                {
+                    "data": "issuing",
+                    "className": 'text-dark'
+                },
+
+                {
+                    "data": "name",
+                    "className": 'text-dark'
+                },
+                {
+                    "data": "emp_name_with_initial",
+                    "className": 'text-dark'
+                },
+                {
+                    "data": "branch_name",
+                    "className": 'text-dark'
+                },
+                {
+                    "data": "month",
+                    "className": 'text-dark'
+                },
+                {
+                    "data": "issue_type",
+                    "className": 'text-dark'
+                },
+                {
+                    "data": "payment_type",
+                    "className": 'text-dark'
+                },
+                {
+                    "data": "remark",
+                    "className": 'text-dark'
+                },
+                {
+                    "targets": -1,
+                    "className": 'text-right',
+                    "data": null,
+                    "render": function (data, type, full) {
+
+                        var approvelevel = '';
+                        var requesttype = '';
+                        var button = '';
+
+                        if (approvel01) {
+                            if (full['approve_01'] == 0) {
+                                    button += ' <button name="appL1" id="' + full['id'] + '" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
+                            }
+                        }
+                        if (approvel02) {
+                            if (full['approve_01'] == 1 && full['approve_02']==0) {
+                                    button += ' <button name="appL2" id="' + full['id'] + '" class="appL2 btn btn-outline-warning btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>'; 
+                            }
+                        }
+                        if (approvel03) {
+                            if (full['approve_02'] == 1 && full['approve_03']==0) {
+                                    button += ' <button name="appL3" id="' + full['id'] + '" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
+                            }
+                        }
+                        if (listcheck) {
+                            if (full['approve_03']==1) {
+                                    button += ' <button name="view" id="' + full['id'] + '" class="view btn btn-outline-secondary btn-sm" type="submit"><i class="fas fa-eye"></i></button>';      
+                            }
+                        }
+                        if (editcheck) {
+                            if (full['approve_status']==0) {
+                                    button += ' <button name="edit" id="' + full['id'] + '" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';                      
+                        }
+                    }
+                        if (statuscheck) {
+                                if (full['status'] == 1) {
+                                    button += ' <a href="issuestatus/' + full['id'] + '/2 " onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
+                                } else {
+                                    button += '&nbsp;<a href="issuestatus/' + full['id'] + '/1 "  onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
+                                }
+                        }
+                        if (deletecheck) {
+                            if (full['approve_status']==0) {
+                            button += ' <button name="delete" id="' + full['id'] + '" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
+                        }
+                    }
+
+                        return button;
+                    }
+                }
+            ],
+            drawCallback: function (settings) {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
         });
+
 
         $('#create_record').click(function () {
             $('.modal-title').text('Add New Issue');
@@ -697,7 +826,10 @@
                 var ItemID = $('#item').val();
                 var Rate = $('#rate').val();
                 var QTy = $('#qty').val();
-                var AssetvalueID = $("#assetvalue").text();
+                var AssetvalueID = $("#assetvalue").val();
+                var StoreID = $("#store").val();
+                var StockID = $("#batchno").val();
+                var ReturnStockID = $("#usedquality").val();
 
                 var total = (Rate * QTy)
 
@@ -707,8 +839,11 @@
                 $('#tableorder > tbody:last').append('<tr class="pointer"><td>' + Item +
                     '</td><td>' + Assetvalue +
                     '</td><td>' + Rate + '</td><td>' + QTy + '</td><td>' + total +
-                    '</td><td class="d-none">' + ItemID +
-                    '</td><td class="d-none">' + AssetvalueID +
+                    '</td><td name="itemid" class="d-none">' + ItemID +
+                    '</td><td name="assetvalue" class="d-none">' + AssetvalueID +
+                    '</td><td name="storeid" class="d-none">' + StoreID +
+                    '</td><td name="newstock_id" class="d-none">' + StockID +
+                    '</td><td name="returnstock_id" class="d-none">' + ReturnStockID +
                     '</td><td class="d-none">NewData</td><td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm "><i class="fas fa-trash-alt"></i></button></td></tr>'
                 );
 
@@ -717,6 +852,9 @@
                 $('#item').val('');
                 $('#rate').val('');
                 $('#qty').val('');
+                $('#batchno').val('');
+                $('#stockqty').text('');
+                $('#usedquality').val('');
             }
         });
 
@@ -732,8 +870,8 @@
                 action_url = "{{ route('issueupdate') }}";
             }
 
-            $('#btncreateorder').prop('disabled', true).html(
-                '<i class="fas fa-circle-notch fa-spin mr-2"></i> Create Order');
+            // $('#btncreateorder').prop('disabled', true).html(
+            //     '<i class="fas fa-circle-notch fa-spin mr-2"></i> Create Order');
 
             var tbody = $("#tableorder tbody");
 
@@ -790,6 +928,7 @@
                         tableData: jsonObj,
                         issuing: issuing,
                         location: location,
+                        department: department,
                         employee: employee,
                         editempid: editempid,
                         month: month,
@@ -855,6 +994,8 @@
                     if (data.result.mainData.issuing == "employee") {
                         $('#editempid').val(data.result.mainData.employee_id);
                         getEmpNameforEdit(data.result.mainData.employee_id)
+                    }else if(data.result.mainData.issuing == "department"){
+                        $('#department').val(data.result.mainData.department_id);
                     } else {
                         $('#location').val(data.result.mainData.location_id);
                     }
@@ -908,6 +1049,15 @@
                     $('#item').val(data.result.item_id);
                     $('#rate').val(data.result.rate);
                     $('#qty').val(data.result.qty);
+
+                    $('#assetvalue').val(data.result.asset_value);
+                    $('#store').val(data.result.storelist_id);
+                    editGetItem(data.result.asset_value,data.result.storelist_id,data.result.item_id);
+                    editGetBatchNo(data.result.asset_value,data.result.storelist_id,data.result.item_id,data.result.stock_id);
+                    editChooseBatch_or_Used(data.result.asset_value);
+                    editgetBatchnoPriceQty(data.result.stock_id);
+                    editgetUsedQualityPriceQty(data.result.stock_id);
+
                     $('#issuedeiailsid').val(data.result.id);
                     $('#Btnupdatelist').show();
                     $('#formsubmit').hide();
@@ -919,13 +1069,23 @@
 
 
         $(document).on("click", "#Btnupdatelist", function () {
+            if (!$("#formTitle")[0].checkValidity()) {
+                // If the form is invalid, submit it. The form won't actually submit;
+                // this will just cause the browser to display the native HTML5 error messages.
+                $("#submitBtn").click();
+            } else {
             var ItemID = $('#item').val();
+            var AssetvalueID = $("#assetvalue").val();
             var Rate = $('#rate').val();
             var Qty = $('#qty').val();
             var Item = $("#item option:selected").text();
             var detailid = $('#issuedeiailsid').val();
+            var StoreID = $("#store").val();
+            var StockID = $("#batchno").val();
+            var ReturnStockID = $("#usedquality").val();
 
             var total = (Rate * Qty)
+            
 
             $("#tableorder> tbody").find('input[name="hiddenid"]').each(function () {
                 var hiddenid = $(this).val();
@@ -935,8 +1095,13 @@
             });
 
             $('#tableorder> tbody:last').append('<tr class="pointer"><td>' + Item +
+                '</td>><td>' + AssetvalueID +
                 '</td><td>' + Rate + '</td><td>' + Qty + '</td><td>' + total +
                 '</td><td class="d-none">' + ItemID +
+                '</td><td name="assetvalue" class="d-none">' + AssetvalueID +
+                '</td><td name="storeid" class="d-none">' + StoreID +
+                '</td><td name="newstock_id" class="d-none">' + StockID +
+                '</td><td name="returnstock_id" class="d-none">' + ReturnStockID +
                 '</td><td class="d-none">Updated</td><td class="d-none">' +
                 detailid +
                 '</td><td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm "><i class="fas fa-trash-alt"></i></button></td></tr>'
@@ -944,11 +1109,17 @@
 
             updateTotalSum();
 
-            $('#item').val('');
-            $('#rate').val('');
-            $('#qty').val('');
-            $('#Btnupdatelist').hide();
-            $('#formsubmit').show();
+                $('#Btnupdatelist').hide();
+                $('#formsubmit').show();
+                $('#assetvalue').val('');
+                $('#item').val('');
+                $('#rate').val('');
+                $('#qty').val('');
+                $('#batchno').val('');
+                $('#stockqty').text('');
+                $('#usedquality').val('');
+                $('#store').val('');
+            }
         });
 
         //   details delete
@@ -983,7 +1154,7 @@
                     setTimeout(function () {
                         $('#confirmModal2').modal('hide');
                         $('#dataTable').DataTable().ajax.reload();
-                        alert('Data Deleted');
+                        // alert('Data Deleted');
                     }, 2000);
                     location.reload()
                 }
@@ -1023,6 +1194,62 @@
                 }
             })
         });
+        var assetvalue;
+        var unite_price;
+        var batchno;
+        var returnItemQuality;
+        var itemid;
+        var itemname;
+        var storeid;
+        $(document).on('click', '.updateprice', function () {
+            assetvalue = $('#assetvalue').val();
+            itemid = $('#item').val();
+            itemname = $("#item option:selected").text();
+            batchno = $('#batchno').val();
+            returnItemQuality = $('#usedquality').val();
+            unite_price = $('#rate').val();
+            if(unite_price==null || unite_price==""){
+                alert("Please Insert Unite Price")
+            }
+            else{
+                $('#confirmModal3').modal('show');
+            } 
+        });
+
+        $('#ok_button3').click(function () {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+            $.ajax({
+                url: '{!! route("issueupdateprice") !!}',
+                type: 'POST',
+                dataType: "json",
+                data: {
+                    assetvalue: assetvalue,
+                    itemid: itemid,
+                    itemname: itemname,
+                    batchno_id: batchno,
+                    returnItemQuality_id: returnItemQuality,
+                    unite_price: unite_price
+                },
+                beforeSend: function () {
+                    $('#ok_button3').text('Updating...');
+                },
+                success: function (data) { //alert(data);
+                    setTimeout(function () {
+                        $('#confirmModal3').modal('hide');
+                        $('#ok_button3').text('Ok');
+                        $('#dataTable').DataTable().ajax.reload();
+                        // alert('Data Deleted');
+                    }, 2000);
+                    // location.reload()
+                }
+            })
+
+            // console.log(assetvalue,itemid,itemname,batchno,returnItemQuality,unite_price);
+        });
 
         // approve model
         var id_approve;
@@ -1051,7 +1278,9 @@
                         $('#app_employee').val(data.result.mainData.employee_id);
                         $('#app_issuetype').val(data.result.mainData.issue_type);
                         $('#app_paymenttype').val(data.result.mainData.payment_type);
-                    } else {
+                    } else if(data.result.mainData.issuing == "department"){
+                        $('#app_department').val(data.result.mainData.department_id);
+                    }else {
                         $('#app_location').val(data.result.mainData.location_id);
                     }
 
@@ -1096,6 +1325,8 @@
                         $('#app_employee').val(data.result.mainData.employee_id);
                         $('#app_issuetype').val(data.result.mainData.issue_type);
                         $('#app_paymenttype').val(data.result.mainData.payment_type);
+                    }else if(data.result.mainData.issuing == "department"){
+                        $('#app_department').val(data.result.mainData.department_id);
                     } else {
                         $('#app_location').val(data.result.mainData.location_id);
                     }
@@ -1141,6 +1372,8 @@
                         $('#app_employee').val(data.result.mainData.employee_id);
                         $('#app_issuetype').val(data.result.mainData.issue_type);
                         $('#app_paymenttype').val(data.result.mainData.payment_type);
+                    }else if(data.result.mainData.issuing == "department"){
+                        $('#app_department').val(data.result.mainData.department_id);
                     } else {
                         $('#app_location').val(data.result.mainData.location_id);
                     }
@@ -1188,9 +1421,56 @@
                     location.reload()
                 }
             })
+
+            if(applevel==3){
+                updatestock();
+            }
         });
 
+function updatestock(){
+    var tbody = $("#app_tableorder tbody");
 
+if (tbody.children().length > 0) {
+    var jsonObj = [];
+    $("#app_tableorder tbody tr").each(function () {
+        var item = {};
+        $(this).find('td').each(function (col_idx) {
+            item["col_" + (col_idx + 1)] = $(this).text();
+        });
+        jsonObj.push(item);
+    });
+// console.log(jsonObj);
+$.ajax({
+                method: "POST",
+                dataType: "json",
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    tableData: jsonObj,
+
+                },
+                url: '{!! route("issuestockupdate") !!}',
+                success: function (data) { //alert(data);
+                    var html = '';
+                    if (data.errors) {
+                        html = '<div class="alert alert-danger">';
+                        for (var count = 0; count < data.errors.length; count++) {
+                            html += '<p>' + data.errors[count] + '</p>';
+                        }
+                        html += '</div>';
+                    }
+                    if (data.success) {
+                        html = '<div class="alert alert-success">' + data.success +
+                            '</div>';
+                        //$('#titletable').DataTable().ajax.reload();
+                        window.location.reload(); // Use window.location.reload()
+                    }
+                    // resetfield();
+
+                }
+            });
+
+}
+}
         // View model
         $(document).on('click', '.view', function () {
             id_approve = $(this).attr('id');
@@ -1216,6 +1496,9 @@
                         $('#view_employee').val(data.result.mainData.employee_id);
                         $('#view_issuetype').val(data.result.mainData.issue_type);
                         $('#view_paymenttype').val(data.result.mainData.payment_type);
+                    }
+                    else if(data.result.mainData.issuing == "department"){
+                        $('#view_department').val(data.result.mainData.department_id);
                     } else {
                         $('#view_location').val(data.result.mainData.location_id);
                     }
@@ -1235,6 +1518,7 @@
         });
 
         function selectTypeInEdit() {
+
             var freeRadio = document.querySelector('input[value="free"]');
             var paidRadio = document.querySelector('input[value="paid"]');
 
@@ -1242,8 +1526,12 @@
             var loanRadio = document.querySelector('input[value="loan"]');
 
             if (issueTypeValue === 'free') {
+                $("#cashRadioSection").hide();
+                $("#loanRadioSection").hide();
                 freeRadio.checked = true;
             } else if (issueTypeValue === 'paid') {
+                $("#cashRadioSection").show();
+                $("#loanRadioSection").show();
                 paidRadio.checked = true;
             }
 
@@ -1264,6 +1552,9 @@
             $('input[name="paymenttype"]').prop('checked', false);
             $('#remark').val('');
         }
+
+
+        
     });
 
     function getEmpName() {
@@ -1310,35 +1601,35 @@
     }
 
     // get sale price in select item
-    function getsaleprice() {
-        var itemid = $('#item').val();
+    // function getsaleprice() {
+    //     var itemid = $('#item').val();
 
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        })
+    //     $.ajaxSetup({
+    //         headers: {
+    //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //         }
+    //     })
 
-        $.ajax({
-            url: '{!! route("getsaleprice") !!}',
-            type: 'POST',
-            dataType: "json",
-            data: {
-                id: itemid
-            },
-            success: function (data) {
-                $('#rate').val(data.result.sale_price);
-                // $('#app_empname').val(data.result.emp_name_with_initial);
-            }
-        })
+    //     $.ajax({
+    //         url: '{!! route("getsaleprice") !!}',
+    //         type: 'POST',
+    //         dataType: "json",
+    //         data: {
+    //             id: itemid
+    //         },
+    //         success: function (data) {
+    //             $('#rate').val(data.result.sale_price);
+    //             // $('#app_empname').val(data.result.emp_name_with_initial);
+    //         }
+    //     })
 
-    }
+    // }
 
     function updateTotalSum() {
         var totalSum = 0;
 
         $('#tableorder tbody tr').each(function () {
-            var totalCell = $(this).find('td:eq(3)'); // Assuming total is in the 4th cell
+            var totalCell = $(this).find('td:eq(4)'); // Assuming total is in the 4th cell
             var totalValue = parseFloat(totalCell.text());
 
             if (!isNaN(totalValue)) {
@@ -1354,7 +1645,7 @@
         var totalSum = 0;
 
         $('#app_tableorder tbody tr').each(function () {
-            var totalCell = $(this).find('td:eq(3)'); // Assuming total is in the 4th cell
+            var totalCell = $(this).find('td:eq(4)'); // Assuming total is in the 4th cell
             var totalValue = parseFloat(totalCell.text());
 
             if (!isNaN(totalValue)) {
@@ -1369,7 +1660,7 @@
         var totalSum = 0;
 
         $('#view_tableorder tbody tr').each(function () {
-            var totalCell = $(this).find('td:eq(3)'); // Assuming total is in the 4th cell
+            var totalCell = $(this).find('td:eq(4)'); // Assuming total is in the 4th cell
             var totalValue = parseFloat(totalCell.text());
 
             if (!isNaN(totalValue)) {
@@ -1388,6 +1679,7 @@
 
     function productDelete(ctl) {
         $(ctl).parents("tr").remove();
+        updateTotalSum();
     }
 
     function deactive_confirm() {
@@ -1493,7 +1785,7 @@
             $("#app_employeeDiv").show();
             $("#app_selectTypeFirst").hide();
             $("#app_PaymenttypeDiv").show();
-        } else if(selectedOption === "department"){
+        } else if(app_issuing === "department"){
                 $("#app_departmentDiv").show();
                 $("#app_locationDiv").hide();
                 $("#app_employeeDiv").hide();
@@ -1523,7 +1815,7 @@
             $("#view_employeeDiv").show();
             $("#view_selectTypeFirst").hide();
             $("#view_PaymenttypeDiv").show();
-        } else if(selectedOption === "department"){
+        } else if(app_issuing === "department"){
                 $("#view_departmentDiv").show();
                 $("#view_locationDiv").hide();
                 $("#view_employeeDiv").hide();
@@ -1554,7 +1846,7 @@
             $("#employeeDiv").show();
             $("#selectTypeFirst").hide();
             $("#PaymenttypeDiv").show();
-        } else if(selectedOption === "department"){
+        } else if(issuing === "department"){
                 $("#departmentDiv").show();
                 $("#locationDiv").hide();
                 $("#employeeDiv").hide();
@@ -1567,6 +1859,20 @@
             $("#selectTypeFirst").show();
             $("#PaymenttypeDiv").hide();
         }
+
+        if ($("#paidRadio").is(":checked")) {
+                // If "paidRadio" is selected, show the payment type section
+                $("#cashRadio").prop("checked", false);
+                $("#loanRadio").prop("checked", true);
+                $("#cashRadioSection").show();
+                $("#loanRadioSection").show();
+            } else {
+                // If "freeIssueRadio" is selected, hide the payment type section 
+                $("#cashRadio").prop("checked", false);
+                $("#loanRadio").prop("checked", false);
+                $("#cashRadioSection").hide();
+                $("#loanRadioSection").hide();
+            }
 
     }
 </script>
@@ -1622,8 +1928,412 @@
         $('#totalField').text('0');
    
     });
+
+    </script>
+<script>
+    var assetvalue='';
+   $(document).ready(function() {
+//    check which caregory asset value
+    $('#assetvalue').change(function () {
+            assetvalue = $(this).val();
+                $('#store').val('');
+                $('#item').val('');
+                $('#rate').val('');
+                $('#qty').val('');
+                $('#batchno').val('');
+                $('#stockqty').text('');
+                $('#usedquality').val('');
+        });
+        
+ // get item in store
+    $('#store').change(function () {
+        var store_id = $(this).val();
+        if (assetvalue == 'brandnew') {
+            if (store_id !== '') {
+                $.ajax({
+                    url: '{!! route("getitemToIssue", ["store_id" => "id_store"]) !!}'
+                            .replace('id_store', store_id),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#item').empty().append(
+                            '<option value="">Select Item</option>');
+                        $.each(data, function (index, items) {
+                            $('#item').append('<option value="' + items
+                                .item_id + '">' + items.inventorylist_id + '-' + items.name + ' ' + (items.uniform_size==null?'':items.uniform_size+'"') + '</option>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            } else {
+                $('#item').empty().append('<option value="">Select Item</option>');
+            }
+        } else {
+            if (store_id !== '') {
+                $.ajax({
+                    url: '{!! route("getReturnitemToIssue", ["store_id" => "id_store"]) !!}'
+                            .replace('id_store', store_id),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#item').empty().append(
+                            '<option value="">Select Item</option>');
+                        $.each(data, function (index, returnitems) {
+                            $('#item').append('<option value="' + returnitems
+                                .item_id + '">' + returnitems.inventorylist_id + '-' + returnitems.name + ' ' + (returnitems.uniform_size==null?'':returnitems.uniform_size+'"') + '</option>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            } else {
+                $('#item').empty().append('<option value="">Select Item</option>');
+            }
+        }
+        
+        });
+
+
+
+    // filter batch no 
+    $('#item').change(function () {
+        $('#stockqty').text('');
+        // $('#usedquality').val('');
+        // $('#rate').val('');
+        // $('#qty').val('');
+        // $('#batchno').val('');
+            var itemid = $(this).val();
+            var store_id = $('#store').val();
+            console.log(itemid,store_id,assetvalue);
+            if (assetvalue == 'brandnew') {
+                if (itemid !== '') {
+                $.ajax({
+                    url: '{!! route("getbatchnoToIssue", ["itemId" => "id_item", "store_id" => "id_store"]) !!}'
+                            .replace('id_item', itemid)
+                            .replace('id_store', store_id),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#batchno').empty().append(
+                            '<option value="">Select Batch No</option>');
+                        $.each(data, function (index, stocks) {
+                            $('#batchno').append('<option value="' + stocks
+                                .id + '">' + stocks.batch_no + '</option>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            } else {
+                $('#batchno').empty().append('<option value="">Select Batch No</option>');
+            }
+            }else{
+                if (itemid !== '') {
+                $.ajax({
+                    url: '{!! route("getReturnItemQualityToIssue", ["itemId" => "id_item", "store_id" => "id_store"]) !!}'
+                            .replace('id_item', itemid)
+                            .replace('id_store', store_id),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#usedquality').empty().append(
+                            '<option value="">Select Quality</option>');
+                        $.each(data, function (index, returnstocks) {
+                            $('#usedquality').append('<option value="' + returnstocks
+                                .id + '">' + returnstocks.quality_percentage + '</option>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            } else {
+                $('#usedquality').empty().append('<option value="">Select Quality</option>');
+            }
+            }
+            
+        });
+
+
+// get qty and price in batch no
+$('#batchno').change(function () {
+            var batchno = $(this).val();
+            if (batchno !== '') {
+              
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+
+            $.ajax({
+                url: '{!! route("issuegetQtyPriceList") !!}',
+                type: 'POST',
+                dataType: "json",
+                data: {
+                    id: batchno
+                },
+                success: function (data) {
+                    var issueQty=data.result.issueQty;
+                    $('#rate').val(data.result.unit_price);
+                    $('#stockqty').text((data.result.qty)-issueQty);
+                    // $('#app_empname').val(data.result.emp_name_with_initial);
+                }
+            })
+            } else {
+                $('#rate').val('');
+                $('#stockqty').text('');
+            }
+        });
+
+// get qty and price in Return Item
+$('#usedquality').change(function () {
+            var usedquality = $(this).val();
+            if (usedquality !== '') {
+              
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+
+            $.ajax({
+                url: '{!! route("issuegetRetrunItemQtyPriceList") !!}',
+                type: 'POST',
+                dataType: "json",
+                data: {
+                    id: usedquality
+                },
+                success: function (data) {
+                    var issueQty=data.result.issueQty;
+                    $('#rate').val(data.result.unit_price);
+                    $('#stockqty').text((data.result.qty)-issueQty);
+                    // $('#app_empname').val(data.result.emp_name_with_initial);
+                }
+            })
+            } else {
+                $('#rate').val('');
+                $('#stockqty').text('');
+            }
+        });
+
+
+});
+
+
+       // get item in store for edit
+       function editGetItem (assetvalue1,store_id,item_id) {
+        assetvalue=assetvalue1;
+        console.log();
+        if (assetvalue1 == 'brandnew') {
+            if (store_id !== '') {
+                $.ajax({
+                    url: '{!! route("getitemToIssue", ["store_id" => "id_store"]) !!}'
+                            .replace('id_store', store_id),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#item').empty().append(
+                            '<option value="">Select Item</option>');
+                        $.each(data, function (index, items) {
+                            $('#item').append('<option value="' + items
+                                .item_id + '">' + items.inventorylist_id + '-' + items.name + ' ' + (items.uniform_size==null?'':items.uniform_size+'"') + '</option>');
+                        });
+                        $('#item').val(item_id);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            } else {
+                $('#item').empty().append('<option value="">Select Item</option>');
+            }
+        } else {
+            if (store_id !== '') {
+                $.ajax({
+                    url: '{!! route("getReturnitemToIssue", ["store_id" => "id_store"]) !!}'
+                            .replace('id_store', store_id),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#item').empty().append(
+                            '<option value="">Select Item</option>');
+                        $.each(data, function (index, returnitems) {
+                            $('#item').append('<option value="' + returnitems
+                                .item_id + '">' + returnitems.inventorylist_id + '-' + returnitems.name + ' ' + (returnitems.uniform_size==null?'':returnitems.uniform_size+'"') + '</option>');
+                        });
+                        $('#item').val(item_id);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            } else {
+                $('#item').empty().append('<option value="">Select Item</option>');
+            }
+        }
+        
+        };
+
+        // filter batch no for edit
+        function editGetBatchNo (assetvalue1,store_id,itemid,batchid) {
+            assetvalue=assetvalue1;
+            if (assetvalue1 == 'brandnew') {
+                if (itemid !== '') {
+                $.ajax({
+                    url: '{!! route("getbatchnoToIssue", ["itemId" => "id_item", "store_id" => "id_store"]) !!}'
+                            .replace('id_item', itemid)
+                            .replace('id_store', store_id),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#batchno').empty().append(
+                            '<option value="">Select Batch No</option>');
+                        $.each(data, function (index, stocks) {
+                            $('#batchno').append('<option value="' + stocks
+                                .id + '">' + stocks.batch_no + '</option>');
+                        });
+                        $('#batchno').val(batchid);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            } else {
+                $('#batchno').empty().append('<option value="">Select Batch No</option>');
+            }
+            }else{
+                if (itemid !== '') {
+                $.ajax({
+                    url: '{!! route("getReturnItemQualityToIssue", ["itemId" => "id_item", "store_id" => "id_store"]) !!}'
+                            .replace('id_item', itemid)
+                            .replace('id_store', store_id),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#usedquality').empty().append(
+                            '<option value="">Select Quality</option>');
+                        $.each(data, function (index, returnstocks) {
+                            $('#usedquality').append('<option value="' + returnstocks
+                                .id + '">' + returnstocks.quality_percentage + '</option>');
+                        });
+                        $('#usedquality').val(batchid);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            } else {
+                $('#usedquality').empty().append('<option value="">Select Quality</option>');
+            }
+            }
+            
+        };
+
+        function editgetBatchnoPriceQty(batchno){
+            if (batchno !== '') {
+              
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+
+            $.ajax({
+                url: '{!! route("issuegetQtyPriceList") !!}',
+                type: 'POST',
+                dataType: "json",
+                data: {
+                    id: batchno
+                },
+                success: function (data) {
+                    var issueQty=data.result.issueQty;
+                    // $('#rate').val(data.result.unit_price);
+                    $('#stockqty').text((data.result.qty)-issueQty);
+                    // $('#app_empname').val(data.result.emp_name_with_initial);
+                }
+            })
+            } else {
+                // $('#rate').val('');
+                $('#stockqty').text('');
+            }
+        }
+
+        function editgetUsedQualityPriceQty(usedquality){
+            if (usedquality !== '') {
+              
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+
+            $.ajax({
+                url: '{!! route("issuegetRetrunItemQtyPriceList") !!}',
+                type: 'POST',
+                dataType: "json",
+                data: {
+                    id: usedquality
+                },
+                success: function (data) {
+                    var issueQty=data.result.issueQty;
+                    // $('#rate').val(data.result.unit_price);
+                    $('#stockqty').text((data.result.qty)-issueQty);
+                    // $('#app_empname').val(data.result.emp_name_with_initial);
+                }
+            })
+            } else {
+                // $('#rate').val('');
+                $('#stockqty').text('');
+            }
+        }
+
     </script>
 
+    <script>
+    $(document).ready(function () {
+        $("#DivBatchNo").show();
+        $("#assetvalue").change(function () {
+            var assetvalue = $(this).val();
+            if(assetvalue=="brandnew"){
+                $("#DivBatchNo").show();
+                $("#DivUsedQuality").hide();
+
+                $("#batchno").prop("required", true);
+                $("#usedquality").prop("required", false);
+            }else if(assetvalue=="used"){
+                $("#DivBatchNo").hide();
+                $("#DivUsedQuality").show();
+
+                $("#batchno").prop("required", false);
+                $("#usedquality").prop("required", true);
+            }
+           
+
+        });
+    });
+
+    function editChooseBatch_or_Used(assetvalue){
+        if(assetvalue=="brandnew"){
+                $("#DivBatchNo").show();
+                $("#DivUsedQuality").hide();
+
+                $("#batchno").prop("required", true);
+                $("#usedquality").prop("required", false);
+            }else if(assetvalue=="used"){
+                $("#DivBatchNo").hide();
+                $("#DivUsedQuality").show();
+
+                $("#batchno").prop("required", false);
+                $("#usedquality").prop("required", true);
+            }
+           
+    }
+    </script>
 
 </body>
 

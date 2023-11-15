@@ -43,7 +43,8 @@ $columns = array(
 	array( 'db' => '`u`.`approve_02`', 'dt' => 'approve_02', 'field' => 'approve_02' ),
 	array( 'db' => '`u`.`approve_03`', 'dt' => 'approve_03', 'field' => 'approve_03' ),
 	array( 'db' => '`u`.`approve_status`', 'dt' => 'approve_status', 'field' => 'approve_status' ),
-	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' )
+	array( 'db' => '`u`.`status`', 'dt' => 'status', 'field' => 'status' ),
+	array( 'db' => '`u`.`issue_id`', 'dt' => 'issue_id', 'field' => 'issue_id' )
 );
 
 // SQL server connection information
@@ -67,21 +68,21 @@ $location = $_POST['location'];
 $department = $_POST['department'];
 $employee = $_POST['employee'];
 
-$joinQuery = "FROM `issues` AS `u` 
+$joinQuery = "FROM `returnlists` AS `u` 
 LEFT JOIN `employees` AS `ua` ON (`ua`.`id` = `u`.`employee_id`)
 LEFT JOIN `customerbranches` AS `cb` ON (`cb`.`id` = `u`.`location_id`)
 LEFT JOIN `departments` AS `dp` ON (`dp`.`id` = `u`.`department_id`)";
 
-$extraWhere = "`u`.`status` IN (1, 2) AND `u`.`add_to_return`='No' AND `u`.`approve_status`='1'";
+$extraWhere = "`u`.`status` IN (1, 2)";
 
 if($location != ''){
-	$extraWhere = " `u`.`location_id` = '$location' AND `u`.`status` IN (1, 2) AND `u`.`add_to_return`='No' AND `u`.`approve_status`='1'";
+	$extraWhere = " `u`.`location_id` = '$location' AND `u`.`status` IN (1, 2)";
  }
 if($department != ''){
-	$extraWhere = " `u`.`department_id` = '$department' AND `u`.`status` IN (1, 2) AND `u`.`add_to_return`='No' AND `u`.`approve_status`='1'";
+	$extraWhere = " `u`.`department_id` = '$department' AND `u`.`status` IN (1, 2)";
  }
  if ($employee != ''){
-	$extraWhere = "`u`.`employee_id` = '$employee' AND `u`.`status` IN (1, 2) AND `u`.`add_to_return`='No' AND `u`.`approve_status`='1'";
+	$extraWhere = "`u`.`employee_id` = '$employee' AND `u`.`status` IN (1, 2)";
  }
 
 echo json_encode(

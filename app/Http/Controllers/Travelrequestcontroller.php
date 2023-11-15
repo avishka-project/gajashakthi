@@ -20,7 +20,7 @@ class Travelrequestcontroller extends Controller
 
     public function index()
     {
-        $branches = DB::table('branches')->select('branches.*')->get();
+        $branches = DB::table('customerbranches')->select('customerbranches.*')->get();
         $employees = DB::table('employees')->select('employees.*')
         ->whereIn('employees.emp_status', [1, 2])->get();
         return view('Travelrequest.travelrequest', compact('branches', 'employees'));
@@ -45,9 +45,9 @@ class Travelrequestcontroller extends Controller
         ]);
 
         $travelrequest = new Travelrequest();
+        $travelrequest->request_type = $request->input('requesttype');
         $travelrequest->location_id = $request->input('location');
         $travelrequest->month = $request->input('month');
-        $travelrequest->amount = $request->input('amount');
         $travelrequest->remark = $request->input('remark');
         $travelrequest->status = '1';
         $travelrequest->approve_status = '0';
@@ -61,21 +61,25 @@ class Travelrequestcontroller extends Controller
 
         $requestID = $travelrequest->id;
 
-        $tableData = $request->input('tableData');
+        $requesttype = $request->input('requesttype');
 
-        foreach ($tableData as $rowtabledata) {
-            $employee = $rowtabledata['col_2'];
-           
+        $tableDataArray = $request->input('tableDataArray');
 
+            foreach ($tableDataArray as $rowtableDataArray) {
+                $employee = $rowtableDataArray['empid'];
+                $cost = $rowtableDataArray['amount'];
+               
+                $travelrequestdetail = new Travelrequestdetail();
+                $travelrequestdetail->travelrequests_id = $requestID;
+                $travelrequestdetail->emp_id = $employee;
+                $travelrequestdetail->cost = $cost;
+                $travelrequestdetail->status = '1';
+                $travelrequestdetail->create_by = Auth::id();
+                $travelrequestdetail->update_by = '0';
+                $travelrequestdetail->save();
+            }
 
-            $travelrequestdetail = new Travelrequestdetail();
-            $travelrequestdetail->travelrequests_id = $requestID;
-            $travelrequestdetail->emp_id = $employee;
-            $travelrequestdetail->status = '1';
-            $travelrequestdetail->create_by = Auth::id();
-            $travelrequestdetail->update_by = '0';
-            $travelrequestdetail->save();
-        }
+        
         return response()->json(['success' => 'Travel Request is successfully Inserted']);
         // return response()->json(['status' => 1, 'message' => 'Employee Payment is Successfully Created']);
     }
@@ -84,8 +88,8 @@ class Travelrequestcontroller extends Controller
     {
 
         $requests = DB::table('travelrequests')
-                    ->leftjoin('branches', 'travelrequests.location_id', '=', 'branches.id')
-                     ->select('travelrequests.*', 'branches.location AS location')
+                    ->leftjoin('customerbranches', 'travelrequests.location_id', '=', 'customerbranches.id')
+                     ->select('travelrequests.*', 'customerbranches.branch_name AS branch_name')
                     ->whereIn('travelrequests.status', [1, 2])
                     ->get();
 
@@ -117,8 +121,13 @@ class Travelrequestcontroller extends Controller
 
                         $permission = $user->can('Travelrequest-edit');
                         if($permission){
+                            if($row->approve_status == 0){
                             $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                         }
+                        else{
+                            $btn .= ' <button name="view" id="'.$row->id.'" class="view btn btn-outline-secondary btn-sm" type="submit"><i class="fas fa-eye"></i></button>';
+                        }
+                    }
                     
                         $permission = $user->can('Travelrequest-status');
                         if($permission){
@@ -173,7 +182,9 @@ class Travelrequestcontroller extends Controller
             $id = Request('id');
             if (request()->ajax()){
             $data = DB::table('travelrequests')
-            ->select('travelrequests.*')
+            ->leftjoin('customerbranches', 'travelrequests.location_id', '=', 'customerbranches.id')
+            ->leftjoin('subregions', 'customerbranches.subregion_id', '=', 'subregions.id')
+            ->select('travelrequests.*','subregions.subregion')
             ->where('travelrequests.id', $id)
             ->get(); 
 
@@ -206,8 +217,9 @@ private function app_reqestcountlist($id){
       
       
     $htmlTable .= '<tr>';
-    $htmlTable .= '<td>' . $row->emp_fullname . '</td>'; 
-    $htmlTable .= '<td class="d-none">' . $row->emp_id . '</td>'; 
+    $htmlTable .= '<td id="empname">' . $row->emp_fullname . '</td>'; 
+    $htmlTable .= '<td id="cost">' . $row->cost . '</td>'; 
+    $htmlTable .= '<td class="d-none" id="empid">' . $row->emp_id . '</td>'; 
     $htmlTable .= '<td class="d-none">ExistingData</td>'; 
     $htmlTable .= '</tr>';
    }
@@ -228,7 +240,9 @@ public function edit(Request $request){
     $id = Request('id');
     if (request()->ajax()){
     $data = DB::table('travelrequests')
-    ->select('travelrequests.*')
+    ->leftjoin('customerbranches', 'travelrequests.location_id', '=', 'customerbranches.id')
+    ->leftjoin('subregions', 'customerbranches.subregion_id', '=', 'subregions.id')
+    ->select('travelrequests.*','subregions.subregion')
     ->where('travelrequests.id', $id)
     ->get(); 
 
@@ -250,27 +264,31 @@ private function reqestcountlist($id){
     $recordID =$id ;
     $data = DB::table('travelrequestdetails')
     ->leftjoin('employees', 'travelrequestdetails.emp_id', '=', 'employees.id')
-    ->select('travelrequestdetails.*', 'employees.emp_fullname', DB::raw('(travelrequestdetails.id) AS travelrequestdetailsID'))
+    ->select('travelrequestdetails.*','employees.service_no', 'employees.emp_fullname', DB::raw('(travelrequestdetails.id) AS travelrequestdetailsID'))
     ->where('travelrequestdetails.travelrequests_id', $recordID)
     ->where('travelrequestdetails.status', 1)
     ->get(); 
 
 
    $htmlTable = '';
+   $count = 1;
    foreach ($data as $row) {
       
     $htmlTable .= '<tr>';
-    $htmlTable .= '<td>' . $row->emp_fullname . '</td>'; 
-    $htmlTable .= '<td class="d-none">' . $row->emp_id . '</td>'; 
+    $htmlTable .='<td>';
+    $htmlTable .='<select name="employee' . $count . '" id="employee' . $count .'" class="form-control form-control-sm" onclick="getEmp('. $count .');" required>';
+    $htmlTable .='<option value="'. $row->emp_id . '">'. $row->service_no . '-'. $row->emp_fullname . '</option>';
+    $htmlTable .='</select>';
+    $htmlTable .='</td>';
+    $htmlTable .= '<td>';
+    $htmlTable .= '<input type="number" id="amount' . $count . '" name="amount' . $count . '" value="' . $row->cost . '">';
+    $htmlTable .= '</td>';        
+    $htmlTable .= '<td class="d-none" id="empid">' . $row->emp_id . '</td>'; 
     $htmlTable .= '<td class="d-none">ExistingData</td>'; 
-    $htmlTable .= '<td id ="actionrow"><button type="button" id="'.$row->travelrequestdetailsID.'" class="btnEditlist btn btn-primary btn-sm ">
-        <i class="fas fa-pen"></i>
-        </button>&nbsp;
-        <button type="button" id="'.$row->travelrequestdetailsID.'" class="btnDeletelist btn btn-danger btn-sm " >
-        <i class="fas fa-trash-alt"></i>
-        </button></td>'; 
-    $htmlTable .= '<td class="d-none"><input type ="hidden" id ="hiddenid" name="hiddenid" value="'.$row->travelrequestdetailsID.'"></td>'; 
+    $htmlTable .= '<td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm "><i class="fas fa-trash-alt"></i></button></td>'; 
     $htmlTable .= '</tr>';
+
+    $count++;
    }
 
    return $htmlTable;
@@ -308,9 +326,9 @@ public function update(Request $request){
     
     $id =  $request->hidden_id ;
     $form_data = array(
+        'request_type' =>  $request->input('requesttype'),
         'location_id' =>  $request->input('location'),
         'month' =>  $request->input('month'),
-        'amount' =>  $request->input('amount'),
         'remark' =>  $request->input('remark'),
             'approve_status' =>  '0',
             'approve_01' =>  '0',
@@ -323,38 +341,26 @@ public function update(Request $request){
         Travelrequest::findOrFail($id)
     ->update($form_data);
     
-    // DB::table('employee_payment_details')
-    // ->where('employeepayments_id', $hidden_id)
-    // ->delete();
+    DB::table('travelrequestdetails')
+    ->where('travelrequests_id', $hidden_id)
+    ->delete();
 
-    $tableData = $request->input('tableData');
+    $tableDataArray = $request->input('tableDataArray');
 
-    foreach ($tableData as $rowtabledata) {
-        if($rowtabledata['col_3'] == "Updated"){
-   
-            $employee = $rowtabledata['col_2'];  
-            $detailID = $rowtabledata['col_4'];
-          
+            foreach ($tableDataArray as $rowtableDataArray) {
+                $employee = $rowtableDataArray['empid'];
+                $cost = $rowtableDataArray['amount'];
+               
+                $travelrequestdetail = new Travelrequestdetail();
+                $travelrequestdetail->travelrequests_id = $hidden_id;
+                $travelrequestdetail->emp_id = $employee;
+                $travelrequestdetail->cost = $cost;
+                $travelrequestdetail->status = '1';
+                $travelrequestdetail->create_by = Auth::id();
+                $travelrequestdetail->update_by = '0';
+                $travelrequestdetail->save();
+            }
 
-            $travelrequestdetail = Travelrequestdetail::where('id', $detailID)->first();
-            $travelrequestdetail->travelrequests_id = $hidden_id;
-            $travelrequestdetail->emp_id = $employee;
-            $travelrequestdetail->update_by = Auth::id();
-            $travelrequestdetail->save();
-            
-        }else if($rowtabledata['col_3'] == "NewData") {
-            $employee = $rowtabledata['col_2'];
-                if($employee != 0){
-                    $travelrequestdetail = new Travelrequestdetail();
-                    $travelrequestdetail->travelrequests_id = $hidden_id;
-                    $travelrequestdetail->emp_id = $employee;
-                    $travelrequestdetail->status = '1';
-                    $travelrequestdetail->create_by = Auth::id();
-                    $travelrequestdetail->update_by = '0';
-                    $travelrequestdetail->save();
-                }
-          }
-    }
 
     return response()->json(['success' => 'Travel Request is successfully Updated']);
 
@@ -415,14 +421,15 @@ public function approve(Request $request){
 
            //expenses add to table
 
-           $tableData = $request->input('tableData');
+           $tableDataArray = $request->input('tableDataArray');
 
-           foreach ($tableData as $rowtabledata) {
-               $employee = $rowtabledata['col_2'];
+            foreach ($tableDataArray as $rowtableDataArray) {
+                $employee = $rowtableDataArray['empid'];
+                $cost = $rowtableDataArray['cost'];
 
                $emp_expense = new Emp_expense();
                $emp_expense->employee_id =  $employee;
-               $emp_expense->cost = $request->input('cost');
+               $emp_expense->cost = $cost;
                $emp_expense->expenses_type = 'Travel_Request';
                $emp_expense->month = $request->input('month');
                $emp_expense->status = '1';
@@ -487,6 +494,59 @@ public function deletelist(Request $request){
     ->update($form_data);
 
     return response()->json(['success' => 'Employee is successfully Deleted']);
+
+}
+
+public function GetAllEmployee(Request $request){
+
+    $location_id = Request('location_id');
+    if (request()->ajax()){
+    $data = DB::table('customerbranches')
+    ->leftjoin('subregions', 'customerbranches.subregion_id', '=', 'subregions.id')
+    ->select('customerbranches.*','subregions.subregion','subregions.id AS subregion_id')
+    ->where('customerbranches.id', $location_id)
+    ->get(); 
+
+    
+    $subregion_id = $data[0]->subregion_id; 
+   
+    $requestlist = $this->VoEmpreqestcountlist($subregion_id); 
+    
+        $responseData = array(
+            'mainData' => $data[0],
+            'requestdata' => $requestlist,
+        );
+
+return response() ->json(['result'=>  $responseData]);
+}
+
+}
+
+private function VoEmpreqestcountlist($id){
+
+    $recordID =$id ;
+   $data = DB::table('employees')
+   ->select('employees.*')
+   ->where('employees.subregion_id', $recordID)
+   ->where('employees.emp_status', 1)
+   ->get(); 
+
+   $htmlTable = '';
+   $count = 1;
+   foreach ($data as $row) {
+      
+    $htmlTable .= '<tr>';
+    $htmlTable .= '<td id="empname">' .  $row->service_no.'-'.$row->emp_fullname .'</td>'; 
+    $htmlTable .= '<td>';
+    $htmlTable .= '<input type="number" id="amount' . $count . '" name="amount' . $count . '" >';
+    $htmlTable .= '</td>';        
+    $htmlTable .= '<td class="d-none" id="empid">' . $row->id . '</td>'; 
+    $htmlTable .= '<td class="d-none">ExistingData</td>'; 
+    $htmlTable .= '</tr>';
+    $count++;
+   }
+
+   return $htmlTable;
 
 }
 }

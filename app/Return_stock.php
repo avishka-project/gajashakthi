@@ -4,14 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Grndetail extends Model
+class Return_stock extends Model
 {
     protected $primarykey = 'id';
 
     protected $fillable =[
 
-        'date','qty','unit_price','total','comment','item_description',
-        'status','item_id','grn_id','porderdetail_id',
+        'quality_percentage','qty','unit_price','comment',
+        'status','item_id','store_id',
          'create_by', 'update_by'
     ];
 }

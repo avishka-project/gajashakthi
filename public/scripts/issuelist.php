@@ -19,7 +19,7 @@
  */
 
 // DB table to use
-$table = 'inventorylists';
+$table = 'issues';
 
 // Table's primary key
 $primaryKey = 'id';
@@ -63,26 +63,12 @@ $sql_details = array(
 // require( 'ssp.class.php' );
 require('ssp.customized.class.php' );
 
-$location = $_POST['location'];
-$department = $_POST['department'];
-$employee = $_POST['employee'];
-
 $joinQuery = "FROM `issues` AS `u` 
 LEFT JOIN `employees` AS `ua` ON (`ua`.`id` = `u`.`employee_id`)
 LEFT JOIN `customerbranches` AS `cb` ON (`cb`.`id` = `u`.`location_id`)
 LEFT JOIN `departments` AS `dp` ON (`dp`.`id` = `u`.`department_id`)";
 
-$extraWhere = "`u`.`status` IN (1, 2) AND `u`.`add_to_return`='No' AND `u`.`approve_status`='1'";
-
-if($location != ''){
-	$extraWhere = " `u`.`location_id` = '$location' AND `u`.`status` IN (1, 2) AND `u`.`add_to_return`='No' AND `u`.`approve_status`='1'";
- }
-if($department != ''){
-	$extraWhere = " `u`.`department_id` = '$department' AND `u`.`status` IN (1, 2) AND `u`.`add_to_return`='No' AND `u`.`approve_status`='1'";
- }
- if ($employee != ''){
-	$extraWhere = "`u`.`employee_id` = '$employee' AND `u`.`status` IN (1, 2) AND `u`.`add_to_return`='No' AND `u`.`approve_status`='1'";
- }
+$extraWhere = "`u`.`status` IN (1, 2) AND `u`.`return_status`=0";
 
 echo json_encode(
 	SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns, $joinQuery, $extraWhere)

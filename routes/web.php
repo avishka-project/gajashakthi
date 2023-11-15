@@ -815,6 +815,15 @@ Route::get('/issuestatus/{id}/{stasus}','Issuecontroller@status')->name('issuest
 Route::post('/issuegetsearchempinfo', 'Issuecontroller@getsearchempinfo')->name('issuegetsearchempinfo');
 Route::post('/getsaleprice', 'Issuecontroller@getsaleprice')->name('getsaleprice');
 
+Route::get('/getitemToIssue/{store_id}', 'Issuecontroller@getitem')->name('getitemToIssue');
+Route::get('/getbatchnoToIssue/{itemId}/{store_id}', 'Issuecontroller@getBachno')->name('getbatchnoToIssue');
+Route::post('/issuegetQtyPriceList', 'Issuecontroller@getQtyPriceList')->name('issuegetQtyPriceList');
+Route::get('/getReturnitemToIssue/{store_id}', 'Issuecontroller@getreturnitem')->name('getReturnitemToIssue');
+Route::get('/getReturnItemQualityToIssue/{itemId}/{store_id}', 'Issuecontroller@getReturnItemQuality')->name('getReturnItemQualityToIssue');
+Route::post('/issuegetRetrunItemQtyPriceList', 'Issuecontroller@getReturnItemQtyPriceList')->name('issuegetRetrunItemQtyPriceList');
+Route::post('/issuestockupdate' ,'Issuecontroller@stockupdate')->name('issuestockupdate');
+Route::post('/issueupdateprice' ,'Issuecontroller@updateprice')->name('issueupdateprice');
+
 
 // Dead donation controller routes
 Route::get('/deaddonation' ,'Deaddonationcontroller@index')->name('deaddonation');
@@ -899,6 +908,8 @@ Route::post('/getbatchno' ,'GRNcontroller@getbatchno')->name('getbatchno');
 Route::get('/edit_porderItemget/{porderid}', 'GRNcontroller@edit_porderItemget')->name('edit_porderItemget');
 Route::get('/grnview', 'GRNcontroller@view')->name('grnview');
 Route::post('/grnviewDetails', 'GRNcontroller@viewDetails')->name('grnviewDetails');
+Route::post('/grnporderdetails' ,'GRNcontroller@porderdetails')->name('grnporderdetails');
+Route::post('/grneditwithoutporder' ,'GRNcontroller@editwithoutporder')->name('grneditwithoutporder');
 
 
 // Porder controller routes
@@ -967,6 +978,7 @@ Route::post('/travelrequestdetailedit' ,'Travelrequestcontroller@editlist')->nam
 Route::post('/travelrequestdetaildelete' ,'Travelrequestcontroller@deletelist')->name('travelrequestdetaildelete');
 Route::post('/travelrequestdetailapprovel_details' ,'Travelrequestcontroller@approvel_details')->name('travelrequestdetailapprovel_details');
 Route::get('/travelrequeststatus/{id}/{stasus}','Travelrequestcontroller@status')->name('travelrequeststatus');
+Route::post('/travelrequestGetAllEmployee' ,'Travelrequestcontroller@GetAllEmployee')->name('travelrequestGetAllEmployee');
 
 
 // Boarding Fees Request controller routes
@@ -1069,17 +1081,31 @@ Route::post('/inventorylistGetItemCode' ,'InventorylistController@getitemcode')-
 Route::get('/return' ,'ReturnController@index')->name('return');
 Route::get('/returnlist' ,'ReturnController@requestlist')->name('returnlist');
 Route::post('/returnedit' ,'ReturnController@edit')->name('returnedit');
+Route::post('/returnadd' ,'ReturnController@add')->name('returnadd');
+Route::post('/returnserviceno' ,'ReturnController@getserviceno')->name('returnserviceno');
+Route::post('/returngetempname' ,'ReturnController@getempname')->name('returngetempname');
+Route::post('/returngetempnic' ,'ReturnController@getempnic')->name('returngetempnic');
 
 // Return controller routes
 Route::get('/approvereturn' ,'ApproveReturnController@index')->name('approvereturn');
 Route::get('/approvereturnlist' ,'ApproveReturnController@requestlist')->name('approvereturnlist');
 Route::post('/approvereturninsert' ,'ApproveReturnController@insert')->name('approvereturninsert');
 Route::post('/approvereturnedit' ,'ApproveReturnController@edit')->name('approvereturnedit');
-Route::post('/approvereturnupdate' ,'ApproveReturnController@update')->name('returnupdate');
+Route::post('/approvereturnupdate' ,'ApproveReturnController@update')->name('approvereturnupdate');
 Route::post('/approvereturndelete' ,'ApproveReturnController@delete')->name('approvereturndelete');
 Route::post('/appreturn' ,'ApproveReturnController@appreturn')->name('appreturn');
 Route::post('/approvereturnapprove' ,'ApproveReturnController@approve')->name('approvereturnapprove');
 Route::get('/approvereturnstatus/{id}/{stasus}','ApproveReturnController@status')->name('approvereturnstatus');
+
+// Stock controller routes
+Route::get('/stock' ,'StockController@index')->name('stock');
+Route::get('/stocklist' ,'StockController@requestlist')->name('stocklist');
+Route::post('/stockinsert' ,'StockController@insert')->name('stockinsert');
+Route::post('/stockedit' ,'StockController@edit')->name('stockedit');
+Route::post('/stockupdate' ,'StockController@update')->name('stockupdate');
+Route::post('/stockdelete' ,'StockController@delete')->name('stockdelete');
+Route::post('/stockapprove' ,'StockController@approve')->name('stockapprove');
+Route::get('/stockstatus/{id}/{stasus}','StockController@status')->name('stockstatus');
 
 
 

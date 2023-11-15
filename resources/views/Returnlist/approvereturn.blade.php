@@ -22,13 +22,13 @@
                                 <select name="location" id="location" class="form-control form-control-sm">
                                     <option value="">Select Location</option>
                                     @foreach($locations as $location)
-                                    <option value="{{$location->id}}">{{$location->location}}</option>
-                                    @endforeach
+                                            <option value="{{$location->id}}">{{$location->branch_name}}</option>
+                                            @endforeach
                                 </select>
                         </div>
                         <div class="col-md-2">
                             <label class="small font-weight-bold text-dark">Department</label>
-                            <select name="department" id="department_f" class="form-control form-control-sm">
+                            <select name="department_f" id="department_f" class="form-control form-control-sm">
                                 <option value="">Select Department</option>
                                 @foreach($departments as $dept)
                                     <option value="{{$dept->id}}">{{$dept->name}}</option>
@@ -98,7 +98,7 @@
                                     <th>Department</th>
                                     <th>Employee</th>
                                     <th>Location</th>
-                                    <th>Month</th>
+                                    <th>Issue Month</th>
                                     <th>Issue Type</th>
                                     <th>Payment Type</th>
                                     <th>Remark</th>
@@ -121,7 +121,7 @@
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header p-2">
-                <h5 class="modal-title" id="staticBackdropLabel">Edit Issue Details</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Edit Return Details</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -130,48 +130,48 @@
                 <div class="row">
                     <div class="col-4">
                         <span id="form_result"></span>
-                        <form class="form-horizontal">
+                        <form method="post" id="formTitle" class="form-horizontal">
                             <div class="form-row mb-1">
                                 <div class="col">
                                     <label class="small font-weight-bold text-dark">Issuing*</label>
-                                    <select name="edit_issuing" id="edit_issuing" class="form-control form-control-sm"
+                                    <select name="issuing" id="issuing" class="form-control form-control-sm"
                                         readonly>
                                         <option value="">Select Type</option>
                                         <option value="location">Location</option>
-                                        <option value="location">Department</option>
+                                        <option value="department">Department</option>
                                         <option value="employee">Employee</option>
                                     </select>
                                 </div>
                             </div>
                             <hr>
                             <div class="form-row mb-1">
-                                <div id="edit_locationDiv" style="display: none;" class="col-12">
+                                <div id="locationDiv" style="display: none;" class="col-12">
                                     <div class="col-12">
                                         <label class="small font-weight-bold text-dark">Location*</label>
-                                        <select name="edit_location" id="edit_location"
+                                        <select name="location1" id="location1"
                                             class="form-control form-control-sm" readonly>
                                             <option value="">Select Location</option>
                                             @foreach($locations as $location)
-                                            <option value="{{$location->id}}">{{$location->location}}</option>
+                                            <option value="{{$location->id}}">{{$location->branch_name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
-                                <div id="edit_departmentDiv" style="display: none;" class="col-12">
+                                <div id="departmentDiv" style="display: none;" class="col-12">
                                     <div class="col-12">
                                         <label class="small font-weight-bold text-dark">Department*</label>
-                                        <select name="edit_department" id="edit_department" class="form-control form-control-sm">
+                                        <select name="department1" id="department1" class="form-control form-control-sm" readonly>
                                             <option value="">Select Department</option>
-                                            @foreach($locations as $location)
-                                            <option value="{{$location->id}}">{{$location->location}}</option>
+                                            @foreach($departments as $department)
+                                            <option value="{{$department->id}}">{{$department->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
-                                <div id="edit_employeeDiv" style="display: none;" class="col-12">
+                                <div id="employeeDiv" style="display: none;" class="col-12">
                                     <div class="col-12">
                                         <label class="small font-weight-bold text-dark">Employee*</label><br>
-                                        <select name="edit_employee" id="edit_employee"
+                                        <select name="employee" id="employee"
                                             class="form-control form-control-sm custom-select-width" readonly>
                                             <option value="">Select Employee</option>
                                             @foreach($employees as $employee)
@@ -181,7 +181,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div id="edit_selectTypeFirst" style="display: none;" class="col-12">
+                                <div id="selectTypeFirst" style="display: none;" class="col-12">
                                     <div class="col-12">
                                         <label class="small font-weight-bold text-danger">Please select an issue
                                             type first.</label>
@@ -191,20 +191,20 @@
                             <div class="form-row mb-1">
                                 <div class="col-6">
                                     <label class="small font-weight-bold text-dark">Month*</label>
-                                    <input type="month" id="edit_month" name="edit_month"
+                                    <input type="month" id="month" name="month"
                                         class="form-control form-control-sm" readonly>
                                 </div>
                             </div>
-                            <div id="edit_PaymenttypeDiv" style="display: none;">
+                            <div id="PaymenttypeDiv" style="display: none;">
                                 <div class="form-row mb-1">
                                     <div class="col-6">
                                         <label class="small font-weight-bold text-dark">Issue Type</label>
-                                        <input type="text" id="edit_issuetype" name="edit_issuetype"
+                                        <input type="text" id="issuetype" name="issuetype"
                                             class="form-control form-control-sm" readonly>
                                     </div>
                                     <div class="col-6">
                                         <label class="small font-weight-bold text-dark">Payment Type</label>
-                                        <input type="text" id="edit_paymenttype" name="edit_paymenttype"
+                                        <input type="text" id="paymenttype" name="paymenttype"
                                             class="form-control form-control-sm" readonly>
                                     </div>
                                 </div>
@@ -213,7 +213,7 @@
                             <div class="form-row mb-1">
                                 <div class="col-12">
                                     <label class="small font-weight-bold text-dark">Remark*</label>
-                                    <textarea type="text" id="edit_remark" name="edit_remark"
+                                    <textarea type="text" id="remark" name="remark"
                                         class="form-control form-control-sm" readonly></textarea>
                                 </div>
                             </div>
@@ -223,7 +223,7 @@
                         </form>
                     </div>
                     <div class="col-8">
-                        <table class="table table-striped table-bordered table-sm small" id="edit_tableorder">
+                        <table class="table table-striped table-bordered table-sm small" id="tableorder">
                             <thead>
                                 <tr>
                                     <th>Item</th>
@@ -231,15 +231,16 @@
                                     <th>QTy</th>
                                     <th>Total</th>
                                     <th>Asset value</th>
+                                    <th>Store</th>
                                     <th class="d-none">ItemID</th>
                                     {{-- <th>Action</th> --}}
                                 </tr>
                             </thead>
-                            <tbody id="edit_tableorderlist"></tbody>
+                            <tbody id="tableorderlist"></tbody>
                             <tfoot>
                                 <tr style="font-weight: bold;font-size: 18px">
                                     <td colspan="3">Total:</td>
-                                    <td id="edit_totalField" class="text-left">0</td>
+                                    <td id="totalField" class="text-left">0</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -260,7 +261,7 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
         <div class="modal-header p-2">
-            <h5 class="modal-title" id="staticBackdropLabel">Approve Issue Details</h5>
+            <h5 class="app_modal-title" id="staticBackdropLabel">Approve Return Details</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -268,8 +269,8 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-body">
             <div class="row">
                 <div class="col-4">
-                    <span id="form_result"></span>
-                    <form class="form-horizontal">
+                    <span id="app_form_result"></span>
+                    <form method="post" id="appformTitle" class="form-horizontal">
                         <div class="form-row mb-1">
                             <div class="col">
                                 <label class="small font-weight-bold text-dark">Issuing*</label>
@@ -277,7 +278,7 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                     readonly>
                                     <option value="">Select Type</option>
                                     <option value="location">Location</option>
-                                    <option value="location">Department</option>
+                                    <option value="department">Department</option>
                                     <option value="employee">Employee</option>
                                 </select>
                             </div>
@@ -291,7 +292,7 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                         class="form-control form-control-sm" readonly>
                                         <option value="">Select Location</option>
                                         @foreach($locations as $location)
-                                        <option value="{{$location->id}}">{{$location->location}}</option>
+                                        <option value="{{$location->id}}">{{$location->branch_name}}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -299,10 +300,10 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                             <div id="app_departmentDiv" style="display: none;" class="col-12">
                                 <div class="col-12">
                                     <label class="small font-weight-bold text-dark">Department*</label>
-                                    <select name="app_department" id="app_department" class="form-control form-control-sm">
+                                    <select name="app_department" id="app_department" class="form-control form-control-sm" readonly>
                                         <option value="">Select Department</option>
-                                        @foreach($locations as $location)
-                                        <option value="{{$location->id}}">{{$location->location}}</option>
+                                        @foreach($departments as $department)
+                                        <option value="{{$department->id}}">{{$department->name}}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -357,7 +358,8 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                             </div>
                         </div>
 
-                        <input type="hidden" name="hidden_id" id="hidden_id" />
+                        <input type="hidden" name="app_issue_id" id="app_issue_id" />
+                        <input type="hidden" name="app_hidden_id" id="app_hidden_id" />
                         <input type="hidden" name="app_level" id="app_level" value="1" />
 
                     </form>
@@ -371,6 +373,7 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                 <th>QTy</th>
                                 <th>Total</th>
                                 <th>Asset value</th>
+                                <th>Store</th>
                                 <th class="d-none">ItemID</th>
                                 {{-- <th>Action</th> --}}
                             </tr>
@@ -391,6 +394,168 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 class="btn btn-warning px-3 btn-sm">Approve</button>
             <button type="button" class="btn btn-dark px-3 btn-sm" data-dismiss="modal">Cancel</button>
         </div>
+    </div>
+</div>
+</div>
+
+<div class="modal fade" id="confirmModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header p-2">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col text-center">
+                            <h4 class="font-weight-normal">Are you sure you want to remove this data?</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer p-2">
+                    <button type="button" name="ok_button" id="ok_button" class="btn btn-danger px-3 btn-sm">OK</button>
+                    <button type="button" class="btn btn-dark px-3 btn-sm" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="modal fade" id="viewModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+        <div class="modal-header p-2">
+            <h5 class="view_modal-title" id="staticBackdropLabel">View Return Details</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-4">
+                    <span id="view_form_result"></span>
+                    <form method="post" id="viewformTitle" class="form-horizontal">
+                        <div class="form-row mb-1">
+                            <div class="col">
+                                <label class="small font-weight-bold text-dark">Issuing*</label>
+                                <select name="view_issuing" id="view_issuing" class="form-control form-control-sm"
+                                    readonly>
+                                    <option value="">Select Type</option>
+                                    <option value="location">Location</option>
+                                    <option value="department">Department</option>
+                                    <option value="employee">Employee</option>
+                                </select>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-row mb-1">
+                            <div id="view_locationDiv" style="display: none;" class="col-12">
+                                <div class="col-12">
+                                    <label class="small font-weight-bold text-dark">Location*</label>
+                                    <select name="view_location" id="view_location"
+                                        class="form-control form-control-sm" readonly>
+                                        <option value="">Select Location</option>
+                                        @foreach($locations as $location)
+                                        <option value="{{$location->id}}">{{$location->branch_name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="view_departmentDiv" style="display: none;" class="col-12">
+                                <div class="col-12">
+                                    <label class="small font-weight-bold text-dark">Department*</label>
+                                    <select name="view_department" id="view_department" class="form-control form-control-sm" readonly>
+                                        <option value="">Select Department</option>
+                                        @foreach($departments as $department)
+                                        <option value="{{$department->id}}">{{$department->name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="view_employeeDiv" style="display: none;" class="col-12">
+                                <div class="col-12">
+                                    <label class="small font-weight-bold text-dark">Employee*</label><br>
+                                    <select name="view_employee" id="view_employee"
+                                        class="form-control form-control-sm custom-select-width" readonly>
+                                        <option value="">Select Employee</option>
+                                        @foreach($employees as $employee)
+                                        <option value="{{$employee->id}}">{{$employee->service_no}} -
+                                            {{$employee->emp_name_with_initial}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="view_selectTypeFirst" style="display: none;" class="col-12">
+                                <div class="col-12">
+                                    <label class="small font-weight-bold text-danger">Please select an issue
+                                        type first.</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row mb-1">
+                            <div class="col-6">
+                                <label class="small font-weight-bold text-dark">Month*</label>
+                                <input type="month" id="view_month" name="view_month"
+                                    class="form-control form-control-sm" readonly>
+                            </div>
+                        </div>
+                        <div id="view_PaymenttypeDiv" style="display: none;">
+                            <div class="form-row mb-1">
+                                <div class="col-6">
+                                    <label class="small font-weight-bold text-dark">Issue Type</label>
+                                    <input type="text" id="view_issuetype" name="view_issuetype"
+                                        class="form-control form-control-sm" readonly>
+                                </div>
+                                <div class="col-6">
+                                    <label class="small font-weight-bold text-dark">Payment Type</label>
+                                    <input type="text" id="view_paymenttype" name="view_paymenttype"
+                                        class="form-control form-control-sm" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row mb-1">
+                            <div class="col-12">
+                                <label class="small font-weight-bold text-dark">Remark*</label>
+                                <textarea type="text" id="view_remark" name="view_remark"
+                                    class="form-control form-control-sm" readonly></textarea>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="app_issue_id" id="app_issue_id" />
+                        <input type="hidden" name="app_hidden_id" id="app_hidden_id" />
+                        <input type="hidden" name="app_level" id="app_level" value="1" />
+
+                    </form>
+                </div>
+                <div class="col-8">
+                    <table class="table table-striped table-bordered table-sm small" id="view_tableorder">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Rate</th>
+                                <th>QTy</th>
+                                <th>Total</th>
+                                <th>Asset value</th>
+                                <th>Store</th>
+                                <th class="d-none">ItemID</th>
+                                {{-- <th>Action</th> --}}
+                            </tr>
+                        </thead>
+                        <tbody id="view_tableorderlist"></tbody>
+                        <tfoot>
+                            <tr style="font-weight: bold;font-size: 18px">
+                                <td colspan="3">Total:</td>
+                                <td id="view_totalField" class="text-left">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 </div>
@@ -427,17 +592,18 @@ $(document).ready(function () {
 
 
 
-    function load_dt(department, employee){
+    function load_dt(department,location,employee){
         
         $('#emptable').DataTable({
                 "destroy": true,
                 "processing": true,
                 "serverSide": true,
                 ajax: {
-                    url: scripturl + '/returnlist.php',
+                    url: scripturl + '/appreturnlist.php',
 
                     type: "POST", // you can use GET
                     data: {'department':department, 
+                           'location':location, 
                            'employee':employee, 
                         },
                     
@@ -473,7 +639,7 @@ $(document).ready(function () {
                         "className": 'text-dark'
                     },
                     {
-                        "data": "location",
+                        "data": "name",
                         "className": 'text-dark'
                     },  
                     {
@@ -488,7 +654,7 @@ $(document).ready(function () {
                         }
                     },
                     {
-                        "data": "location",
+                        "data": "branch_name",
                         "className": 'text-dark'
                     },
                     {
@@ -534,14 +700,16 @@ $(document).ready(function () {
                                     button += ' <button name="appL3" id="' + full['id'] + '" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
-                        if (editcheck) {
+                        if (listcheck) {
                             if (full['approve_03']==1) {
                                     button += ' <button name="view" id="' + full['id'] + '" class="view btn btn-outline-secondary btn-sm" type="submit"><i class="fas fa-eye"></i></button>';
                             }
                         }
                         if (editcheck) {
+                            if (full['approve_status']==0) {
                                     button += ' <button name="edit" id="' + full['id'] + '" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                         }
+                    }
                         if (statuscheck) {
                                 if (full['status'] == 1) {
                                     button += ' <a href="customerrequeststatus/' + full['id'] + '/2 " onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
@@ -550,8 +718,10 @@ $(document).ready(function () {
                                 }
                         }
                         if (deletecheck) {
-                            button += ' <button name="delete" id="' + full['id'] + '" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
+                            if (full['approve_status']==0) {
+                            button += ' <button name="delete" id="' + full['id'] + '" issue_id="' + full['issue_id'] + '" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
+                    }
 
                         return button;
                     }
@@ -563,27 +733,27 @@ $(document).ready(function () {
             });
     }
 
-    load_dt('', '', '', '', '');
+    load_dt('', '', '');
 
-    $('#formFilter').on('submit',function(e) {
-        e.preventDefault();
-        let department = $('#department_f').val();
-        var employee;
-        let from_date = $('#from_date').val();
-        let to_date = $('#to_date').val();
+$('#formFilter').on('submit',function(e) {
+    e.preventDefault();
+    let department = $('#department_f').val();
+    let location = $('#location').val();
+    var employee;
 
-        var selecttype= $('#search_option').val();
-        if(selecttype=='serviceno'){
-            employee = $('#serviceno').val();
-}
-else if(selecttype=='employee_name'){
-            employee = $('#employee_name').val();
-}
-else if(selecttype=='employee_nic'){
-            employee = $('#employee_nic').val();
-}
+    var selecttype= $('#search_option').val();
+    if(selecttype=='serviceno'){
+        employee = $('#serviceno').val();
+    }
+    else if(selecttype=='employee_name'){
+                employee = $('#employee_name').val();
+    }
+    else if(selecttype=='employee_nic'){
+                employee = $('#employee_nic').val();
+    }
 
-        load_dt(department, employee, from_date, to_date);
+
+    load_dt(department,location,employee);
     });
 
 });
@@ -610,60 +780,121 @@ $(document).ready(function () {
     });
 
 
-    $('#create_record').click(function () {
+    $('#edit_button').click(function () {
+        var issuing = $('#issuing').val();
 
-        $('#action_button').val('Add');
-        $('#action').val('Add');
-        $('#form_result').html('');
+                if(issuing=='location'){
+                var location = $('#location1').val();
+                var department = '';
+                var employee = '';
+                var month = $('#month').val();
+                var issuetype = '';
+                var paymenttype = '';
+                var remark = $('#remark').val();
+                var hidden_id = $('#hidden_id').val();
+                }
+                else if(issuing=='department'){
+                var location = '';
+                var department = $('#department1').val();
+                var employee = '';
+                var month = $('#month').val();
+                var issuetype = '';
+                var paymenttype = '';
+                var remark = $('#remark').val();
+                var hidden_id = $('#hidden_id').val();
+                }
+                else if(issuing=='employee'){
+                var location = '';
+                var department = '';
+                var employee = $('#employee').val();
+                var month = $('#month').val();
+                var issuetype = $('#issuetype').val();
+                var paymenttype = $('#paymenttype').val();
+                var remark = $('#remark').val();
+                var hidden_id = $('#hidden_id').val();
+                }
 
-        $('#empModal').modal('show');
-        $('.modal-title').text('Add Employee Record');
-    });
+        var tableDataArray = [];
+        var isAnyFieldEmpty = false;
 
-    $('#formemployee').on('submit', function (event) {
-        event.preventDefault();
-        var action_url = '';
-        var formData = new FormData(this);
-        //alert(formData);
+        $('#tableorder tbody tr').each(function() {
+            var item = $(this).find('td#itemid').text();
+            var itemname = $(this).find('td#itemname').text();
+            var rate = $(this).find('td#rate').text();
+            var qty = $(this).find('td#qty').text();
+            var total = $(this).find('td#total').text();
+            var assetvalue = $(this).find('input[type="text"]').val();
+            var stockId = $(this).find('select').val();
 
-        if ($('#action').val() == 'Add') {
-            action_url = "{{ route('empoyeeRegister') }}";
+            // Check if any input or select is empty
+            if (!assetvalue || stockId === "") {
+                // Display an alert if any input or select is empty
+                alert("Please fill in all fields for row with item: " + itemname);
+                isAnyFieldEmpty = true; // Set the flag to true
+                return false; // Exit the loop
+            }
+
+            // Proceed with creating the rowData object and pushing it to the array
+            var rowData = {
+                'item': item,
+                'rate': rate,
+                'qty': qty,
+                'total': total,
+                'assetvalue': assetvalue,
+                'stockId': stockId,
+                // Add other properties as needed
+            };
+
+            // Push the current row data object to the array
+            tableDataArray.push(rowData);
+        });
+
+        // Log the array if all rows have valid data
+        if (!isAnyFieldEmpty) {
+            // console.log(tableDataArray);
+            // console.log(issuing,location,department,employee,month,issuetype,paymenttype,remark,hidden_id);
+              $.ajax({
+                    method: "POST",
+                    dataType: "json",
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        tableDataArray: tableDataArray,
+                        issuing: issuing,
+                        location: location,
+                        department: department,
+                        employee: employee,
+                        month: month,
+                        issuetype: issuetype,
+                        paymenttype: paymenttype,
+                        remark: remark,
+                        hidden_id: hidden_id,
+
+                    },
+                    url: '{!! route("approvereturnupdate") !!}',
+                    success: function (data) { //alert(data);
+                        var html = '';
+                        if (data.errors) {
+                            html = '<div class="alert alert-danger">';
+                            for (var count = 0; count < data.errors.length; count++) {
+                                html += '<p>' + data.errors[count] + '</p>';
+                            }
+                            html += '</div>';
+                        }
+                        if (data.success) {
+                            html = '<div class="alert alert-success">' + data.success +
+                                '</div>';
+                            $('#formTitle')[0].reset();
+                            //$('#titletable').DataTable().ajax.reload();
+                            window.location.reload(); // Use window.location.reload()
+                        }
+
+                        $('#form_result').html(html);
+                        // resetfield();
+
+                    }
+                });
         }
 
-        var formData = new FormData($(this)[0]);
-
-        $.ajax({
-            url: action_url,
-            method: "POST",
-            //data:$(this).serialize(),
-            data: formData,
-            cache: false,
-            contentType: false,
-            processData: false,
-            dataType: "json",
-            success: function (data) {
-
-                var html = '';
-                if (data.errors) {
-
-                    html = '<div class="alert alert-danger">';
-                    for (var count = 0; count < data.errors.length; count++) {
-                        html += '<p>' + data.errors[count] + '</p>';
-                    }
-                    html += '</div>';
-                }
-                if (data.success) {
-                    html = '<div class="alert alert-success">' + data.success + '</div>';
-                    $('#formemployee')[0].reset();
-                    setTimeout(function() {
-                        location.reload();
-                    }, 3000);
-
-                    $('#formemployee').modal('hide');
-                }
-                $('#form_result').html(html);
-            }
-        });
     });
 
     $(document).on('click', '.edit', function () {
@@ -682,23 +913,25 @@ $(document).ready(function () {
                     id: id_approve
                 },
                 success: function (data) {
-                    $('#edit_issuing').val(data.result.mainData.issuing);
+                    $('#issuing').val(data.result.mainData.issuing);
 
                     edit_issuingChanges(data.result.mainData.issuing);
 
                     if (data.result.mainData.issuing == "employee") {
-                        $('#edit_employee').val(data.result.mainData.employee_id);
-                        $('#edit_issuetype').val(data.result.mainData.issue_type);
-                        $('#edit_paymenttype').val(data.result.mainData.payment_type);
-                    } else {
-                        $('#edit_location').val(data.result.mainData.location_id);
+                        $('#employee').val(data.result.mainData.employee_id);
+                        $('#issuetype').val(data.result.mainData.issue_type);
+                        $('#paymenttype').val(data.result.mainData.payment_type);
+                    } else if(data.result.mainData.issuing == "department"){
+                        $('#department1').val(data.result.mainData.department_id);
+                    }else {
+                        $('#location1').val(data.result.mainData.location_id);
                     }
 
-                    $('#edit_month').val(data.result.mainData.month);
-                    $('#edit_remark').val(data.result.mainData.remark);
+                    $('#month').val(data.result.mainData.month);
+                    $('#remark').val(data.result.mainData.remark);
 
-                    $('#edit_tableorderlist').html(data.result.requestdata);
-                    ApproveTotalSum();
+                    $('#tableorderlist').html(data.result.requestdata);
+                    TotalSum();
 
                     $('#hidden_id').val(id_approve);
                     $('#editModal').modal('show');
@@ -731,6 +964,8 @@ $(document).ready(function () {
                         $('#app_employee').val(data.result.mainData.employee_id);
                         $('#app_issuetype').val(data.result.mainData.issue_type);
                         $('#app_paymenttype').val(data.result.mainData.payment_type);
+                    }else if(data.result.mainData.issuing == "department"){
+                        $('#app_department').val(data.result.mainData.department_id);
                     } else {
                         $('#app_location').val(data.result.mainData.location_id);
                     }
@@ -741,7 +976,8 @@ $(document).ready(function () {
                     $('#app_tableorderlist').html(data.result.requestdata);
                     ApproveTotalSum();
 
-                    $('#hidden_id').val(id_approve);
+                    $('#app_issue_id').val(data.result.mainData.issue_id);
+                    $('#app_hidden_id').val(id_approve);
                     $('#app_level').val('1');
                     $('#approveconfirmModal').modal('show');
 
@@ -751,41 +987,272 @@ $(document).ready(function () {
 
         });
 
+        $(document).on('click', '.appL2', function () {
+            id_approve = $(this).attr('id');
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+
+            $.ajax({
+                url: '{!! route("appreturn") !!}',
+                type: 'POST',
+                dataType: "json",
+                data: {
+                    id: id_approve
+                },
+                success: function (data) {
+                    $('#app_issuing').val(data.result.mainData.issuing);
+
+                    app_issuingChanges(data.result.mainData.issuing);
+
+                    if (data.result.mainData.issuing == "employee") {
+                        $('#app_employee').val(data.result.mainData.employee_id);
+                        $('#app_issuetype').val(data.result.mainData.issue_type);
+                        $('#app_paymenttype').val(data.result.mainData.payment_type);
+                    }else if(data.result.mainData.issuing == "department"){
+                        $('#app_department').val(data.result.mainData.department_id);
+                    } else {
+                        $('#app_location').val(data.result.mainData.location_id);
+                    }
+
+                    $('#app_month').val(data.result.mainData.month);
+                    $('#app_remark').val(data.result.mainData.remark);
+
+                    $('#app_tableorderlist').html(data.result.requestdata);
+                    ApproveTotalSum();
+
+                    $('#app_issue_id').val(data.result.mainData.issue_id);
+                    $('#app_hidden_id').val(id_approve);
+                    $('#app_level').val('2');
+                    $('#approveconfirmModal').modal('show');
+
+                }
+            })
+
+
+        });
+
+        $(document).on('click', '.appL3', function () {
+            id_approve = $(this).attr('id');
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+
+            $.ajax({
+                url: '{!! route("appreturn") !!}',
+                type: 'POST',
+                dataType: "json",
+                data: {
+                    id: id_approve
+                },
+                success: function (data) {
+                    $('#app_issuing').val(data.result.mainData.issuing);
+
+                    app_issuingChanges(data.result.mainData.issuing);
+
+                    if (data.result.mainData.issuing == "employee") {
+                        $('#app_employee').val(data.result.mainData.employee_id);
+                        $('#app_issuetype').val(data.result.mainData.issue_type);
+                        $('#app_paymenttype').val(data.result.mainData.payment_type);
+                    }else if(data.result.mainData.issuing == "department"){
+                        $('#app_department').val(data.result.mainData.department_id);
+                    } else {
+                        $('#app_location').val(data.result.mainData.location_id);
+                    }
+
+                    $('#app_month').val(data.result.mainData.month);
+                    $('#app_remark').val(data.result.mainData.remark);
+
+                    $('#app_tableorderlist').html(data.result.requestdata);
+                    ApproveTotalSum();
+
+                    $('#app_issue_id').val(data.result.mainData.issue_id);
+                    $('#app_hidden_id').val(id_approve);
+                    $('#app_level').val('3');
+                    $('#approveconfirmModal').modal('show');
+
+                }
+            })
+
+
+        });
+
+        $('#approve_button').click(function () {
+                var id_hidden = $('#app_hidden_id').val();
+                var applevel = $('#app_level').val();
+                var issue_id=$('#app_issue_id').val();
+
+                var tableDataArray = [];
+
+                $('#app_tableorder tbody tr').each(function() {
+            var item = $(this).find('td#itemid').text();
+            var itemname = $(this).find('td#itemname').text();
+            var rate = $(this).find('td#rate').text();
+            var qty = $(this).find('td#qty').text();
+            var total = $(this).find('td#total').text();
+            var assetvalue = $(this).find('input[type="text"]').val();
+            var stockId = $(this).find('select').val();
+
+            // Proceed with creating the rowData object and pushing it to the array
+            var rowData = {
+                'item': item,
+                'rate': rate,
+                'qty': qty,
+                'total': total,
+                'assetvalue': assetvalue,
+                'stockId': stockId,
+                // Add other properties as needed
+            };
+
+            // Push the current row data object to the array
+            tableDataArray.push(rowData);
+        });
+        // console.log(tableDataArray);
+
+                $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    })
+                $.ajax({
+                    url: '{!! route("approvereturnapprove") !!}',
+                        type: 'POST',
+                        dataType: "json",
+                        data: {id: id_hidden,
+                            applevel: applevel,
+                            issue_id:issue_id,
+                            tableDataArray:tableDataArray },
+                    success: function (data) {//alert(data);
+                        setTimeout(function () {
+                            $('#approveconfirmModal').modal('hide');
+                            $('#dataTable').DataTable().ajax.reload();
+                            // alert('Data Approved');
+                        }, 2000);
+                        location.reload()
+                    }
+                })
+            });
+
+
+            $(document).on('click', '.view', function () {
+            id_approve = $(this).attr('id');
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+
+            $.ajax({
+                url: '{!! route("appreturn") !!}',
+                type: 'POST',
+                dataType: "json",
+                data: {
+                    id: id_approve
+                },
+                success: function (data) {
+                    $('#view_issuing').val(data.result.mainData.issuing);
+
+                    view_issuingChanges(data.result.mainData.issuing);
+
+                    if (data.result.mainData.issuing == "employee") {
+                        $('#view_employee').val(data.result.mainData.employee_id);
+                        $('#view_issuetype').val(data.result.mainData.issue_type);
+                        $('#view_paymenttype').val(data.result.mainData.payment_type);
+                    }else if(data.result.mainData.issuing == "department"){
+                        $('#view_department').val(data.result.mainData.department_id);
+                    } else {
+                        $('#view_location').val(data.result.mainData.location_id);
+                    }
+
+                    $('#view_month').val(data.result.mainData.month);
+                    $('#view_remark').val(data.result.mainData.remark);
+
+                    $('#view_tableorderlist').html(data.result.requestdata);
+                    viewTotalSum();
+
+                    $('#view_issue_id').val(data.result.mainData.issue_id);
+                    $('#viewModal').modal('show');
+
+                }
+            })
+        });
+
+
+        var user_id;
+        var issue_id;
+        $(document).on('click', '.delete', function () {
+            user_id = $(this).attr('id');
+            issue_id = $(this).attr('issue_id');
+            $('#confirmModal').modal('show');
+        });
+
+        $('#ok_button').click(function () {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+            $.ajax({
+                url: '{!! route("approvereturndelete") !!}',
+                type: 'POST',
+                dataType: "json",
+                data: {
+                    id: user_id,
+                    issue_id:issue_id
+                },
+                beforeSend: function () {
+                    $('#ok_button').text('Deleting...');
+                },
+                success: function (data) { //alert(data);
+                    setTimeout(function () {
+                        $('#confirmModal').modal('hide');
+                        $('#dataTable').DataTable().ajax.reload();
+                        // alert('Data Deleted');
+                    }, 2000);
+                    location.reload()
+                }
+            })
+        });
+
 });
 function edit_issuingChanges(edit_issuing) {
 
 if (edit_issuing === "location") {
-    $("#edit_locationDiv").show();
-    $("#edit_departmentDiv").hide();
-    $("#edit_employeeDiv").hide();
-    $("#edit_selectTypeFirst").hide();
-    $("#edit_PaymenttypeDiv").hide();
+    $("#locationDiv").show();
+    $("#departmentDiv").hide();
+    $("#employeeDiv").hide();
+    $("#selectTypeFirst").hide();
+    $("#PaymenttypeDiv").hide();
 } else if (edit_issuing === "employee") {
-    $("#edit_locationDiv").hide();
-    $("#edit_departmentDiv").hide();
-    $("#edit_employeeDiv").show();
-    $("#edit_selectTypeFirst").hide();
-    $("#edit_PaymenttypeDiv").show();
-} else if(selectedOption === "department"){
+    $("#locationDiv").hide();
+    $("#departmentDiv").hide();
+    $("#employeeDiv").show();
+    $("#selectTypeFirst").hide();
+    $("#PaymenttypeDiv").show();
+} else if(edit_issuing === "department"){
         $("#edit_departmentDiv").show();
-        $("#edit_locationDiv").hide();
-        $("#edit_employeeDiv").hide();
-        $("#edit_selectTypeFirst").hide();
-        $("#edit_PaymenttypeDiv").hide();
+        $("#locationDiv").hide();
+        $("#employeeDiv").hide();
+        $("#selectTypeFirst").hide();
+        $("#PaymenttypeDiv").hide();
     }else {
-    $("#edit_locationDiv").hide();
-    $("#edit_departmentDiv").hide();
-    $("#edit_employeeDiv").hide();
-    $("#edit_selectTypeFirst").show();
-    $("#edit_PaymenttypeDiv").hide();
+    $("#locationDiv").hide();
+    $("#departmentDiv").hide();
+    $("#employeeDiv").hide();
+    $("#selectTypeFirst").show();
+    $("#PaymenttypeDiv").hide();
 }
 
 }
 
-function ApproveTotalSum() {
+function TotalSum() {
         var totalSum = 0;
 
-        $('#edit_tableorder tbody tr').each(function () {
+        $('#tableorder tbody tr').each(function () {
             var totalCell = $(this).find('td:eq(3)'); // Assuming total is in the 4th cell
             var totalValue = parseFloat(totalCell.text());
 
@@ -794,7 +1261,7 @@ function ApproveTotalSum() {
             }
         });
 
-        $('#edit_totalField').text(totalSum.toFixed(2));
+        $('#totalField').text(totalSum.toFixed(2));
     }
 
 
@@ -812,7 +1279,7 @@ if (app_issuing === "location") {
     $("#app_employeeDiv").show();
     $("#app_selectTypeFirst").hide();
     $("#app_PaymenttypeDiv").show();
-} else if(selectedOption === "department"){
+} else if(app_issuing === "department"){
         $("#app_departmentDiv").show();
         $("#app_locationDiv").hide();
         $("#app_employeeDiv").hide();
@@ -843,6 +1310,51 @@ function ApproveTotalSum() {
         $('#app_totalField').text(totalSum.toFixed(2));
     }
 
+
+    function view_issuingChanges(view_issuing) {
+
+if (view_issuing === "location") {
+    $("#view_locationDiv").show();
+    $("#view_departmentDiv").hide();
+    $("#view_employeeDiv").hide();
+    $("#app_selectTypeFirst").hide();
+    $("#view_PaymenttypeDiv").hide();
+} else if (view_issuing === "employee") {
+    $("#view_locationDiv").hide();
+    $("#view_departmentDiv").hide();
+    $("#view_employeeDiv").show();
+    $("#view_selectTypeFirst").hide();
+    $("#view_PaymenttypeDiv").show();
+} else if(view_issuing === "department"){
+        $("#view_departmentDiv").show();
+        $("#view_locationDiv").hide();
+        $("#view_employeeDiv").hide();
+        $("#view_selectTypeFirst").hide();
+        $("#view_PaymenttypeDiv").hide();
+    }else {
+    $("#view_locationDiv").hide();
+    $("#view_departmentDiv").hide();
+    $("#view_employeeDiv").hide();
+    $("#view_selectTypeFirst").show();
+    $("#view_PaymenttypeDiv").hide();
+}
+
+}
+
+function viewTotalSum() {
+        var totalSum = 0;
+
+        $('#view_tableorder tbody tr').each(function () {
+            var totalCell = $(this).find('td:eq(3)'); // Assuming total is in the 4th cell
+            var totalValue = parseFloat(totalCell.text());
+
+            if (!isNaN(totalValue)) {
+                totalSum += totalValue;
+            }
+        });
+
+        $('#view_totalField').text(totalSum.toFixed(2));
+    }
 </script>
 <script>
     $(document).ready(function () {
@@ -856,7 +1368,7 @@ function ApproveTotalSum() {
             width: '100%',
             minimumInputLength: 1,
             ajax: {
-                url: '{!! route("addEmployeegetserviceno") !!}',
+                url: '{!! route("returnserviceno") !!}',
                 type: 'POST',
                 dataType: 'json',
                 data: function (params) {
@@ -892,7 +1404,7 @@ if(selectedOption=='serviceno'){
             width: '100%',
             minimumInputLength: 1,
             ajax: {
-                url: '{!! route("addEmployeegetserviceno") !!}',
+                url: '{!! route("returnserviceno") !!}',
                 type: 'POST',
                 dataType: 'json',
                 data: function (params) {
@@ -920,7 +1432,7 @@ else if(selectedOption=='employee_name'){
             width: '100%',
             minimumInputLength: 1,
             ajax: {
-                url: '{!! route("addEmployeegetempname") !!}',
+                url: '{!! route("returngetempname") !!}',
                 type: 'POST',
                 dataType: 'json',
                 data: function (params) {
@@ -947,7 +1459,7 @@ else if(selectedOption=='employee_nic'){
             width: '100%',
             minimumInputLength: 1,
             ajax: {
-                url: '{!! route("addEmployeegetempnic") !!}',
+                url: '{!! route("returngetempnic") !!}',
                 type: 'POST',
                 dataType: 'json',
                 data: function (params) {
@@ -987,8 +1499,7 @@ else if(selectedOption=='employee_nic'){
             
             // Clear other form fields if needed
             $("#department_f").val("");
-            $("#from_date").val("");
-            $("#to_date").val("");
+            $("#location").val("");
         });
     });
 </script>

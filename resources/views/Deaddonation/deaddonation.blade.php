@@ -32,6 +32,7 @@
                                 <tr>
                                     <th>ID </th>
                                     <th>Employee</th>
+                                    <th>VO Region</th>
                                     <th>Relative</th>
                                     <th>Date Of Dead</th>
                                     <th class="text-right">Action</th>
@@ -73,7 +74,7 @@
                                   </div> --}}
 
                                 <div class="form-row mb-1">
-                                    <div class="col-6">
+                                    <div class="col-4">
                                         <label class="small font-weight-bold text-dark">Search Employee*</label>
                                         <select name="serviceno" id="serviceno" class="form-control form-control-sm"
                                             onchange="getEmpName();idgetinserch()">
@@ -81,10 +82,17 @@
 
                                         </select>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-4">
                                         <label class="small font-weight-bold text-dark">Emp Name*</label>
                                         <input type="text" class="form-control form-control-sm" placeholder=""
                                             name="empname" id="empname" readonly required>
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="small font-weight-bold text-dark">VO Region*</label>
+                                        <input type="text" class="form-control form-control-sm" placeholder=""
+                                            name="voregion" id="voregion" readonly required>
+                                            <input type="hidden" class="form-control form-control-sm" placeholder=""
+                                        name="voregion_id" id="voregion_id" readonly>
                                     </div>
                                     <input type="hidden" class="form-control form-control-sm" placeholder=""
                                         name="editempid" id="editempid" readonly>
@@ -106,7 +114,7 @@
                                 </div>
                                 <div class="form-row mb-1">
                                     <div class="col-12">
-                                        <label class="small font-weight-bold text-dark">Date*</label>
+                                        <label class="small font-weight-bold text-dark">Dead Date*</label>
                                         <input type="date" class="form-control form-control-sm" placeholder=""
                                             name="date" id="date" value="<?php echo date('Y-m-d') ?>" required>
                                     </div>
@@ -117,6 +125,22 @@
                                         <label class="small font-weight-bold text-dark">Causes of Death*</label>
                                         <textarea id="reason" name="reason" class="form-control form-control-sm"
                                             required></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row mb-1">
+                                    <div class="col-12">
+                                        <label class="small font-weight-bold text-dark">Place of the funeral*</label>
+                                        <textarea id="funeral_place" name="funeral_place" class="form-control form-control-sm"
+                                            required></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-row mb-1">
+                                    <div class="col-12">
+                                        <label class="small font-weight-bold text-dark">Funeral  Date*</label>
+                                        <input type="date" class="form-control form-control-sm" placeholder=""
+                                            name="funeral_date" id="funeral_date" value="<?php echo date('Y-m-d') ?>" required>
                                     </div>
                                 </div>
 
@@ -182,6 +206,10 @@
                                         <label class="small font-weight-bold text-dark">Emp Name*</label>
                                         <input type="text" class="form-control form-control-sm" placeholder=""
                                             name="app_empname" id="app_empname" readonly>
+
+                                                <label class="small font-weight-bold text-dark">VO Region*</label>
+                                                <input type="text" class="form-control form-control-sm" placeholder=""
+                                                    name="app_voregion" id="app_voregion" readonly required>
                                     </div>
                                 </div>
                                 <div class="form-row mb-1">
@@ -205,6 +233,21 @@
                                         <label class="small font-weight-bold text-dark">Causes of Death*</label>
                                         <textarea id="app_reason" name="app_reason" class="form-control form-control-sm"
                                             readonly></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row mb-1">
+                                    <div class="col-12">
+                                        <label class="small font-weight-bold text-dark">Place of the funeral*</label>
+                                        <textarea id="app_funeral_place" name="app_funeral_place" class="form-control form-control-sm"
+                                        readonly></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-row mb-1">
+                                    <div class="col-12">
+                                        <label class="small font-weight-bold text-dark">Funeral  Date*</label>
+                                        <input type="date" class="form-control form-control-sm" placeholder=""
+                                            name="app_funeral_date" id="app_funeral_date" value="<?php echo date('Y-m-d') ?>" readonly>
                                     </div>
                                 </div>
 
@@ -256,6 +299,10 @@
                 {
                     data: 'emp_name_with_initial',
                     name: 'emp_name_with_initial'
+                },
+                {
+                    data: 'subregion',
+                    name: 'subregion'
                 },
                 {
                     data: 'emp_dep_relation',
@@ -355,6 +402,8 @@
                     $('#old_relative').val(data.result.relative_id);
                     $('#date').val(data.result.dateofdead);
                     $('#reason').val(data.result.causesofdead);
+                    $('#funeral_place').val(data.result.funeral_pace);
+                    $('#funeral_date').val(data.result.funeral_date);
                     getEmpName()
 
                     // var valueToCheck = data.result.pay_by;
@@ -433,6 +482,8 @@
                     $('#app_relatives').val(data.result.relative_id);
                     $('#app_date').val(data.result.dateofdead);
                     $('#app_reason').val(data.result.causesofdead);
+                    $('#app_funeral_place').val(data.result.funeral_pace);
+                    $('#app_funeral_date').val(data.result.funeral_date);
                     getEmpNameforApprove(data.result.employee_id);
                     relativeApprovel(data.result.employee_id, data.result.relative_id);
                     $('#hidden_id').val(id_approve);
@@ -465,6 +516,8 @@
                     $('#app_relatives').val(data.result.relative_id);
                     $('#app_date').val(data.result.dateofdead);
                     $('#app_reason').val(data.result.causesofdead);
+                    $('#app_funeral_place').val(data.result.funeral_pace);
+                    $('#app_funeral_date').val(data.result.funeral_date);
                     getEmpNameforApprove(data.result.employee_id);
                     relativeApprovel(data.result.employee_id, data.result.relative_id);
                     $('#hidden_id').val(id_approve);
@@ -497,6 +550,8 @@
                     $('#app_relatives').val(data.result.relative_id);
                     $('#app_date').val(data.result.dateofdead);
                     $('#app_reason').val(data.result.causesofdead);
+                    $('#app_funeral_place').val(data.result.funeral_pace);
+                    $('#app_funeral_date').val(data.result.funeral_date);
                     getEmpNameforApprove(data.result.employee_id);
                     relativeApprovel(data.result.employee_id, data.result.relative_id);
                     $('#hidden_id').val(id_approve);
@@ -556,7 +611,10 @@
             },
             success: function (data) {
                 $('#empname').val(data.result.emp_name_with_initial);
+                $('#voregion').val(data.result.subregion);
+                $('#voregion_id').val(data.result.subregion_id);
                 $('#app_empname').val(data.result.emp_name_with_initial);
+                $('#app_voregion').val(data.result.subregion);
             }
         })
     }
@@ -578,6 +636,7 @@
             success: function (data) {
                 $('#app_empname').val(data.result.emp_name_with_initial);
                 $('#app_serviceno').val(data.result.service_no);
+                $('#app_voregion').val(data.result.subregion);
 
             }
         })
@@ -599,6 +658,8 @@
             },
             success: function (data) {
                 $('#empname').val(data.result.emp_name_with_initial);
+                $('#voregion').val(data.result.subregion);
+                $('#voregion_id').val(data.result.subregion_id);
                 // $('#app_empname').val(data.result.emp_name_with_initial);
             }
         })

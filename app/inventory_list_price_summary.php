@@ -4,14 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Grndetail extends Model
+class inventory_list_price_summary extends Model
 {
     protected $primarykey = 'id';
 
     protected $fillable =[
 
-        'date','qty','unit_price','total','comment','item_description',
-        'status','item_id','grn_id','porderdetail_id',
+        'item_id','item_name','unit_price',
+        'status',
          'create_by', 'update_by'
     ];
 }

@@ -103,6 +103,7 @@ public function insert(Request $request){
         $porderdetail->porder_id = $requestID;
         $porderdetail->inventorylist_id = $itemid;
         $porderdetail->qty = $qty;
+        $porderdetail->grn_issue_qty = '0';
         $porderdetail->unit_price = $unitPrice;
         $porderdetail->total = $total;
         $porderdetail->status = '1';

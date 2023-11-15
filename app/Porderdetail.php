@@ -10,7 +10,7 @@ class Porderdetail extends Model
 
     protected $fillable =[
 
-        'qty','unit_price','total','discount','discount_amount','comment',
+        'qty','grn_issue_qty','unit_price','total','discount','discount_amount','comment',
         'status','inventorylist_id','porder_id',
          'create_by', 'update_by'
     ];
