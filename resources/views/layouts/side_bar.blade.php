@@ -26,7 +26,9 @@
             || auth()->user()->can('InventoryList-list')
             || auth()->user()->can('Return-list')
             || auth()->user()->can('ApproveReturn-list')
-            || auth()->user()->can('Pettycashcategory-list'))
+            || auth()->user()->can('Pettycashcategory-list')
+            || auth()->user()->can('Supplier-list')
+            ||auth()->user()->can('Vat-list'))
 
             <a class="nav-link p-0 px-3 py-2 collapsed sidebar-text-color" href="javascript:void(0);"
                 data-toggle="collapse" data-target="#collapseCorporation" aria-expanded="false"
@@ -58,6 +60,14 @@
                             @endcan
                         </nav>
                     </div>
+
+                    @if(auth()->user()->can('Vat-list'))
+                    <a class="nav-link p-0 px-3 py-1 sidebar-text-color" id="vat_link"
+                        href="{{ route('vat') }}">
+                        <div class="nav-link-icon"></div>
+                        {{ __('Vat') }}
+                    </a>
+                    @endif
 
                     <!-- Vehicle Information -->
                     <a class="nav-link p-0 px-3 py-1 collapsed sidebar-text-color" id="vehiclelist"

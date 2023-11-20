@@ -143,7 +143,9 @@
                                                         <th colspan="2">Paid To</th>
                                                         <th>Bill No</th>
                                                         <th>Description</th>
+                                                        <th>Vat(%)</th>
                                                         <th>Rs.</th>
+                                                        <th>After Vat</th>
                                                         <th>Float Balance</th>
                                                         <th>Petty Cash Category</th>
                                                     </tr>
@@ -154,7 +156,7 @@
                                                 <tfoot>
                                                     <tr
                                                         style="font-weight: bold;font-size: 18px;background-color: #d5dbec;">
-                                                        <td class="text-center" colspan="6">Total:</td>
+                                                        <td class="text-center" colspan="7">Total:</td>
                                                         <td id="view_total" class="text-right">0</td>
                                                     </tr>
                                                 </tfoot>
@@ -270,7 +272,9 @@
                                                 <th colspan="2">Paid To</th>
                                                 <th>Bill No</th>
                                                 <th>Description</th>
+                                                <th>Vat(%)</th>
                                                 <th class="text-right">Rs.</th>
+                                                <th class="text-right">After Vat</th>
                                                 <th class="text-right">Float Balance</th>
                                                 <th>Petty Cash Category</th>
                                             </tr>
@@ -281,7 +285,7 @@
                                         <tfoot>
                                             <tr
                                                 style="font-weight: bold;font-size: 18px;background-color: #d5dbec;">
-                                                <td class="text-center" colspan="6">Total:</td>
+                                                <td class="text-center" colspan="7">Total:</td>
                                                 <td id="app_view_total" class="text-right">0</td>
                                                 
                                             </tr>
@@ -355,7 +359,9 @@
                                             <th colspan="2">Paid To</th>
                                             <th>Bill No</th>
                                             <th>Description</th>
+                                            <th>Vat(%)</th>
                                             <th class="text-right">Rs.</th>
+                                            <th class="text-right">After Vat</th>
                                             <th class="text-right">Float Balance</th>
                                             <th>Petty Cash Category</th>
                                         </tr>
@@ -366,7 +372,7 @@
                                     <tfoot>
                                         <tr
                                             style="font-weight: bold;font-size: 18px;background-color: #d5dbec;">
-                                            <td class="text-center" colspan="6">Total:</td>
+                                            <td class="text-center" colspan="7">Total:</td>
                                             <td id="view_view_total" class="text-right">0</td>
                                             
                                         </tr>
@@ -502,8 +508,10 @@
                             }
                         }
                         if (editcheck) {
+                            if (full['approve_status']==0) {
                                     button += ' <button name="edit" id="' + full['id'] + '" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';                      
                         }
+                    }
                         if (statuscheck) {
                                 if (full['status'] == 1) {
                                     button += ' <a href="pettycashstatus/' + full['id'] + '/2 " onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
@@ -575,7 +583,9 @@
                         paid_to: getPaidToValue(i),
                         bill_no: $("#bill_no" + i).val(),
                         description: $("#description" + i).val(),
+                        vat_precentage: $("#vat" + i).val(),
                         rs: $("#rs" + i).val(),
+                        after_vat: $("#aftervat" + i).val(),
                         floatbalance: $("#floatbalance" + i).val(),
                         category: $("#remark" + i).val()
                     };
@@ -621,7 +631,7 @@
                 }
 
                 // console.log(valuesArray);
-                // console.log(filteredArray);
+                console.log(filteredArray);
                 // console.log(documentno, employee, totalcost, hidden_id);
 
                 $.ajax({
@@ -763,7 +773,7 @@
                     $('#app_empid').val(data.result.mainData.employee_id);
                     $('#app_empname').val(data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
                     $('#app_pettydate').val(data.result.mainData.date);
-                    $('#app_pettycashfloat').val(data.result.mainData.pettycashfloat);
+                    $('#app_pettycashfloat').val((data.result.mainData.pettycashfloat.toFixed(2)));
                     $('#editthirdapprovelstatus').val(data.result.mainData.approve_02);
                    var app_array=(data.result.requestdata);
                    approvetabledata(app_array);
@@ -799,7 +809,7 @@
                     $('#app_empid').val(data.result.mainData.employee_id);
                     $('#app_empname').val(data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
                     $('#app_pettydate').val(data.result.mainData.date);
-                    $('#app_pettycashfloat').val(data.result.mainData.pettycashfloat);
+                    $('#app_pettycashfloat').val((data.result.mainData.pettycashfloat.toFixed(2)));
                     $('#editthirdapprovelstatus').val(data.result.mainData.approve_02);
                     var app_array=(data.result.requestdata);
                    approvetabledata(app_array);
@@ -836,7 +846,7 @@
                     $('#app_empid').val(data.result.mainData.employee_id);
                     $('#app_empname').val(data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
                     $('#app_pettydate').val(data.result.mainData.date);
-                    $('#app_pettycashfloat').val(data.result.mainData.pettycashfloat);
+                    $('#app_pettycashfloat').val((data.result.mainData.pettycashfloat.toFixed(2)));
                     $('#editthirdapprovelstatus').val(data.result.mainData.approve_02);
                     var app_array=(data.result.requestdata);
                    approvetabledata(app_array);
@@ -937,7 +947,7 @@
                     $('#view_empid').val(data.result.mainData.employee_id);
                     $('#view_empname').val(data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
                     $('#view_pettydate').val(data.result.mainData.date);
-                    $('#view_pettycashfloat').val(data.result.mainData.pettycashfloat);
+                    $('#view_pettycashfloat').val((data.result.mainData.pettycashfloat.toFixed(2)));
                     var view_array=(data.result.requestdata);
                    viewtabledata(view_array);
 
@@ -1059,7 +1069,11 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         var dateInput = document.createElement("input");
         dateInput.type = "date";
         dateInput.id = "bill_date" + Counter;
-        dateInput.name = "bill_date" + Counter;
+        dateInput.name = Counter;
+
+        dateInput.addEventListener("change", function() {
+                getVatDateInputChange(dateInput.value,dateInput.name);
+        });
         billDateCell.appendChild(dateInput);
         newRow.appendChild(billDateCell);
 
@@ -1154,6 +1168,19 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         descriptionTextarea.style.width = "100%";
         newRow.appendChild(descriptionCell);
 
+         // Add the "Vat." column with a specific width (55%)
+         var vatCell = document.createElement("td");
+        var vatInput = document.createElement("input");
+        vatInput.id = "vat" + Counter;
+        vatInput.type = "text";
+        vatInput.name = "vat" + Counter;
+        vatInput.style.width = "80px";
+        vatCell.style.width = "80px";
+        vatInput.readOnly = true;
+        vatCell.appendChild(vatInput);
+        // rsCell.style.width = "55%";
+        newRow.appendChild(vatCell);
+
         // Add the "Rs." column with a specific width (55%)
         var rsCell = document.createElement("td");
         var rsInput = document.createElement("input");
@@ -1165,6 +1192,19 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         rsCell.appendChild(rsInput);
         // rsCell.style.width = "55%";
         newRow.appendChild(rsCell);
+
+         // Add the "aftervat." column with a specific width (55%)
+         var aftervatCell = document.createElement("td");
+        var aftervatInput = document.createElement("input");
+        aftervatInput.id = "aftervat" + Counter;
+        aftervatInput.type = "text";
+        aftervatInput.name = "aftervat" + Counter;
+        aftervatInput.style.width = "80px";
+        aftervatCell.style.width = "80px";
+        aftervatInput.readOnly = true;
+        aftervatCell.appendChild(aftervatInput);
+        // rsCell.style.width = "55%";
+        newRow.appendChild(aftervatCell);
 
         // Add the "float balance" column with a specific width (55%)
         var floatbalanceCell = document.createElement("td");
@@ -1263,7 +1303,11 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         var dateInput = document.createElement("input");
         dateInput.type = "date";
         dateInput.id = "bill_date" + Counter;
-        dateInput.name = "bill_date" + Counter;
+        dateInput.name = Counter;
+
+dateInput.addEventListener("change", function() {
+        getVatDateInputChange(dateInput.value,dateInput.name);
+});
         dateInput.value = rowData.bill_date; 
         billDateCell.appendChild(dateInput);
         newRow.appendChild(billDateCell);
@@ -1362,8 +1406,22 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         descriptionTextarea.name = "description" + Counter;
         descriptionCell.appendChild(descriptionTextarea);
         descriptionTextarea.value = rowData.description;
-        descriptionTextarea.style.width = "100%";
+        // descriptionTextarea.style.width = "100%";
         newRow.appendChild(descriptionCell);
+
+         // Add the "Vat." column with a specific width (55%)
+         var vatCell = document.createElement("td");
+        var vatInput = document.createElement("input");
+        vatInput.id = "vat" + Counter;
+        vatInput.type = "text";
+        vatInput.name = "vat" + Counter;
+        vatInput.value = rowData.vat_precentage;
+        vatInput.style.width = "80px";
+        vatCell.style.width = "80px";
+        vatInput.readOnly = true;
+        vatCell.appendChild(vatInput);
+        // rsCell.style.width = "55%";
+        newRow.appendChild(vatCell);
 
         // Add the "Rs." column with a specific width (55%)
         var rsCell = document.createElement("td");
@@ -1376,6 +1434,20 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         rsCell.style.width = "80px";
         rsInput.style.width = "80px";
         newRow.appendChild(rsCell);
+
+         // Add the "aftervat." column with a specific width (55%)
+         var aftervatCell = document.createElement("td");
+        var aftervatInput = document.createElement("input");
+        aftervatInput.id = "aftervat" + Counter;
+        aftervatInput.type = "text";
+        aftervatInput.name = "aftervat" + Counter;
+        aftervatInput.value = rowData.after_vat;
+        aftervatInput.style.width = "80px";
+        aftervatCell.style.width = "80px";
+        aftervatInput.readOnly = true;
+        aftervatCell.appendChild(aftervatInput);
+        // rsCell.style.width = "55%";
+        newRow.appendChild(aftervatCell);
 
          // Add the "float balance" column with a specific width (55%)
          var floatbalanceCell = document.createElement("td");
@@ -1502,7 +1574,11 @@ seqCounter1 += 1;
         var dateInput = document.createElement("input");
         dateInput.type = "date";
         dateInput.id = "bill_date" + Counter1;
-        dateInput.name = "bill_date" + Counter1;
+        dateInput.name = Counter1;
+
+dateInput.addEventListener("change", function() {
+        getVatDateInputChange(dateInput.value,dateInput.name);
+});
         billDateCell.appendChild(dateInput);
         newRow.appendChild(billDateCell);
 
@@ -1593,8 +1669,21 @@ seqCounter1 += 1;
         descriptionTextarea.id = "description" + Counter1;
         descriptionTextarea.name = "description" + Counter1;
         descriptionCell.appendChild(descriptionTextarea);
-        descriptionTextarea.style.width = "100%";
+        // descriptionTextarea.style.width = "100%";
         newRow.appendChild(descriptionCell);
+
+         // Add the "Vat." column with a specific width (55%)
+         var vatCell = document.createElement("td");
+        var vatInput = document.createElement("input");
+        vatInput.id = "vat" + Counter1;
+        vatInput.type = "text";
+        vatInput.name = "vat" + Counter1;
+        vatInput.style.width = "80px";
+        vatCell.style.width = "80px";
+        vatInput.readOnly = true;
+        vatCell.appendChild(vatInput);
+        // rsCell.style.width = "55%";
+        newRow.appendChild(vatCell);
 
         // Add the "Rs." column with a specific width (55%)
         var rsCell = document.createElement("td");
@@ -1607,6 +1696,18 @@ seqCounter1 += 1;
         rsCell.appendChild(rsInput);
         // rsCell.style.width = "55%";
         newRow.appendChild(rsCell);
+
+         // Add the "aftervat." column with a specific width (55%)
+         var aftervatCell = document.createElement("td");
+        var aftervatInput = document.createElement("input");
+        aftervatInput.id = "aftervat" + Counter1;
+        aftervatInput.type = "text";
+        aftervatInput.name = "aftervat" + Counter1;
+        aftervatInput.style.width = "80px";
+        aftervatCell.style.width = "80px";
+        aftervatCell.appendChild(aftervatInput);
+        // rsCell.style.width = "55%";
+        newRow.appendChild(aftervatCell);
 
         // Add the "float balance" column with a specific width (55%)
         var floatbalanceCell = document.createElement("td");
@@ -1824,8 +1925,23 @@ seqCounter1 += 1;
         descriptionTextarea.value = rowData.description;
         descriptionTextarea.readOnly = true;
         descriptionTextarea.style.border = "none";
-        descriptionTextarea.style.width = "100%";
+        // descriptionTextarea.style.width = "100%";
         newRow.appendChild(descriptionCell);
+
+         // Add the "Vat." column with a specific width (55%)
+         var vatCell = document.createElement("td");
+        var vatInput = document.createElement("input");
+        vatInput.id = "app_vat" + Counter;
+        vatInput.type = "text";
+        vatInput.name = "app_vat" + Counter;
+        vatInput.value = rowData.vat_precentage;
+        vatInput.style.width = "80px";
+        vatCell.style.width = "80px";
+        vatInput.style.border = "none";
+        vatInput.readOnly = true;
+        vatCell.appendChild(vatInput);
+        // rsCell.style.width = "55%";
+        newRow.appendChild(vatCell);
 
         // Add the "Rs." column with a specific width (55%)
         var rsCell = document.createElement("td");
@@ -1833,7 +1949,7 @@ seqCounter1 += 1;
         rsInput.id = "app_rs" + Counter;
         rsInput.type = "text";
         rsInput.name = "app_rs" + Counter;
-        rsInput.value = rowData.rs;
+        rsInput.value = rowData.rs.toFixed(2);;
         rsCell.appendChild(rsInput);
         rsInput.readOnly = true;
         rsInput.style.border = "none";
@@ -1842,13 +1958,29 @@ seqCounter1 += 1;
         rsInput.style.width = "80px";
         newRow.appendChild(rsCell);
 
+         // Add the "aftervat." column with a specific width (55%)
+         var aftervatCell = document.createElement("td");
+        var aftervatInput = document.createElement("input");
+        aftervatInput.id = "app_aftervat" + Counter;
+        aftervatInput.type = "text";
+        aftervatInput.name = "app_aftervat" + Counter;
+        aftervatInput.value = rowData.after_vat.toFixed(2);;
+        aftervatInput.style.width = "80px";
+        aftervatCell.style.width = "80px";
+        aftervatInput.style.border = "none";
+        aftervatInput.style.textAlign = "right";
+        aftervatInput.readOnly = true;
+        aftervatCell.appendChild(aftervatInput);
+        // rsCell.style.width = "55%";
+        newRow.appendChild(aftervatCell);
+
          // Add the "float balance" column with a specific width (55%)
          var floatbalanceCell = document.createElement("td");
         var floatbalanceInput = document.createElement("input");
         floatbalanceInput.id = "app_floatbalance" + Counter;
         floatbalanceInput.type = "text";
         floatbalanceInput.name = "app_floatbalance" + Counter;
-        floatbalanceInput.value = rowData.float_balance;
+        floatbalanceInput.value = rowData.float_balance.toFixed(2);;
         floatbalanceInput.readOnly = true;
         floatbalanceInput.style.border = "none";
         floatbalanceInput.style.width = "80px";
@@ -2049,8 +2181,23 @@ for (var i = 0; i < app_array.length; i++) {
         descriptionTextarea.value = rowData.description;
         descriptionTextarea.readOnly = true;
         descriptionTextarea.style.border = "none";
-        descriptionTextarea.style.width = "100%";
+        // descriptionTextarea.style.width = "100%";
         newRow.appendChild(descriptionCell);
+
+        // Add the "Vat." column with a specific width (55%)
+        var vatCell = document.createElement("td");
+        var vatInput = document.createElement("input");
+        vatInput.id = "view_vat" + Counter;
+        vatInput.type = "text";
+        vatInput.name = "view_vat" + Counter;
+        vatInput.value = rowData.vat_precentage;
+        vatInput.style.width = "80px";
+        vatCell.style.width = "80px";
+        vatInput.style.border = "none";
+        vatInput.readOnly = true;
+        vatCell.appendChild(vatInput);
+        // rsCell.style.width = "55%";
+        newRow.appendChild(vatCell);
 
         // Add the "Rs." column with a specific width (55%)
         var rsCell = document.createElement("td");
@@ -2058,7 +2205,7 @@ for (var i = 0; i < app_array.length; i++) {
         rsInput.id = "view_rs" + Counter;
         rsInput.type = "text";
         rsInput.name = "view_rs" + Counter;
-        rsInput.value = rowData.rs;
+        rsInput.value = rowData.rs.toFixed(2);
         rsCell.appendChild(rsInput);
         rsInput.readOnly = true;
         rsInput.style.border = "none";
@@ -2067,13 +2214,29 @@ for (var i = 0; i < app_array.length; i++) {
         rsInput.style.width = "80px";
         newRow.appendChild(rsCell);
 
+          // Add the "aftervat." column with a specific width (55%)
+          var aftervatCell = document.createElement("td");
+        var aftervatInput = document.createElement("input");
+        aftervatInput.id = "view_aftervat" + Counter;
+        aftervatInput.type = "text";
+        aftervatInput.name = "view_aftervat" + Counter;
+        aftervatInput.value = rowData.after_vat.toFixed(2);;
+        aftervatInput.style.width = "80px";
+        aftervatCell.style.width = "80px";
+        aftervatInput.style.border = "none";
+        aftervatInput.style.textAlign = "right";
+        aftervatInput.readOnly = true;
+        aftervatCell.appendChild(aftervatInput);
+        // rsCell.style.width = "55%";
+        newRow.appendChild(aftervatCell);
+
  // Add the "float balance" column with a specific width (55%)
  var floatbalanceCell = document.createElement("td");
         var floatbalanceInput = document.createElement("input");
         floatbalanceInput.id = "view_floatbalance" + Counter;
         floatbalanceInput.type = "text";
         floatbalanceInput.name = "view_floatbalance" + Counter;
-        floatbalanceInput.value = rowData.float_balance;
+        floatbalanceInput.value = rowData.float_balance.toFixed(2);;
         floatbalanceInput.readOnly = true;
         floatbalanceInput.style.border = "none";
         floatbalanceInput.style.width = "80px";
@@ -2438,21 +2601,55 @@ else if(selectedOption=='employee_nic'){
         $(document).on("keyup", '#rs' + Counter, function () {
             var rs = $('#rs' + Counter).val();
             var floatvalue = $('#pettycashfloat').val();
+           var vat = $('#vat' + Counter).val();
+
+            //    calculate vat
+           var vatamount=rs*(vat/100);
+           var aftervat=(parseFloat(rs))+(parseFloat(vatamount));
+        //    console.log(vat,vatamount,rs,aftervat);
+            $('#aftervat' + Counter).val(aftervat);
+
+
+            // float balance calculate
             if($('#floatbalance' + (Counter - 1)).length > 0){
                 var prefloatbalance=$('#floatbalance' + (Counter - 1)).val();
-                var newfloatbalance=prefloatbalance-rs;
+                var newfloatbalance=prefloatbalance-aftervat;
                 $('#floatbalance' + Counter).val(newfloatbalance)
-                console.log("no");
+                // console.log("no");
             }else{        
-                var floatbalance=floatvalue-rs;
+                var floatbalance=floatvalue-aftervat;
                 $('#floatbalance' + Counter).val(floatbalance);
-                console.log("yes");
+                // console.log("yes");
             }
-           if(rs==''||rs==null){
+           if(aftervat==''||aftervat==null){
             $('#floatbalance' + Counter).val('');
            }
+
+        
+
     });
 
+    }
+</script>
+<script>
+    function getVatDateInputChange(value,Counter){
+        // console.log(value,Counter);
+        $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    })
+
+                $.ajax({
+                    url: '{!! route("pettycashgetVat") !!}',
+                        type: 'POST',
+                        dataType: "json",
+                        data: {date: value },
+                    success: function (data) {
+                        $('#vat' + Counter).val(data.result);
+                     
+                    }
+                })
     }
 </script>
 @endsection

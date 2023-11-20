@@ -903,7 +903,7 @@ Route::post('/grndetailedit' ,'GRNcontroller@editlist')->name('grndetailedit');
 Route::post('/grndetaildelete' ,'GRNcontroller@deletelist')->name('grndetaildelete');
 Route::post('/grndetailapprovel_details' ,'GRNcontroller@approvel_details')->name('grndetailapprovel_details');
 Route::get('/grnstatus/{id}/{stasus}','GRNcontroller@status')->name('grnstatus');
-Route::post('/stockupdate' ,'GRNcontroller@stockupdate')->name('stockupdate');
+Route::post('/grnstockupdate' ,'GRNcontroller@stockupdate')->name('grnstockupdate');
 Route::post('/getbatchno' ,'GRNcontroller@getbatchno')->name('getbatchno');
 Route::get('/edit_porderItemget/{porderid}', 'GRNcontroller@edit_porderItemget')->name('edit_porderItemget');
 Route::get('/grnview', 'GRNcontroller@view')->name('grnview');
@@ -993,6 +993,7 @@ Route::post('/boardingfeesdetailedit' ,'Boardingfeescontroller@editlist')->name(
 Route::post('/boardingfeesdetaildelete' ,'Boardingfeescontroller@deletelist')->name('boardingfeesdetaildelete');
 Route::post('/boardingfeesdetailapprovel_details' ,'Boardingfeescontroller@approvel_details')->name('boardingfeesdetailapprovel_details');
 Route::get('/boardingfeesstatus/{id}/{stasus}','Boardingfeescontroller@status')->name('boardingfeesstatus');
+Route::post('/boardingfeeGetAllEmployee' ,'Boardingfeescontroller@GetAllEmployee')->name('boardingfeeGetAllEmployee');
 
 // Vehicle Type controller routes
 Route::get('/vehicletype' ,'Vehicletypecontroller@index')->name('vehicletype');
@@ -1024,6 +1025,8 @@ Route::post('/pettycashprint', 'PettycashController@pettycashprint')->name('pett
 Route::post('/pettycashgetempnic' ,'PettycashController@pettycashgetempnic')->name('pettycashgetempnic');
 Route::post('/pettycashgetempname' ,'PettycashController@pettycashgetempname')->name('pettycashgetempname');
 Route::post('/pettycashserviceno' ,'PettycashController@pettycashserviceno')->name('pettycashserviceno');
+Route::post('/pettycashgetVat' ,'PettycashController@pettycashgetVat')->name('pettycashgetVat');
+
 
 // Petty cash category controller routes
 Route::get('/pettycashcategory' ,'PettycashcategoryController@index')->name('pettycashcategory');
@@ -1107,6 +1110,16 @@ Route::post('/stockdelete' ,'StockController@delete')->name('stockdelete');
 Route::post('/stockapprove' ,'StockController@approve')->name('stockapprove');
 Route::get('/stockstatus/{id}/{stasus}','StockController@status')->name('stockstatus');
 
+// vat contorller routes
+Route::get('/vat' ,'VatController@index')->name('vat');
+Route::get('/vatlist' ,'VatController@requestlist')->name('vatlist');
+Route::post('/vatinsert' ,'VatController@insert')->name('vatinsert');
+Route::post('/vatedit' ,'VatController@edit')->name('vatedit');
+Route::post('/vatupdate' ,'VatController@update')->name('vatupdate');
+Route::post('/vatdelete' ,'VatController@delete')->name('vatdelete');
+Route::post('/vatapprove' ,'VatController@approve')->name('vatapprove');
+Route::post('/vatreject' ,'VatController@reject')->name('vatreject');
+Route::get('/vatstatus/{id}/{stasus}','VatController@status')->name('vatstatus');
 
 
 Auth::routes();

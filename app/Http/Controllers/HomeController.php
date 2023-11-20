@@ -27,9 +27,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-         $today = Carbon::now()->format('Y-m-d');
-         $empcount = DB::table('employees')->count();
-         $todaycount = Attendance::where('date',$today)->count();
+        $today = Carbon::now()->format('Y-m-d');
+        $empcount = DB::table('employees')->count();
+        $todaycount = Attendance::where('date',$today)->count();
 //        $late_attendance = DB::table('attendances')
 //                ->join('employees', 'attendances.employee_id', '=', 'employees.id')
 //                ->select('attendances.*', 'employees.name')

@@ -10,7 +10,7 @@ class Boardingfeesdetail extends Model
 
     protected $fillable =[
 
-        'emp_id','boardingfees_id','status',
+        'emp_id','boardingfee','company_discount','total_cost','boardingfees_id','status',
          'create_by', 'update_by'
     ];
 }

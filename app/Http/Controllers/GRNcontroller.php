@@ -733,6 +733,7 @@ public function stockupdate(Request $request){
     $batch_no=$request->input('batchno');
 
     $tableData = $request->input('tableData');
+    
     $assetvalue="brandnew";
     foreach ($tableData as $rowtabledata) {
         $item = $rowtabledata['col_7'];

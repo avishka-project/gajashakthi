@@ -13,7 +13,7 @@
             </div>
         </div>
     </div>
-    <div class="container-fluid mt-0 p-0 p-2">
+   <div class="container-fluid mt-0 p-0 p-2">
         <div class="row">
             <div class="col-xl-3 col-md-6 mb-4">
 
@@ -122,91 +122,11 @@ $(document).ready( function () {
 
     showTime();
 
-    function showTime(){
-        var date = new Date();
-        var h = date.getHours(); // 0 - 23
-        var m = date.getMinutes(); // 0 - 59
-        var s = date.getSeconds(); // 0 - 59
-        var session = "AM";
-
-        if(h == 0){
-            h = 12;
-        }
-
-        if(h > 12){
-            h = h - 12;
-            session = "PM";
-        }
-
-        h = (h < 10) ? "0" + h : h;
-        m = (m < 10) ? "0" + m : m;
-        s = (s < 10) ? "0" + s : s;
-
-        var time = h + ":" + m + ":" + s + " " + session;
-        document.getElementById("clock").innerText = time;
-        document.getElementById("clock").textContent = time;
-
-        setTimeout(showTime, 1000);
-    }
-
-    getattend();
-    getbranchattend();
 } );
-function getattend(){
-    
-        var url = "{{url('getAttendentChart')}}";
-        var date = new Array();
-        var Labels = new Array();
-        var count = new Array();
-        $(document).ready(function(){
-          $.get(url, function(response){
-            response.forEach(function(data){
-                const editedText = data.date.slice(0, -8)
-                date.push(editedText);               
-                count.push(data.count);
-            });
-            var ctx = document.getElementById("myAreaChart");
-                var myChart = new Chart(ctx, {
-                  type: 'bar',
-                  data: {
-                      labels:date,
-                      datasets: [{
-                          label: 'Attendent',
-                          data: count,
-                          borderWidth: 1
-                      }]
-                  },
-                  options: {
-                      scales: {
-                          yAxes: [{
-                              ticks: {
-                                  beginAtZero:true
-                              }
-                          }]
-                      },
-                      tooltips: {
-            backgroundColor: "rgb(255,255,255)",
-            bodyFontColor: "#858796",
-            titleMarginBottom: 10,
-            titleFontColor: "#6e707e",
-            titleFontSize: 14,
-            borderColor: "#dddfeb",
-           
-        }
-                      
-                  }
-              });
-          });
-        });
-    };
+
    
-        </script>
-
-      
-<script>
-$(document).ready( function () {
-    $('#empTable').DataTable();
-} );
 </script>
+
+
 
 @endsection

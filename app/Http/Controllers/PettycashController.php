@@ -96,7 +96,9 @@ class PettycashController extends Controller
             $bill_date = $rowfilteredArray['bill_date'];
             $bill_no = $rowfilteredArray['bill_no'];
             $description = $rowfilteredArray['description'];
+            $vat_precentage = $rowfilteredArray['vat_precentage'];
             $cost = $rowfilteredArray['rs'];
+            $after_vat = $rowfilteredArray['after_vat'];
             $category = $rowfilteredArray['category'];
             $float_balance = $rowfilteredArray['floatbalance'];
             $emp_type = $rowfilteredArray['emp_type'];
@@ -118,7 +120,9 @@ class PettycashController extends Controller
             $pettycashdetail->non_reg_emp = $non_reg_emp;
             $pettycashdetail->bill_no = $bill_no;
             $pettycashdetail->description = $description;
+            $pettycashdetail->vat_precentage = $vat_precentage;
             $pettycashdetail->cost = $cost;
+            $pettycashdetail->after_vat = $after_vat;
             $pettycashdetail->float_balance = $float_balance;
             $pettycashdetail->category = $category;
             $pettycashdetail->pettycash_id = $requestID;
@@ -242,7 +246,9 @@ class PettycashController extends Controller
                 'emp_serviceno' => $detail->service_no,
                 'bill_no' => $detail->bill_no,
                 'description' => $detail->description,
+                'vat_precentage' => $detail->vat_precentage,
                 'rs' => $detail->cost,
+                'after_vat' => $detail->after_vat,
                 'float_balance' => $detail->float_balance,
                 'category' => $detail->category
             ];
@@ -302,7 +308,9 @@ class PettycashController extends Controller
             $bill_date = $rowfilteredArray['bill_date'];
             $bill_no = $rowfilteredArray['bill_no'];
             $description = $rowfilteredArray['description'];
+            $vat_precentage = $rowfilteredArray['vat_precentage'];
             $cost = $rowfilteredArray['rs'];
+            $after_vat = $rowfilteredArray['after_vat'];
             $category = $rowfilteredArray['category'];
             $float_balance = $rowfilteredArray['floatbalance'];
             $emp_type = $rowfilteredArray['emp_type'];
@@ -324,7 +332,9 @@ class PettycashController extends Controller
             $pettycashdetail->non_reg_emp = $non_reg_emp;
             $pettycashdetail->bill_no = $bill_no;
             $pettycashdetail->description = $description;
+            $pettycashdetail->vat_precentage = $vat_precentage;
             $pettycashdetail->cost = $cost;
+            $pettycashdetail->after_vat = $after_vat;
             $pettycashdetail->float_balance = $float_balance;
             $pettycashdetail->category = $category;
             $pettycashdetail->pettycash_id = $id;
@@ -332,6 +342,8 @@ class PettycashController extends Controller
             $pettycashdetail->create_by = Auth::id();
             $pettycashdetail->update_by = '0';
             $pettycashdetail->save();
+
+            
         }
 
         
@@ -548,6 +560,29 @@ class PettycashController extends Controller
         }
     }
 
+    public function pettycashgetVat(Request $request){
+        $user = Auth::user();
+
+        $date = Request('date');
+        if (request()->ajax()){
+            $data = DB::table('vats')
+            ->select('vats.*')
+            ->where('vats.approve_status', 1)
+            ->whereIn('vats.status', [1, 2])
+            ->whereDate('fromdate', '<=', $date)
+            ->whereDate('todate', '>=', $date)
+            ->get();
+    
+        if ($data->count() > 0) {
+            // Return the vat value of the first matching row
+            return response()->json(['result' => $data[0]->vat]);
+        } else {
+            // No matching row found
+            return response()->json(['result' => 0]);
+        }
+    }
+    }
+
     public function pettycashprint(Request $request){
         $id = $request->input('id');
     
@@ -597,13 +632,23 @@ class PettycashController extends Controller
        
         $count = 1;
 
+        $afrtervattotal = DB::table('pettycashdetails')
+    ->select('pettycashdetails.*')
+    ->whereIn('pettycashdetails.status', [1, 2])
+    ->where('pettycashdetails.pettycash_id', $id)
+    ->get();
+
+// Calculate the sum of the 'after_vat' column
+    $afterVatTotalSum = $afrtervattotal->sum('after_vat');
+    
+
         $categoryData = DB::table('pettycashdetails')
     ->leftJoin('pettycashcategories', 'pettycashcategories.id', '=', 'pettycashdetails.category')
     ->select('pettycashdetails.*', 'pettycashcategories.pettycash_category AS pettycash_category')
     ->whereIn('pettycashdetails.status', [1, 2])
     ->where('pettycashdetails.pettycash_id', $id)
     ->groupBy('pettycashdetails.category')
-    ->select('pettycash_category', DB::raw('SUM(cost) as cost_sum'))
+    ->select('pettycash_category', DB::raw('SUM(after_vat) as after_vat_sum'))
     ->get();
 
     $categoryArray = $categoryData->toArray();
@@ -612,30 +657,40 @@ class PettycashController extends Controller
     foreach ($categoryArray as $rowlist) {
         $categorySummary .= '
         <tr>
-            <td style="font-size: 14px;" class="text-left"><b>' . $rowlist->pettycash_category . ' :- ' . $rowlist->cost_sum . '.00</b></td>
+            <td style="font-size: 14px;" class="text-left;text-align:left;"><b>' . $rowlist->pettycash_category . '</b></td>
+            <td style="font-size: 14px;text-align:center;"><b>' . number_format(($rowlist->after_vat_sum),2) . '</b></td>
         </tr>
         
         ';
     }
     
         
-        foreach ($types as $rowlist) {
-            $tblinvoice.='
+    foreach ($types as $rowlist) {
+        $tblinvoice .= '
             <tr>
-            <td style="font-size:11px; border:2px solid black; text-align:center;height: 25px;" class="text-center">'. $count.'</td>
-            <td colspan="3" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.$rowlist->bill_date.'</td>
-            <td colspan="3" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.$rowlist->emp_type.'</td>
-            <td colspan="6" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.($rowlist->emp_type=="Reg_Emp"?($rowlist->emp_id==null?'':$rowlist->service_no.'-'.$rowlist->emp_name_with_initial):($rowlist->non_reg_emp==null?'':$rowlist->non_reg_emp)).'</td>
-            <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.$rowlist->bill_no.'</td>
-            <td colspan="4" style="font-size:11px; border:2px solid black; black; text-align:justify;padding-left:4px;height: 25px;" class="text-justify">'.$rowlist->description.'</td>
-            <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.number_format(($rowlist->cost),2).'</td>
-            <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">'.number_format(($rowlist->float_balance),2).'</td>
-            <td colspan="3" style="font-size:11px; border:2px solid black; black; text-align:justify;padding-left:4px;height: 25px;" class="text-left">'.$rowlist->pettycash_category.'</td>   
-        </tr>
-        
-            ';
-            $count++;
+                <td style="font-size:11px; border:2px solid black; text-align:center;height: 25px;" class="text-center">' . $count . '</td>
+                <td colspan="3" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . $rowlist->bill_date . '</td>
+                <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . $rowlist->emp_type . '</td>
+                <td colspan="6" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . ($rowlist->emp_type == "Reg_Emp" ? ($rowlist->emp_id == null ? '' : $rowlist->service_no . '-' . $rowlist->emp_name_with_initial) : ($rowlist->non_reg_emp == null ? '' : $rowlist->non_reg_emp)) . '</td>
+                <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . $rowlist->bill_no . '</td>
+                <td colspan="5" style="font-size:11px; border:2px solid black; black; text-align:left;padding-left:4px;padding-bottom:4px;height: 25px;" class="text-justify">' . $rowlist->description . '</td>
+                <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . number_format(($rowlist->vat_precentage)) . '</td>
+                <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . number_format(($rowlist->cost), 2) . '</td>
+                <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . number_format(($rowlist->after_vat), 2) . '</td>
+                <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . number_format(($rowlist->float_balance), 2) . '</td>
+                <td colspan="4" style="font-size:11px; border:2px solid black; black; text-align:left;padding-left:4px;padding-bottom:4px;height: 25px;" class="text-left">' . $rowlist->pettycash_category . '</td>   
+            </tr>
+        ';
+    
+        $count++;
+    
+        // Add a page break after every 15 rows
+        if ($count % 12 == 0) {
+            $tblinvoice .= '</table>'; // Close the current table
+            $tblinvoice .= '<div style="page-break-before: always;"></div>'; // Add a page break
+            $tblinvoice .= '<table class="tg" style="table-layout: fixed; width: 100%" cellspacing="0" cellpadding="0">'; // Start a new table
         }
+    }
     
     
         $html='';
@@ -731,10 +786,11 @@ class PettycashController extends Controller
         <div id="DivIdToPrint">
             <table style="width:100%;">
                 <tr>
-                    <td style="text-align: left;width:20px"><img id="logo" src="./images/logogaja.png" width="50" alt="Logo"></td>
-                    <td style="text-align: center; padding-right: 20px;">
-                        <h5 style="margin-left:90px;">PETTY CASH REIMBURSEMENT AS AT <span style="margin-left:50px;margin-top:5px;display: inline-block;width: 150px;height: 20px;border: 1px solid black;">'.$date.'</span></h5>
-                        <p>PETTY CASH FLOAT <span style="border: 1px solid black;margin:10px">Rs&nbsp;'.$pettycashfloat.'</span></p>
+                    <td style="text-align: left;width:20px;"><img id="logo" src="./images/logogaja.png" width="50" alt="Logo"></td>
+                    <td style="text-align: center; padding-right: 140px;">
+                        <h3 style="margin-left:0px;">Gajashakthi Security Service (Pvt) Ltd</h3>
+                        <h5 style="margin-left:0px;">PETTY CASH REIMBURSEMENT AS AT '.$date.'</h5>
+                        <p>PETTY CASH FLOAT Rs&nbsp;'.$pettycashfloat.'</p>
                     </td>
                 </tr>
                 <tr>
@@ -743,38 +799,45 @@ class PettycashController extends Controller
                             <tr style="text-align:right; font-weight:bold; font-size:5px;">
                                 <td style="text-align: center; font-size:12px;border:2px solid black;">Seq</td>
                                 <td colspan="3" style="text-align: center; font-size:12px;border:2px solid black;">Bill Date</td>
-                                <td colspan="3" style="text-align: center; font-size:12px;border:2px solid black;">Emp Type</td>
+                                <td colspan="2" style="text-align: center; font-size:12px;border:2px solid black;">Emp Type</td>
                                 <td colspan="6" style="text-align: center; font-size:12px;border:2px solid black;">Employee</td>
                                 <td colspan="2" style="text-align: center; font-size:12px;border:2px solid black;">Bill No</td>
-                                <td colspan="4" style="text-align: center; font-size:12px;border:2px solid black;">Description</td>
+                                <td colspan="5" style="text-align: center; font-size:12px;border:2px solid black;">Description</td>
+                                <td colspan="2" style="text-align: center; font-size:12px;border:2px solid black;">Vat(%)</td>
                                 <td colspan="2" style="text-align: center; font-size:12px;border:2px solid black;">Rs.</td>
+                                <td colspan="2" style="text-align: center; font-size:12px;border:2px solid black;">After Vat</td>
                                 <td colspan="2" style="text-align: center; font-size:12px;border:2px solid black;">Float Balance</td>
-                                <td colspan="3" style="text-align: center; font-size:12px;border:2px solid black;">Petty Cash Category</td>
+                                <td colspan="4" style="text-align: center; font-size:12px;border:2px solid black;">Petty Cash Category</td>
                             </tr>
                             <tbody>
                                 '.$tblinvoice.'
                             </tbody>
                             <tfoot>
                             <tr style="font-weight:bold;">
-                            <td colspan="19" style="border:2px solid black;text-align:center;font-size:12px;height: 25px;" class="text-center">TOTAL</td>
-                            <td colspan="2" style="border:2px solid black;text-align:center;font-size:12px;height: 25px;">'.number_format(($totalcost),2).'</td>
-                            <td colspan="5" style="border:2px solid black;text-align:center;height: 25px;"></td>
+                            <td colspan="21" style="border:2px solid black;text-align:center;font-size:10px;height: 25px;" class="text-center">TOTAL</td>
+                            <td colspan="2" style="border:2px solid black;text-align:center;font-size:10px;height: 25px;">'.number_format(($totalcost),2).'</td>
+                            <td colspan="2" style="border:2px solid black;text-align:center;font-size:10px;height: 25px;">'.number_format(($afterVatTotalSum),2).'</td>
+                            <td colspan="6" style="border:2px solid black;text-align:center;height: 25px;"></td>
                             </tr>
                             </tfoot>
                         </table>
                     </td>
                 </tr>
-            <tr>
-            </tr>
+            <tr></tr>
       
-                <tr style="border: 1px solid;font-weight:bold;">
-                    <td style="text-align: center; font-size:20px; padding-top: 20px; padding-right: 30px" colspan="2">
-                    Gajashakthi Security Service (Pvt) Ltd
-                    </td>
-                </tr>
+                
             </table>
+            <br><br>
             <table style="width:100%;">
             '.$categorySummary.'
+            <tr>
+            <td style="font-size: 14px;border-top:1px solid black;" class="text-left"><b>Total</b></td>
+            <td style="font-size: 14px;border-top:1px solid black;border-bottom:1px dashed black;text-align: center;"><b>' . number_format(($afterVatTotalSum),2) . '</b></td>
+            </tr>
+            <tr>
+            <td></td>
+            <td style="font-size: 14px;border-bottom:1px dashed black;text-align: center;"></td>
+            </tr>
             <tr>
              <td style="text-align: center; font-size:14px;padding-bottom: 25px;"></td>
              </tr>
@@ -843,10 +906,12 @@ class PettycashController extends Controller
  
     $pdf = PDF::loadHTML($html);
 
+    // Set page orientation to landscape
+    $pdf->setPaper('A4', 'landscape');
+    
     // Return the PDF as base64-encoded data
     $pdfContent = $pdf->output();
     return response()->json(['pdf' => base64_encode($pdfContent)]);
-    
     }
     
 }

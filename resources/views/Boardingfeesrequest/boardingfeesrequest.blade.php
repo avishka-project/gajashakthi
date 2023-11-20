@@ -8,7 +8,7 @@
         <div class="page-header-content py-3">
             <h1 class="page-header-title">
                 <div class="page-header-icon"><i class="fas fa-bed"></i></div>
-                <span>Boarding Fees Request</span>
+                Boarding Fees Request
             </h1>
         </div>
     </div>
@@ -32,8 +32,8 @@
                                 <tr>
                                     <th>ID </th>
                                     <th>Supplier</th>
+                                    <th>Location</th>
                                     <th>Month</th>
-                                    <th>Cost</th>
                                     <th class="text-right">Action</th>
                                 </tr>
                             </thead>
@@ -61,86 +61,176 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-12">
+                            <div class="form-row mb-1">
+                                <div class="col-4">
+                                    <label class="small font-weight-bold text-dark">Select Request Type*</label>
+                                    <select name="requesttype" id="requesttype" class="form-control form-control-sm">
+                                        <option value="voregion">VO Region</option>
+                                        <option value="singleemployee">Single Employee</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <br>
+                            <hr>
                             <span id="form_result"></span>
                             <form method="post" id="formTitle" class="form-horizontal">
                                 {{ csrf_field() }}
-
-                                <div class="form-row mb-1">
-                                    <div class="col">
-                                        <label class="small font-weight-bold text-dark">Supplier*</label><br>
-                                        <select name="supplier" id="supplier" class="form-control form-control-sm">
-                                            <option value="">Select Supplier</option>
-                                            @foreach($suppliers as $supplier)
-                                            <option value="{{$supplier->id}}">
-                                                {{$supplier->supplier_name}}</option>
-                                            @endforeach
-                                        </select>
+                                <div id="DivRegion" style="display: none;">
+                                    <div class="form-row mb-1">
+                                            <div class="col-3">
+                                                <label class="small font-weight-bold text-dark">Supplier*</label><br>
+                                                <select name="vosupplier" id="vosupplier"
+                                                    class="form-control form-control-sm">
+                                                    <option value="">Select Supplier</option>
+                                                    @foreach($suppliers as $supplier)
+                                                    <option value="{{$supplier->id}}">
+                                                        {{$supplier->supplier_name}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        <div class="col-3">
+                                            <label class="small font-weight-bold text-dark">Location*</label>
+                                            <select name="volocation" id="volocation" class="form-control form-control-sm" onchange="getAllVoEmp();" required>
+                                                <option value="">Select Location</option>
+                                                @foreach($branches as $branche)
+                                                <option value="{{$branche->id}}">
+                                                    {{$branche->branch_name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                           
+                                        <div class="col-3">
+                                            <label class="small font-weight-bold text-dark">VO Region*</label>
+                                            <input type="text" class="form-control form-control-sm" placeholder=""
+                                                name="voregion" id="voregion" readonly>
+                                                <input type="hidden" class="form-control form-control-sm" placeholder=""
+                                            name="voregion_id" id="voregion_id" readonly>
+                                        </div>
+                                        <div class="col-3">
+                                            <label class="small font-weight-bold text-dark">Month*</label>
+                                            <input type="month" id="vomonth" name="vomonth" class="form-control form-control-sm"
+                                                required>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-row mb-1">
-                                    <div class="col">
-                                        <label class="small font-weight-bold text-dark">Employees*</label>
-                                        <select name="employee" id="employee" class="form-control form-control-sm" required>
-                                            <option value="">Select Employees</option>
-                                        </select>          
+    
+                                    <div class="form-row mb-1">
+                                        <div class="col-3">
+                                            <label class="small font-weight-bold text-dark">Company Discount Precentage*</label>
+                                            <input type="number" id="vodiscountprecentage" name="vodiscountprecentage" class="form-control form-control-sm"
+                                                required onkeyup="calculatediscountAll(this.value)">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="small font-weight-bold text-dark">Remark*</label>
+                                            <textarea type="text" id="voremark" name="voremark"
+                                                class="form-control form-control-sm"></textarea>
+                                        </div>
                                     </div>
-                                </div>
-
-
-                                <div class="form-row mb-1">
-                                    <div class="col">
-                                        <label class="small font-weight-bold text-dark">Month*</label>
-                                        <input type="month" id="month" name="month" class="form-control form-control-sm"
-                                            required>
-                                    </div>
-                                    <div class="col">
-                                        <label class="small font-weight-bold text-dark">Cost*</label>
-                                        <input type="number" id="cost" name="cost" class="form-control form-control-sm"
-                                            required>
-                                    </div>
-                                </div>
-
-                                <div class="form-row mb-1">
                                     <div class="col-12">
-                                        <label class="small font-weight-bold text-dark">Remark*</label>
-                                        <textarea type="text" id="remark" name="remark"
-                                            class="form-control form-control-sm"></textarea>
+                                        <table class="table table-striped table-bordered table-sm small" id="votableorder">
+                                            <thead>
+                                                <tr>
+                                                    <th>Employee</th>
+                                                    <th>Boarding Fee</th>
+                                                    <th>Company Discount</th>
+                                                    <th>Total Cost</th>
+                                                    <th class="d-none">EmployeeID</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="votableorderlist"></tbody>
+                                        </table>
                                     </div>
                                 </div>
 
-                                <div class="form-group mt-3">
-                                    <button type="button" id="formsubmit"
-                                        class="btn btn-primary btn-sm px-4 float-right"><i
-                                            class="fas fa-plus"></i>&nbsp;Add to list</button>
-                                    <input name="submitBtn" type="submit" value="Save" id="submitBtn" class="d-none">
-                                    <button type="button" name="Btnupdatelist" id="Btnupdatelist"
-                                        class="btn btn-primary btn-sm px-4 fa-pull-right" style="display:none;"><i
-                                            class="fas fa-plus"></i>&nbsp;Update List</button>
+
+                                <div id="DivSingle" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="form-row mb-1">
+                                            <div class="col-12">
+                                                <label class="small font-weight-bold text-dark">Supplier*</label><br>
+                                                <select name="supplier" id="supplier"
+                                                    class="form-control form-control-sm">
+                                                    <option value="">Select Supplier</option>
+                                                    @foreach($suppliers as $supplier)
+                                                    <option value="{{$supplier->id}}">
+                                                        {{$supplier->supplier_name}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                            <div class="form-row mb-1">
+                                                <div class="col-12">
+                                                    <label class="small font-weight-bold text-dark">Location*</label>
+                                                    <select name="location" id="location" class="form-control form-control-sm" required>
+                                                        <option value="">Select Location</option>
+                                                        @foreach($branches as $branche)
+                                                        <option value="{{$branche->id}}">
+                                                            {{$branche->branch_name}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                                
+                                                <div class="form-row mb-1">
+                                                    <div class="col">
+                                                        <label class="small font-weight-bold text-dark">Month*</label>
+                                                        <input type="month" id="month" name="month" class="form-control form-control-sm"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row mb-1">
+                                                <div class="col-12">
+                                                    <label class="small font-weight-bold text-dark">Company Discount Precentage*</label>
+                                                    <input type="number" id="discountprecentage" name="discountprecentage" class="form-control form-control-sm"
+                                                        required onkeyup="calculatediscountAll1(this.value)">
+                                                </div>
+                                            </div>
+                                                <div class="form-row mb-1">
+                                                    <div class="col-12">
+                                                        <label class="small font-weight-bold text-dark">Remark*</label>
+                                                        <textarea type="text" id="remark" name="remark"
+                                                            class="form-control form-control-sm"></textarea>
+                                                    </div>
+                                                </div>
+                
+                                            
+                                        </div>
+                                        <div class="col-8">
+                                            <table class="table table-striped table-bordered table-sm small" id="tableorder">
+                                                <thead>
+                                                    <tr>
+                
+                                                        <th>Employee</th>
+                                                        <th>Boarding Fee</th>
+                                                        <th>Company Discount</th>
+                                                        <th>Total Cost</th>
+                                                        <th class="d-none">EmployeeID</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tableorderlist"></tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="3">
+                                                            <button id="addRowButton">Add New Row</button>
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <input type="hidden" name="action" id="action" value="Add" />
                                 <input type="hidden" name="hidden_id" id="hidden_id" />
                                 <input type="hidden" name="boardingdeiailsid" id="boardingdeiailsid">
                             </form>
-                        </div>
-                        <div class="col-8">
-                            <table class="table table-striped table-bordered table-sm small" id="tableorder">
-                                <thead>
-                                    <tr>
-
-                                        <th>Employee</th>
-                                        <th class="d-none">EmployeeID</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tableorderlist"></tbody>
-                            </table>
-                            <div class="form-group mt-2">
-                                <button type="button" name="btncreateorder" id="btncreateorder"
-                                    class="btn btn-outline-primary btn-sm fa-pull-right px-4"><i
-                                        class="fas fa-plus"></i>&nbsp;Create Request</button>
-
-                            </div>
+                        </div>  
+                            <div class="col-12">
+                            <button type="button" name="btncreateorder" id="btncreateorder"
+                                class="btn btn-outline-primary btn-sm fa-pull-right px-4"><i
+                                    class="fas fa-plus"></i>&nbsp;Create Request</button>
                         </div>
                     </div>
                 </div>
@@ -172,7 +262,6 @@
         </div>
     </div>
 
-
     <!-- Modal Area Start -->
     <div class="modal fade" id="confirmModal2" data-backdrop="static" data-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -191,12 +280,112 @@
                     </div>
                 </div>
                 <div class="modal-footer p-2">
-                    <button type="button" name="ok_button2" id="ok_button2" class="btn btn-danger px-3 btn-sm">OK</button>
+                    <button type="button" name="ok_button2" id="ok_button2"
+                        class="btn btn-danger px-3 btn-sm">OK</button>
                     <button type="button" class="btn btn-dark px-3 btn-sm" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
+<div class="modal fade" id="viewModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header p-2">
+                <h5 class="viewmodal-title" id="staticBackdropLabel">View Boarding Fees Request Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-4">
+                        <span id="form_result"></span>
+                        <form method="post" id="view_formTitle" class="form-horizontal">
+                            {{ csrf_field() }}
+
+                            <div class="form-row mb-1">
+                                <div class="col-12">
+                                    <label class="small font-weight-bold text-dark">Supplier*</label><br>
+                                    <select name="view_supplier" id="view_supplier"
+                                        class="form-control form-control-sm" readonly>
+                                        <option value="">Select Supplier</option>
+                                        @foreach($suppliers as $supplier)
+                                        <option value="{{$supplier->id}}">
+                                            {{$supplier->supplier_name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row mb-1">
+                                <div class="col">
+                                    <label class="small font-weight-bold text-dark">Location*</label><br>
+                                    <select name="view_location" id="view_location"
+                                        class="form-control form-control-sm" readonly>
+                                        <option value="">Select Location</option>
+                                        @foreach($branches as $branche)
+                                        <option value="{{$branche->id}}">
+                                            {{$branche->branch_name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row mb-1">
+                            <div class="col-12">
+                                <label class="small font-weight-bold text-dark">VO Region*</label>
+                                <input type="text" class="form-control form-control-sm" placeholder=""
+                                    name="view_voregion" id="view_voregion" readonly>
+                                    <input type="hidden" class="form-control form-control-sm" placeholder=""
+                                name="view_voregion_id" id="view_voregion_id" readonly>
+                            </div>
+                             </div>
+                            <div class="form-row mb-1">
+                                <div class="col">
+                                    <label class="small font-weight-bold text-dark">Month*</label>
+                                    <input type="month" id="view_month" name="view_month"
+                                        class="form-control form-control-sm" required readonly>
+                                </div>
+                            </div>
+                            <div class="form-row mb-1">
+                                <div class="col-12">
+                                    <label class="small font-weight-bold text-dark">Company Discount Precentage*</label>
+                                    <input type="number" id="view_discountprecentage" name="view_discountprecentage" class="form-control form-control-sm"
+                                        required readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-row mb-1">
+                                <div class="col-12">
+                                    <label class="small font-weight-bold text-dark">Remark*</label>
+                                    <textarea type="text" id="view_remark" name="view_remark"
+                                        class="form-control form-control-sm" readonly></textarea>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="view_hidden_id" id="view_hidden_id" />
+                        </form>
+                    </div>
+                    <div class="col-8">
+                        <table class="table table-striped table-bordered table-sm small" id="view_tableorder">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Boarding Fee</th>
+                                    <th>Company Discount</th>
+                                    <th>Total Cost</th>
+                                    {{-- <th>Company Rate</th>
+                                    <th>Guard Rate</th> --}}
+                                </tr>
+                            </thead>
+                            <tbody id="view_tableorderlist"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div class="modal fade" id="approveconfirmModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -208,18 +397,15 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-
-
-
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-4">
                             <span id="form_result"></span>
-                            <form method="post" id="formTitle" class="form-horizontal">
+                            <form method="post" id="app_formTitle" class="form-horizontal">
                                 {{ csrf_field() }}
 
                                 <div class="form-row mb-1">
-                                    <div class="col">
+                                    <div class="col-12">
                                         <label class="small font-weight-bold text-dark">Supplier*</label><br>
                                         <select name="app_supplier" id="app_supplier"
                                             class="form-control form-control-sm" readonly>
@@ -231,31 +417,42 @@
                                         </select>
                                     </div>
                                 </div>
+
                                 <div class="form-row mb-1">
                                     <div class="col">
-                                        <label class="small font-weight-bold text-dark">Employee*</label><br>
-                                        <select name="app_employee" id="app_employee"
-                                            class="form-control form-control-sm " readonly>
-                                            <option value="">Select Employee</option>
-                                            @foreach($employees as $employee)
-                                            <option value="{{$employee->id}}">{{$employee->service_no}} -
-                                                {{$employee->emp_name_with_initial}}</option>
+                                        <label class="small font-weight-bold text-dark">Location*</label><br>
+                                        <select name="app_location" id="app_location"
+                                            class="form-control form-control-sm" readonly>
+                                            <option value="">Select Location</option>
+                                            @foreach($branches as $branche)
+                                            <option value="{{$branche->id}}">
+                                                {{$branche->branch_name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
-
-
+                                <div class="form-row mb-1">
+                                <div class="col-12">
+                                    <label class="small font-weight-bold text-dark">VO Region*</label>
+                                    <input type="text" class="form-control form-control-sm" placeholder=""
+                                        name="app_voregion" id="app_voregion" readonly>
+                                        <input type="hidden" class="form-control form-control-sm" placeholder=""
+                                    name="app_voregion_id" id="app_voregion_id" readonly>
+                                </div>
+                            </div>
                                 <div class="form-row mb-1">
                                     <div class="col">
                                         <label class="small font-weight-bold text-dark">Month*</label>
                                         <input type="month" id="app_month" name="app_month"
                                             class="form-control form-control-sm" required readonly>
                                     </div>
-                                    <div class="col">
-                                        <label class="small font-weight-bold text-dark">Cost*</label>
-                                        <input type="number" id="app_cost" name="app_cost"
-                                            class="form-control form-control-sm" required readonly>
+                                </div>
+
+                                <div class="form-row mb-1">
+                                    <div class="col-12">
+                                        <label class="small font-weight-bold text-dark">Company Discount Precentage*</label>
+                                        <input type="number" id="app_discountprecentage" name="app_discountprecentage" class="form-control form-control-sm"
+                                            required readonly>
                                     </div>
                                 </div>
 
@@ -267,7 +464,7 @@
                                     </div>
                                 </div>
 
-                                <input type="hidden" name="hidden_id" id="hidden_id" />
+                                <input type="hidden" name="app_hidden_id" id="app_hidden_id" />
                                 <input type="hidden" name="app_level" id="app_level" value="1" />
                             </form>
                         </div>
@@ -276,6 +473,9 @@
                                 <thead>
                                     <tr>
                                         <th>Employee</th>
+                                        <th>Boarding Fee</th>
+                                        <th>Company Discount</th>
+                                        <th>Total Cost</th>
                                         {{-- <th>Company Rate</th>
                                         <th>Guard Rate</th> --}}
                                     </tr>
@@ -283,17 +483,19 @@
                                 <tbody id="app_tableorderlist"></tbody>
                             </table>
                         </div>
-                        <div class="modal-footer p-2">
-                            <button type="button" name="approve_button" id="approve_button"
-                                class="btn btn-warning px-3 btn-sm">Approve</button>
-                            <button type="button" class="btn btn-dark px-3 btn-sm" data-dismiss="modal">Cancel</button>
-                        </div>
                     </div>
                 </div>
+                <div class="modal-footer p-2">
+                    <button type="button" name="approve_button" id="approve_button"
+                        class="btn btn-warning px-3 btn-sm ">Approve</button>
+                    <button type="button" class="btn btn-dark px-3 btn-sm" data-dismiss="modal">Cancel</button>
+                </div>
             </div>
+        </div>
+    </div>
 
-
-    <!-- Modal Area End -->
+        
+            <!-- Modal Area End -->
 </main>
 
 @endsection
@@ -305,80 +507,266 @@
     $(document).ready(function () {
         $('#collapseemployee').addClass('show');
         $('#employee_request_collapse').addClass('show');
-        $('#boardingfeesrequest_link').addClass('active');
+        $('#Boardingfees_link').addClass('active');
 
+        // $('#dataTable').DataTable({
+        //     processing: true,
+        //     serverSide: true,
+        //     ajax: {
+        //         "url": "{!! route('travelrequestlist') !!}",
+
+        //     },
+        //     columns: [{
+        //             data: 'id',
+        //             name: 'id'
+        //         },
+        //         {
+        //             data: 'branch_name',
+        //             name: 'branch_name'
+        //         },
+        //         {
+        //             data: 'month',
+        //             name: 'month'
+        //         },
+        //         {
+        //             data: 'action',
+        //             name: 'action',
+        //             orderable: false,
+        //             searchable: false,
+        //             render: function (data, type, row) {
+        //                 return '<div style="text-align: right;">' + data + '</div>';
+        //             }
+        //         },
+        //     ],
+        //     "bDestroy": true,
+        //     "order": [
+        //         [2, "desc"]
+        //     ]
+        // });
+
+        var approvel01 = {{$approvel01permission}};
+        var approvel02 = {{$approvel02permission}};
+        var approvel03 = {{$approvel03permission}};
+
+        var listcheck = {{$listpermission}};
+        var editcheck = {{$editpermission}};
+        var statuscheck = {{$statuspermission}};
+        var deletecheck = {{$deletepermission}};
+        
         $('#dataTable').DataTable({
-            processing: true,
-            serverSide: true,
+            "destroy": true,
+            "processing": true,
+            "serverSide": true,
             ajax: {
-                "url": "{!! route('boardingfeeslist') !!}",
+                url: scripturl + '/boardingfeeslist.php',
+
+                type: "POST", // you can use GET
+                // data: {
+                //     },
 
             },
-            columns: [{
-                    data: 'id',
-                    name: 'id'
+            dom: "<'row'<'col-sm-5'B><'col-sm-2'l><'col-sm-5'f>>" + "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+            responsive: true,
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All'],
+            ],
+            "buttons": [{
+                    extend: 'csv',
+                    className: 'btn btn-success btn-sm',
+                    title: 'Boarding Fees Details',
+                    text: '<i class="fas fa-file-csv mr-2"></i> CSV',
                 },
                 {
-                    data: 'supplier_name',
-                    name: 'supplier_name'
-                },
-                {
-                    data: 'month',
-                    name: 'month'
-                },
-                {
-                    data: 'cost',
-                    name: 'cost'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false,
-                    render: function (data, type, row) {
-                        return '<div style="text-align: right;">' + data + '</div>';
-                    }
+                    extend: 'print',
+                    title: 'Boarding Fees Details',
+                    className: 'btn btn-primary btn-sm',
+                    text: '<i class="fas fa-print mr-2"></i> Print',
+                    customize: function (win) {
+                        $(win.document.body).find('table')
+                            .addClass('compact')
+                            .css('font-size', 'inherit');
+                    },
                 },
             ],
-            "bDestroy": true,
             "order": [
-                [2, "desc"]
-            ]
+                [0, "desc"]
+            ],
+            "columns": [{
+                    "data": "id",
+                    "className": 'text-dark'
+                },
+                {
+                    "data": "supplier_name",
+                    "className": 'text-dark'
+                },
+
+                {
+                    "data": "branch_name",
+                    "className": 'text-dark'
+                },
+                {
+                    "data": "month",
+                    "className": 'text-dark'
+                },
+                {
+                    "targets": -1,
+                    "className": 'text-right',
+                    "data": null,
+                    "render": function (data, type, full) {
+
+                        var approvelevel = '';
+                        var requesttype = '';
+                        var button = '';
+
+                        if (approvel01) {
+                            if (full['approve_01'] == 0) {
+                                    button += ' <button name="appL1" id="' + full['id'] + '" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
+                            }
+                        }
+                        if (approvel02) {
+                            if (full['approve_01'] == 1 && full['approve_02']==0) {
+                                    button += ' <button name="appL2" id="' + full['id'] + '" class="appL2 btn btn-outline-warning btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>'; 
+                            }
+                        }
+                        if (approvel03) {
+                            if (full['approve_02'] == 1 && full['approve_03']==0) {
+                                    button += ' <button name="appL3" id="' + full['id'] + '" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
+                            }
+                        }
+                            if (full['approve_03']==1) {
+                                    button += ' <button name="view" id="' + full['id'] + '" class="view btn btn-outline-secondary btn-sm" type="submit"><i class="fas fa-eye"></i></button>';      
+                            }
+                        if (editcheck) {
+                            if (full['approve_status']==0) {
+                                    button += ' <button name="edit" id="' + full['id'] + '" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';                      
+                        }
+                    }
+                        if (statuscheck) {
+                                if (full['status'] == 1) {
+                                    button += ' <a href="boardingfeesstatus/' + full['id'] + '/2 " onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
+                                } else {
+                                    button += '&nbsp;<a href="boardingfeesstatus/' + full['id'] + '/1 "  onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
+                                }
+                        }
+                        if (deletecheck) {
+                            button += ' <button name="delete" id="' + full['id'] + '" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
+                        }
+
+                        return button;
+                    }
+                }
+            ],
+            drawCallback: function (settings) {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
         });
 
         $('#create_record').click(function () {
-            $('.modal-title').text('Add New Boarding Fees Request');
+            $('.modal-title').text('Add Boarding Fees  Request');
             $('#action_button').html('Add');
             $('#btncreateorder').html('Create Request');
             $('#action').val('Add');
             $('#form_result').html('');
             $('#formTitle')[0].reset();
 
+            $('#votableorder tbody').empty();
+            $('#tableorder tbody').empty();
+
             $('#formModal').modal('show');
         });
 
-        $("#formsubmit").click(function () {
-            if (!$("#formTitle")[0].checkValidity()) {
-                // If the form is invalid, submit it. The form won't actually submit;
-                // this will just cause the browser to display the native HTML5 error messages.
-                $("#submitBtn").click();
-            } else {
-                var EmployeeID = $('#employee').val();
 
-
-                var Employee = $("#employee option:selected").text();
-
-                $('#tableorder > tbody:last').append('<tr class="pointer"><td>' + Employee +
-                    '</td><td class="d-none">' + EmployeeID +
-                    '</td><td class="d-none">NewData</td><td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm "><i class="fas fa-trash-alt"></i></button></td></tr>'
-                );
-
-                $('#employee').val('');
-
-            }
-        });
 
         $('#btncreateorder').click(function () {
+            var requesttype = $('#requesttype').val();
+            var hidden_id = $('#hidden_id').val();  
+            var supplier='';
+            var location='';
+            var month='';
+            var discount_presentage='';
+            var remark='';
+            var isAnyFieldEmpty = false;
+            var tableDataArray = [];
+            $('#btncreateorder').prop('disabled', true).html(
+                '<i class="fas fa-circle-notch fa-spin mr-2"></i> Create Order');
+
+            if(requesttype=="voregion"){
+                supplier = $('#vosupplier').val();
+                location = $('#volocation').val();
+                month = $('#vomonth').val();
+                discount_presentage = $('#vodiscountprecentage').val();
+                remark = $('#voremark').val();
+
+                if(location!='' && month!='' && supplier!='' && discount_presentage!=''){
+                   
+                    var count=1;
+                    $('#votableorder tbody tr').each(function() {
+                    var empid = $(this).find('td#empid').text();
+                    var boardingfee = $(this).find('input[type="number"]').val();
+                    var companydiscount = $(this).find('td#companydiscount').text();
+                    var totalcost = $(this).find('td#totalcost').text();
+
+                    var rowData = {
+                        'empid': empid,
+                        'boardingfee': boardingfee,
+                        'companydiscount': companydiscount,
+                        'totalcost': totalcost,
+                    };
+                    tableDataArray.push(rowData);
+                    count++;
+                    });
+                }else{
+                    $('#btncreateorder').prop('disabled', false).html(
+                'Create Order');
+                    alert("Please Select All feilds and Table data")
+                    return false;
+                }
+               
+            }else if(requesttype=="singleemployee"){
+                var tbody = $("#tableorder tbody");
+                var rowCount = $('#tableorder tbody tr').length;
+
+                supplier = $('#supplier').val();
+                location = $('#location').val();
+                month = $('#month').val();
+                discount_presentage = $('#discountprecentage').val();
+                remark = $('#remark').val();
+                
+                if(location!='' && month!='' && supplier!='' && discount_presentage!='' && rowCount!=0){
+                    var count=5000;
+                    $('#tableorder tbody tr').each(function() {
+                    var empid = $(this).find('select').val();
+                    var boardingfee = $(this).find('input[type="number"]').val();
+                    var companydiscount = $(this).find('td#companydiscount').text();
+                    var totalcost = $(this).find('td#totalcost').text();
+
+                    if (!empid || boardingfee === "") {
+                // Display an alert if any input or select is empty
+                    alert("Please fill in all fields for row with Employee: " + empid);
+                    $('#btncreateorder').prop('disabled', false).html('Create Order');
+                    isAnyFieldEmpty = true;
+                    return false; // Exit the loop
+                     }
+
+                    var rowData = {
+                        'empid': empid,
+                        'boardingfee': boardingfee,
+                        'companydiscount': companydiscount,
+                        'totalcost': totalcost,
+                    };
+                    tableDataArray.push(rowData);
+                    count++;
+                    });
+                }else{
+                    $('#btncreateorder').prop('disabled', false).html(
+                'Create Order');
+                    alert("Please Select All feilds and Table data")
+                    return false;
+                }
+}
+
 
             var action_url = '';
 
@@ -388,36 +776,21 @@
             if ($('#action').val() == 'Edit') {
                 action_url = "{{ route('boardingfeesupdate') }}";
             }
-
-            $('#btncreateorder').prop('disabled', true).html(
-                '<i class="fas fa-circle-notch fa-spin mr-2"></i> Create Order');
-
-            var tbody = $("#tableorder tbody");
-
-            if (tbody.children().length > 0) {
-                var jsonObj = [];
-                $("#tableorder tbody tr").each(function () {
-                    var item = {};
-                    $(this).find('td').each(function (col_idx) {
-                        item["col_" + (col_idx + 1)] = $(this).text();
-                    });
-                    jsonObj.push(item);
-                });
-
-                var supplier = $('#supplier').val();
-                var cost = $('#cost').val();
-                var month = $('#month').val();
-                var remark = $('#remark').val();
-                var hidden_id = $('#hidden_id').val();
-
-                $.ajax({
+            if (!isAnyFieldEmpty) {
+//  console.log(requesttype,supplier,location,discount_presentage,month,remark,hidden_id);
+            // console.log(jsonObj);
+            // console.log(tableDataArray);
+            // console.log(action_url);
+           $.ajax({
                     method: "POST",
                     dataType: "json",
                     data: {
                         _token: '{{ csrf_token() }}',
-                        tableData: jsonObj,
-                        supplier: supplier,
-                        cost: cost,
+                        tableDataArray: tableDataArray,
+                        requesttype: requesttype,
+                        supplier:supplier,
+                        location: location,
+                        discount_presentage:discount_presentage,
                         month: month,
                         remark: remark,
                         hidden_id: hidden_id,
@@ -447,6 +820,7 @@
                     }
                 });
             }
+           
         });
 
         // edit function
@@ -468,11 +842,52 @@
                     id: id
                 },
                 success: function (data) {
-                    $('#supplier').val(data.result.mainData.sup_id);
-                    $('#month').val(data.result.mainData.month);
-                    $('#cost').val(data.result.mainData.cost);
-                    $('#remark').val(data.result.mainData.remark);
-                    $('#tableorderlist').html(data.result.requestdata);
+                    var requesttype=(data.result.mainData.request_type);
+                    $('#requesttype').val(data.result.mainData.request_type);
+                    if(requesttype=="voregion"){
+                        $("#DivRegion").show();
+                        $("#DivSingle").hide();
+
+                        $("#volocation").prop("required", true);
+                        $("#vomonth").prop("required", true);
+                        $("#vodiscountprecentage").prop("required", true);
+
+                        $("#location").prop("required", false);
+                        $("#employee").prop("required", false);
+                        $("#month").prop("required", false);
+                        $("#discountprecentage").prop("required", false);
+
+                        $('#vosupplier').val(data.result.mainData.sup_id);
+                        $('#volocation').val(data.result.mainData.location_id);
+                        $('#voregion').val(data.result.mainData.subregion);
+                        $('#vomonth').val(data.result.mainData.month);
+                        $('#vodiscountprecentage').val(data.result.mainData.discount_precentage);
+                        $('#voremark').val(data.result.mainData.remark);
+
+                        $('#votableorderlist').html(data.result.requestdata);
+                    }
+                    else if(requesttype=="singleemployee"){
+                        $("#DivRegion").hide();
+                        $("#DivSingle").show();
+
+                        $("#location").prop("required", true);
+                        $("#employee").prop("required", true);
+                        $("#month").prop("required", true);
+                        $("#discountprecentage").prop("required", true);
+
+                        $("#volocation").prop("required", false);
+                        $("#vomonth").prop("required", false);
+                        $("#vodiscountprecentage").prop("required", false);
+
+                        $('#supplier').val(data.result.mainData.sup_id);
+                        $('#location').val(data.result.mainData.location_id);
+                        $('#month').val(data.result.mainData.month);
+                        $('#discountprecentage').val(data.result.mainData.discount_precentage);
+                        $('#remark').val(data.result.mainData.remark);
+
+                        $('#tableorderlist').html(data.result.requestdata);
+                    }
+
                     // var valueToCheck = data.result.pay_by;
 
                     // if (valueToCheck == 1 ) {
@@ -482,7 +897,7 @@
                     // }
 
                     $('#hidden_id').val(id);
-                    $('.modal-title').text('Edit Boarding fees');
+                    $('.modal-title').text('Edit Travel Request');
                     $('#action_button').html('Edit');
                     $('#btncreateorder').html('Update Request');
                     $('#action').val('Edit');
@@ -490,109 +905,6 @@
                 }
             })
         });
-
-
-
-
-        // request detail edit
-        $(document).on('click', '.btnEditlist', function () {
-            var id = $(this).attr('id');
-            $('#form_result').html('');
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            })
-
-            $.ajax({
-                url: '{!! route("boardingfeesdetailedit") !!}',
-                type: 'POST',
-                dataType: "json",
-                data: {
-                    id: id
-                },
-                success: function (data) {
-                    $('#employee').val(data.result.emp_id);
-                    $('#boardingdeiailsid').val(data.result.id);
-                    $('#Btnupdatelist').show();
-                    $('#formsubmit').hide();
-                }
-            })
-        });
-
-        // request detail update list
-
-
-        $(document).on("click", "#Btnupdatelist", function () {
-            var EmployeeID = $('#employee').val();
-            var Employee = $("#employee option:selected").text();
-            var detailid = $('#boardingdeiailsid').val();
-
-
-            $("#tableorder> tbody").find('input[name="hiddenid"]').each(function () {
-                var hiddenid = $(this).val();
-                if (hiddenid == detailid) {
-                    $(this).parents("tr").remove();
-                }
-            });
-
-            $('#tableorder> tbody:last').append('<tr class="pointer"><td>' + Employee +
-                '</td><td class="d-none">' + EmployeeID +
-                '</td><td class="d-none">Updated</td><td class="d-none">' +
-                detailid +
-                '</td><td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm "><i class="fas fa-trash-alt"></i></button></td></tr>'
-            );
-
-
-            $('#employee').val('');
-            $('#Btnupdatelist').hide();
-            $('#formsubmit').show();
-        });
-
-
-
-
-
-        //   details delete
-        var rowid
-        $(document).on('click', '.btnDeletelist', function () {
-            rowid = $(this).attr('id');
-            $('#confirmModal2').modal('show');
-
-        });
-        $('#ok_button2').click(function () {
-
-            $('#form_result').html('');
-
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            })
-
-
-            $.ajax({
-                url: '{!! route("boardingfeesdetaildelete") !!}',
-                type: 'POST',
-                dataType: "json",
-                data: {
-                    id: rowid
-                },
-                beforeSend: function () {
-                    $('#ok_button2').text('Deleting...');
-                },
-                success: function (data) {
-                    setTimeout(function () {
-                        $('#confirmModal2').modal('hide');
-                        $('#dataTable').DataTable().ajax.reload();
-                        alert('Data Deleted');
-                    }, 500);
-                    location.reload()
-                }
-            })
-        });
-
-
 
 
         var user_id;
@@ -621,7 +933,7 @@
                     setTimeout(function () {
                         $('#confirmModal').modal('hide');
                         $('#dataTable').DataTable().ajax.reload();
-                        alert('Data Deleted');
+                        // alert('Data Deleted');
                     }, 500);
                     location.reload()
                 }
@@ -652,12 +964,14 @@
                 },
                 success: function (data) {
                     $('#app_supplier').val(data.result.mainData.sup_id);
+                    $('#app_discountprecentage').val(data.result.mainData.discount_precentage);
+                    $('#app_location').val(data.result.mainData.location_id);
+                    $('#app_voregion').val(data.result.mainData.subregion);
                     $('#app_month').val(data.result.mainData.month);
-                    $('#app_cost').val(data.result.mainData.cost);
                     $('#app_remark').val(data.result.mainData.remark);
                     $('#app_tableorderlist').html(data.result.requestdata);
 
-                    $('#hidden_id').val(id_approve);
+                    $('#app_hidden_id').val(id_approve);
                     $('#app_level').val('1');
                     $('#approveconfirmModal').modal('show');
 
@@ -685,11 +999,14 @@
                 },
                 success: function (data) {
                     $('#app_supplier').val(data.result.mainData.sup_id);
+                    $('#app_discountprecentage').val(data.result.mainData.discount_precentage);
+                    $('#app_location').val(data.result.mainData.location_id);
+                    $('#app_voregion').val(data.result.mainData.subregion);
                     $('#app_month').val(data.result.mainData.month);
-                    $('#app_cost').val(data.result.mainData.cost);
                     $('#app_remark').val(data.result.mainData.remark);
                     $('#app_tableorderlist').html(data.result.requestdata);
-                    $('#hidden_id').val(id_approve);
+
+                    $('#app_hidden_id').val(id_approve);
                     $('#app_level').val('2');
                     $('#approveconfirmModal').modal('show');
 
@@ -717,11 +1034,14 @@
                 },
                 success: function (data) {
                     $('#app_supplier').val(data.result.mainData.sup_id);
+                    $('#app_discountprecentage').val(data.result.mainData.discount_precentage);
+                    $('#app_location').val(data.result.mainData.location_id);
+                    $('#app_voregion').val(data.result.mainData.subregion);
                     $('#app_month').val(data.result.mainData.month);
-                    $('#app_cost').val(data.result.mainData.cost);
                     $('#app_remark').val(data.result.mainData.remark);
                     $('#app_tableorderlist').html(data.result.requestdata);
-                    $('#hidden_id').val(id_approve);
+
+                    $('#app_hidden_id').val(id_approve);
                     $('#app_level').val('3');
                     $('#approveconfirmModal').modal('show');
 
@@ -734,24 +1054,34 @@
 
 
         $('#approve_button').click(function () {
-            var id_hidden = $('#hidden_id').val();
+            var id_hidden = $('#app_hidden_id').val();
             var applevel = $('#app_level').val();
 
-            var cost = $('#app_cost').val();
             var month = $('#app_month').val();
 
-            var tbody = $("#app_tableorder tbody");
-            var jsonObj = [];
-            if (tbody.children().length > 0) {
-                $("#app_tableorder tbody tr").each(function () {
-                    var item = {};
-                    $(this).find('td').each(function (col_idx) {
-                        item["col_" + (col_idx + 1)] = $(this).text();
-                    });
-                    jsonObj.push(item);
-                });
-            }
+            var tableDataArray = [];
+            $('#app_tableorder tbody tr').each(function() {
+            var empid = $(this).find('td#empid').text();
+            var boardingfee = $(this).find('td#boardingfee').text();
+            var company_discount = $(this).find('td#company_discount').text();
+            var total_cost = $(this).find('td#total_cost').text();
 
+            // Check if any input or select is empty
+            if (total_cost == "" || total_cost === null) {
+                return; // Skip this row
+            }
+            // Proceed with creating the rowData object and pushing it to the array
+            var rowData = {
+                'empid': empid,
+                'boardingfee': boardingfee,
+                'company_discount': company_discount,
+                'total_cost': total_cost,
+            };
+
+            // Push the current row data object to the array
+            tableDataArray.push(rowData);
+        });
+// console.log(tableDataArray);
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -764,8 +1094,7 @@
                 data: {
                     id: id_hidden,
                     applevel: applevel,
-                    tableData: jsonObj,
-                    cost: cost,
+                    tableDataArray: tableDataArray,
                     month: month,
                 },
                 success: function (data) { //alert(data);
@@ -778,6 +1107,39 @@
                 }
             })
         });
+
+        // view model
+        $(document).on('click', '.view', function () {
+            id_approve = $(this).attr('id');
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+
+            $.ajax({
+                url: '{!! route("boardingfeesdetailapprovel_details") !!}',
+                type: 'POST',
+                dataType: "json",
+                data: {
+                    id: id_approve
+                },
+                success: function (data) {
+                    $('#view_supplier').val(data.result.mainData.sup_id);
+                    $('#view_discountprecentage').val(data.result.mainData.discount_precentage);
+                    $('#view_location').val(data.result.mainData.location_id);
+                    $('#view_voregion').val(data.result.mainData.subregion);
+                    $('#view_month').val(data.result.mainData.month);
+                    $('#view_remark').val(data.result.mainData.remark);
+                    $('#view_tableorderlist').html(data.result.requestdata);
+                    $('#view_hidden_id').val(id_approve);
+                    $('#viewModal').modal('show');
+
+                }
+            })
+
+
+        });
     });
 
     function deactive_confirm() {
@@ -789,14 +1151,38 @@
     }
 </script>
 <script>
-    $(document).ready(function () {
+function getAllVoEmp() {
+        var location = $('#volocation').val();
         $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        })
+
+        $.ajax({
+            url: '{!! route("boardingfeeGetAllEmployee") !!}',
+            type: 'POST',
+            dataType: "json",
+            data: {
+                location_id: location
+            },
+            success: function (data) {
+                $('#voregion').val(data.result.mainData.subregion);
+                $('#votableorderlist').html(data.result.requestdata);
+            }
+        })
+    }
+
+
+       
+function getEmp(count){
+    $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
 
-        $('#employee').select2({
+        $('#employee' + count).select2({
             width: '100%',
             minimumInputLength: 1,
             ajax: {
@@ -820,9 +1206,232 @@
                 }
             }
         });
+}
+        
+</script>
+<script>
+    $(document).ready(function () {
+        $("#DivRegion").show();
+        $("#volocation").prop("required", true);
+        $("#vomonth").prop("required", true);
+        $("#vodiscountprecentage").prop("required", true);
+
+        $("#location").prop("required", false);
+        $("#employee").prop("required", false);
+        $("#month").prop("required", false);
+        $("#discountprecentage").prop("required", false);
+
+        $("#requesttype").change(function () {
+            $('#formTitle')[0].reset();
+            $('#votableorder tbody').empty();
+            $('#tableorder tbody').empty();
+
+            var requesttype = $(this).val();
+            if(requesttype=="voregion"){
+                $("#DivRegion").show();
+                $("#DivSingle").hide();
+
+                $("#volocation").prop("required", true);
+                $("#vomonth").prop("required", true);
+                $("#vodiscountprecentage").prop("required", true);
+
+                $("#location").prop("required", false);
+                $("#employee").prop("required", false);
+                $("#month").prop("required", false);
+                $("#discountprecentage").prop("required", false);
+            }else if(requesttype=="singleemployee"){
+                $("#DivRegion").hide();
+                $("#DivSingle").show();
+
+                $("#location").prop("required", true);
+                $("#employee").prop("required", true);
+                $("#month").prop("required", true);
+                $("#discountprecentage").prop("required", true);
+
+                $("#volocation").prop("required", false);
+                $("#vomonth").prop("required", false);
+                $("#vodiscountprecentage").prop("required", false);
+            }
+           
+
+        });
+    });
+    </script>
+<script>
+     function productDelete(row) {
+        $(row).closest('tr').remove();
+    }
+
+    $(document).ready(function() {
+        var count = 5000; 
+        function addNewRow() {
+            var newRow = '<tr>' +
+                '<td>' +
+                '<select name="employee' + count + '" id="employee' + count + '" class="form-control form-control-sm" onclick="getEmp('+count+');" required>' +
+                '<option value="">Select Employees</option>' +
+                '</select>' +
+                '</td>' +
+                '<td>' +
+                '<input type="number" id="amount' + count + '" name="amount' + count + '" onkeyup="calculatediscount1(this.value, ' + count +  ');">' +
+                '</td>' +
+                '<td id="companydiscount" name="companydiscount' + count + '"></td>'+
+                '<td id="totalcost" name="totalcost' + count + '"></td>'+
+                '<td class="d-none" id="empid">New ID</td>' +
+                '<td class="d-none">New ExistingData</td>' +
+                '<td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm "><i class="fas fa-trash-alt"></i></button></td>' +
+                '</tr>';
+
+            $('#tableorder tbody').append(newRow);
+            getEmp(count);
+            count++;
+        }
+
+        // Handle click event for the "Add New Row" button
+        $('#addRowButton').on('click', function() {
+            addNewRow();
+        });
     });
 </script>
+<script>
+//  calculate discount vo region group
+    function calculatediscount(inputValue, count) {
+        var discountprecentage = $('#vodiscountprecentage').val();
+        if(discountprecentage=="" || null){
+            alert("please Insert Discount precentage first");
+            return false;
+        }
+        else{
+            var fee=inputValue;
+            var discount=fee*(discountprecentage/100);
+            var total=fee-discount;
 
+            // $('#companydiscount'+count).text(discount);
+            // $('#totalcost'+count).text(total);
+
+            $('[name="companydiscount' + count + '"]').text(discount);
+            $('[name="totalcost' + count + '"]').text(total);
+        }
+}
+
+function calculatediscountAll(value) {
+    var rowCount = $('#votableorder tbody tr').length;
+var count='';
+if (rowCount > 0) {
+    $('#votableorder tbody tr').each(function(count) {
+        var fee = $('#amount' + (count + 1)).val();
+        if(fee==''||null){
+            return false;
+        }
+        else{
+            var discount = fee * (value / 100);
+            var total = fee - discount;
+
+            // $('#companydiscount' + (count + 1)).text(discount); 
+            // $('#totalcost' + (count + 1)).text(total); 
+
+            $('[name="companydiscount' + (count + 1) + '"]').text(discount);
+            $('[name="totalcost' + (count + 1) + '"]').text(total);
+        }
+    });
+
+    count++;
+} else {
+    return false;
+}
+
+}
+
+
+//  calculate discount single employee
+function calculatediscount1(inputValue, count) {
+        var discountprecentage = $('#discountprecentage').val();
+        if(discountprecentage=="" || null){
+            alert("please Insert Discount precentage first");
+            return false;
+        }
+        else{
+            var fee=inputValue;
+            var discount=fee*(discountprecentage/100);
+            var total=fee-discount;
+
+            // $('#companydiscount'+count).text(discount);
+            // $('#totalcost'+count).text(total);
+
+            $('[name="companydiscount' + count + '"]').text(discount);
+            $('[name="totalcost' + count + '"]').text(total);
+        }
+}
+
+function calculatediscountAll1(value) {
+    var rowCount = $('#tableorder tbody tr').length;
+var count='';
+if (rowCount > 0) {
+    $('#tableorder tbody tr').each(function(count) {
+        var fee = $('#amount' + (count + 5000)).val();
+        if(fee==''||null){
+            return false;
+        }
+        else{
+            var discount = fee * (value / 100);
+            var total = fee - discount;
+
+            // $('#companydiscount' + (count + 5000)).text(discount); 
+            // $('#totalcost' + (count + 5000)).text(total); 
+
+            $('[name="companydiscount' + (count + 5000) + '"]').text(discount);
+            $('[name="totalcost' + (count + 5000) + '"]').text(total);
+        }
+    });
+
+    count++;
+} else {
+    return false;
+}
+
+}
+
+// edit discount calculator
+function editcalculatediscount(inputValue, count, request_type) {
+    // console.log("Ok"+request_type);
+    if(request_type=="voregion"){
+        var discountprecentage = $('#vodiscountprecentage').val();
+        if(discountprecentage=="" || null){
+            alert("please Insert Discount precentage first");
+            return false;
+        }
+        else{
+            var fee=inputValue;
+            var discount=fee*(discountprecentage/100);
+            var total=fee-discount;
+
+            // $('#companydiscount'+count).text(discount);
+            // $('#totalcost'+count).text(total);
+
+            $('[name="companydiscount' + count + '"]').text(discount);
+            $('[name="totalcost' + count + '"]').text(total);
+        }
+    }
+    else if(request_type=="singleemployee"){
+        var discountprecentage = $('#discountprecentage').val();
+        if(discountprecentage=="" || null){
+            alert("please Insert Discount precentage first");
+            return false;
+        }
+        else{
+            var fee=inputValue;
+            var discount=fee*(discountprecentage/100);
+            var total=fee-discount;
+
+            // $('#companydiscount'+count).text(discount);
+            // $('#totalcost'+count).text(total);
+
+            $('[name="companydiscount' + count + '"]').text(discount);
+            $('[name="totalcost' + count + '"]').text(total);
+        }
+    }
+        
+}
+</script>
 </body>
 
 @endsection

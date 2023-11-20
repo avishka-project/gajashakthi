@@ -712,9 +712,9 @@ $(document).ready(function () {
                     }
                         if (statuscheck) {
                                 if (full['status'] == 1) {
-                                    button += ' <a href="customerrequeststatus/' + full['id'] + '/2 " onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
+                                    button += ' <a href="approvereturnstatus/' + full['id'] + '/2 " onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
                                 } else {
-                                    button += '&nbsp;<a href="customerrequeststatus/' + full['id'] + '/1 "  onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
+                                    button += '&nbsp;<a href="approvereturnstatus/' + full['id'] + '/1 "  onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
                                 }
                         }
                         if (deletecheck) {

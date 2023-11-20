@@ -1622,6 +1622,7 @@
             });
 
             // console.log(jsonObj);
+            //  console.log(store_id,batch_no);
             $.ajax({
                 method: "POST",
                 dataType: "json",
@@ -1632,7 +1633,7 @@
                     store_id: store_id,
 
                 },
-                url: '{!! route("stockupdate") !!}',
+                url: '{!! route("grnstockupdate") !!}',
                 success: function (data) { //alert(data);
                     var html = '';
                     if (data.errors) {

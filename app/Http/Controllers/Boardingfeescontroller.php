@@ -20,12 +20,45 @@ class Boardingfeescontroller extends Controller
 
     public function index()
     {
+        $approvel01permission = 0;
+        $approvel02permission = 0;
+        $approvel03permission = 0;
+
+        $listpermission = 0;
+        $editpermission = 0;
+        $deletepermission = 0;
+        $statuspermission = 0;
+        
+        if (Auth::user()->can('Approve-Level-01')) {
+            $approvel01permission = 1;
+        } 
+        if (Auth::user()->can('Approve-Level-02')) {
+            $approvel02permission = 1;
+        } 
+        if (Auth::user()->can('Approve-Level-03')) {
+            $approvel03permission = 1;
+        } 
+        if (Auth::user()->can('Boardingfees-list')) {
+            $listpermission = 1;
+        } 
+        if (Auth::user()->can('Boardingfees-edit')) {
+            $editpermission = 1;
+        }
+        if (Auth::user()->can('Boardingfees-status')) {
+            $statuspermission = 1;
+        }
+        if (Auth::user()->can('Boardingfees-delete')) {
+            $deletepermission = 1;
+        }
+
         $suppliers = DB::table('suppliers')->select('suppliers.*')
         ->whereIn('suppliers.status', [1, 2])
         ->get();
         $employees = DB::table('employees')->select('employees.*')
         ->whereIn('employees.emp_status', [1, 2])->get();
-        return view('Boardingfeesrequest.boardingfeesrequest', compact('suppliers', 'employees'));
+        $branches = DB::table('customerbranches')->select('customerbranches.*')->get();
+
+        return view('Boardingfeesrequest.boardingfeesrequest', compact('suppliers', 'employees','branches','approvel01permission','approvel02permission','approvel03permission','listpermission','editpermission','deletepermission','statuspermission'));
     } 
 
     public function insert(Request $request)
@@ -47,9 +80,11 @@ class Boardingfeescontroller extends Controller
         ]);
 
         $boardingfees = new Boardingfees();
-        $boardingfees->sup_id = $request->input('supplier');
+        $boardingfees->request_type = $request->input('requesttype');
+        $boardingfees->location_id = $request->input('supplier');
+        $boardingfees->sup_id = $request->input('location');
         $boardingfees->month = $request->input('month');
-        $boardingfees->cost = $request->input('cost');
+        $boardingfees->discount_precentage = $request->input('discount_presentage');
         $boardingfees->remark = $request->input('remark');
         $boardingfees->status = '1';
         $boardingfees->approve_status = '0';
@@ -63,21 +98,26 @@ class Boardingfeescontroller extends Controller
 
         $requestID = $boardingfees->id;
 
-        $tableData = $request->input('tableData');
+        $tableDataArray = $request->input('tableDataArray');
 
-        foreach ($tableData as $rowtabledata) {
-            $employee = $rowtabledata['col_2'];
+        foreach ($tableDataArray as $rowtableDataArray) {
+            $employee = $rowtableDataArray['empid'];
+            $boardingfee = $rowtableDataArray['boardingfee'];
+            $companydiscount = $rowtableDataArray['companydiscount'];
+            $totalcost = $rowtableDataArray['totalcost'];
            
-
-
-            $boardingfeesdetail = new Boardingfeesdetail();
-            $boardingfeesdetail->boardingfees_id = $requestID;
-            $boardingfeesdetail->emp_id = $employee;
-            $boardingfeesdetail->status = '1';
-            $boardingfeesdetail->create_by = Auth::id();
-            $boardingfeesdetail->update_by = '0';
-            $boardingfeesdetail->save();
+            $boardingfeedetails = new Boardingfeesdetail();
+            $boardingfeedetails->boardingfees_id = $requestID;
+            $boardingfeedetails->emp_id = $employee;
+            $boardingfeedetails->boardingfee = $boardingfee;
+            $boardingfeedetails->company_discount = $companydiscount;
+            $boardingfeedetails->total_cost = $totalcost;
+            $boardingfeedetails->status = '1';
+            $boardingfeedetails->create_by = Auth::id();
+            $boardingfeedetails->update_by = '0';
+            $boardingfeedetails->save();
         }
+
         return response()->json(['success' => 'Boarding fees is successfully Inserted']);
         // return response()->json(['status' => 1, 'message' => 'Employee Payment is Successfully Created']);
     }
@@ -175,7 +215,9 @@ class Boardingfeescontroller extends Controller
             $id = Request('id');
             if (request()->ajax()){
             $data = DB::table('boardingfees')
-            ->select('boardingfees.*')
+            ->leftjoin('customerbranches', 'boardingfees.location_id', '=', 'customerbranches.id')
+            ->leftjoin('subregions', 'customerbranches.subregion_id', '=', 'subregions.id')
+            ->select('boardingfees.*','subregions.subregion')
             ->where('boardingfees.id', $id)
             ->get(); 
 
@@ -209,7 +251,10 @@ private function app_reqestcountlist($id){
       
     $htmlTable .= '<tr>';
     $htmlTable .= '<td>' . $row->emp_fullname . '</td>'; 
-    $htmlTable .= '<td class="d-none">' . $row->emp_id . '</td>'; 
+    $htmlTable .= '<td id="boardingfee">' . $row->boardingfee . '</td>'; 
+    $htmlTable .= '<td id="company_discount">' . $row->company_discount . '</td>'; 
+    $htmlTable .= '<td id="total_cost">' . $row->total_cost . '</td>'; 
+    $htmlTable .= '<td class="d-none" id="empid">' . $row->emp_id . '</td>'; 
     $htmlTable .= '<td class="d-none">ExistingData</td>'; 
     $htmlTable .= '</tr>';
    }
@@ -228,11 +273,14 @@ public function edit(Request $request){
         }
 
     $id = Request('id');
+
     if (request()->ajax()){
-    $data = DB::table('boardingfees')
-    ->select('boardingfees.*')
-    ->where('boardingfees.id', $id)
-    ->get(); 
+        $data = DB::table('boardingfees')
+        ->leftjoin('customerbranches', 'boardingfees.location_id', '=', 'customerbranches.id')
+        ->leftjoin('subregions', 'customerbranches.subregion_id', '=', 'subregions.id')
+        ->select('boardingfees.*','subregions.subregion')
+        ->where('boardingfees.id', $id)
+        ->get(); 
 
     $requestlist = $this->reqestcountlist($id); 
 
@@ -250,29 +298,36 @@ return response() ->json(['result'=>  $responseData]);
 private function reqestcountlist($id){
 
     $recordID =$id ;
+
     $data = DB::table('boardingfeesdetails')
+    ->leftjoin('boardingfees', 'boardingfeesdetails.boardingfees_id', '=', 'boardingfees.id')
     ->leftjoin('employees', 'boardingfeesdetails.emp_id', '=', 'employees.id')
-    ->select('boardingfeesdetails.*', 'employees.emp_fullname', DB::raw('(boardingfeesdetails.id) AS boardingfeesdetailsID'))
+    ->select('boardingfeesdetails.*','employees.service_no', 'employees.emp_fullname','boardingfees.request_type', DB::raw('(boardingfeesdetails.id) AS boardingfeesdetailsID'))
     ->where('boardingfeesdetails.boardingfees_id', $recordID)
     ->where('boardingfeesdetails.status', 1)
     ->get(); 
 
-
+    $count = 1;
    $htmlTable = '';
    foreach ($data as $row) {
       
     $htmlTable .= '<tr>';
-    $htmlTable .= '<td>' . $row->emp_fullname . '</td>'; 
-    $htmlTable .= '<td class="d-none">' . $row->emp_id . '</td>'; 
+    $htmlTable .='<td>';
+    $htmlTable .='<select name="employee' . $count . '" id="employee' . $count .'" class="form-control form-control-sm" onclick="getEmp('. $count .');" required>';
+    $htmlTable .='<option value="'. $row->emp_id . '">'. $row->service_no . '-'. $row->emp_fullname . '</option>';
+    $htmlTable .='</select>';
+    $htmlTable .='</td>';
+    $htmlTable .= '<td>';
+    $htmlTable .= '<input type="number" id="amount' . $count . '" name="amount' . $count . '" value="' . $row->boardingfee . '" onkeyup="editcalculatediscount(this.value, ' . $count . ', \'' . $row->request_type . '\');">';
+    $htmlTable .= '</td>';   
+    $htmlTable .= '<td id="companydiscount" name="companydiscount' . $count . '" >' . $row->company_discount . '</td>';
+    $htmlTable .= '<td id="totalcost" name="totalcost' . $count . '">' . $row->total_cost . '</td>';
+    $htmlTable .= '<td class="d-none" id="empid">' . $row->emp_id . '</td>'; 
     $htmlTable .= '<td class="d-none">ExistingData</td>'; 
-    $htmlTable .= '<td id ="actionrow"><button type="button" id="'.$row->boardingfeesdetailsID.'" class="btnEditlist btn btn-primary btn-sm ">
-        <i class="fas fa-pen"></i>
-        </button>&nbsp;
-        <button type="button" id="'.$row->boardingfeesdetailsID.'" class="btnDeletelist btn btn-danger btn-sm " >
-        <i class="fas fa-trash-alt"></i>
-        </button></td>'; 
-    $htmlTable .= '<td class="d-none"><input type ="hidden" id ="hiddenid" name="hiddenid" value="'.$row->boardingfeesdetailsID.'"></td>'; 
+    $htmlTable .= '<td><button type="button" onclick= "productDelete(this);" id="btnDeleterow" class=" btn btn-danger btn-sm "><i class="fas fa-trash-alt"></i></button></td>'; 
     $htmlTable .= '</tr>';
+
+    $count++;
    }
 
    return $htmlTable;
@@ -306,13 +361,14 @@ public function update(Request $request){
 
 
     $hidden_id = $request->input('hidden_id');
-
     
     $id =  $request->hidden_id ;
     $form_data = array(
+        'request_type' =>  $request->input('requesttype'),
         'sup_id' =>  $request->input('supplier'),
+        'location_id' =>  $request->input('location'),
         'month' =>  $request->input('month'),
-        'cost' =>  $request->input('cost'),
+        'discount_precentage' =>  $request->input('discount_presentage'),
         'remark' =>  $request->input('remark'),
             'approve_status' =>  '0',
             'approve_01' =>  '0',
@@ -325,38 +381,30 @@ public function update(Request $request){
         Boardingfees::findOrFail($id)
     ->update($form_data);
     
-    // DB::table('employee_payment_details')
-    // ->where('employeepayments_id', $hidden_id)
-    // ->delete();
+    DB::table('boardingfeesdetails')
+    ->where('boardingfees_id', $hidden_id)
+    ->delete();
 
-    $tableData = $request->input('tableData');
+    $tableDataArray = $request->input('tableDataArray');
 
-    foreach ($tableData as $rowtabledata) {
-        if($rowtabledata['col_3'] == "Updated"){
-   
-            $employee = $rowtabledata['col_2'];  
-            $detailID = $rowtabledata['col_4'];
-          
-
-            $boardingfeesdetail = Boardingfeesdetail::where('id', $detailID)->first();
-            $boardingfeesdetail->boardingfees_id = $hidden_id;
-            $boardingfeesdetail->emp_id = $employee;
-            $boardingfeesdetail->update_by = Auth::id();
-            $boardingfeesdetail->save();
-            
-        }else if($rowtabledata['col_3'] == "NewData") {
-            $employee = $rowtabledata['col_2'];
-                if($employee != 0){
-                    $boardingfeesdetail = new Boardingfeesdetail();
-                    $boardingfeesdetail->boardingfees_id = $hidden_id;
-                    $boardingfeesdetail->emp_id = $employee;
-                    $boardingfeesdetail->status = '1';
-                    $boardingfeesdetail->create_by = Auth::id();
-                    $boardingfeesdetail->update_by = '0';
-                    $boardingfeesdetail->save();
-                }
-          }
+    foreach ($tableDataArray as $rowtableDataArray) {
+        $employee = $rowtableDataArray['empid'];
+        $boardingfee = $rowtableDataArray['boardingfee'];
+        $companydiscount = $rowtableDataArray['companydiscount'];
+        $totalcost = $rowtableDataArray['totalcost'];
+       
+        $boardingfeedetails = new Boardingfeesdetail();
+        $boardingfeedetails->boardingfees_id = $hidden_id;
+        $boardingfeedetails->emp_id = $employee;
+        $boardingfeedetails->boardingfee = $boardingfee;
+        $boardingfeedetails->company_discount = $companydiscount;
+        $boardingfeedetails->total_cost = $totalcost;
+        $boardingfeedetails->status = '1';
+        $boardingfeedetails->create_by = Auth::id();
+        $boardingfeedetails->update_by = '0';
+        $boardingfeedetails->save();
     }
+ 
 
     return response()->json(['success' => 'Boarding fees is successfully Updated']);
 
@@ -417,15 +465,16 @@ public function approve(Request $request){
 
         //expenses add to table
 
-        $tableData = $request->input('tableData');
+        $tableDataArray = $request->input('tableDataArray');
 
-        foreach ($tableData as $rowtabledata) {
-            $employee = $rowtabledata['col_2'];
+        foreach ($tableDataArray as $rowtableDataArray) {
+            $employee = $rowtableDataArray['empid'];
+            $total_cost = $rowtableDataArray['total_cost'];
 
             $emp_expense = new Emp_expense();
             $emp_expense->employee_id =  $employee;
-            $emp_expense->cost = $request->input('cost');
-            $emp_expense->expenses_type = 'Boarding_fees';
+            $emp_expense->cost = $total_cost;
+            $emp_expense->expenses_type = 'Boarding_Fees';
             $emp_expense->month = $request->input('month');
             $emp_expense->status = '1';
             $emp_expense->create_by = Auth::id();
@@ -489,6 +538,61 @@ public function deletelist(Request $request){
     ->update($form_data);
 
     return response()->json(['success' => 'Employee is successfully Deleted']);
+
+}
+
+public function GetAllEmployee(Request $request){
+
+    $location_id = Request('location_id');
+    if (request()->ajax()){
+    $data = DB::table('customerbranches')
+    ->leftjoin('subregions', 'customerbranches.subregion_id', '=', 'subregions.id')
+    ->select('customerbranches.*','subregions.subregion','subregions.id AS subregion_id')
+    ->where('customerbranches.id', $location_id)
+    ->get(); 
+
+    
+    $subregion_id = $data[0]->subregion_id; 
+   
+    $requestlist = $this->VoEmpreqestcountlist($subregion_id); 
+    
+        $responseData = array(
+            'mainData' => $data[0],
+            'requestdata' => $requestlist,
+        );
+
+return response() ->json(['result'=>  $responseData]);
+}
+
+}
+
+private function VoEmpreqestcountlist($id){
+
+    $recordID =$id ;
+   $data = DB::table('employees')
+   ->select('employees.*')
+   ->where('employees.subregion_id', $recordID)
+   ->where('employees.emp_status', 1)
+   ->get(); 
+
+   $htmlTable = '';
+   $count = 1;
+   foreach ($data as $row) {
+      
+    $htmlTable .= '<tr>';
+    $htmlTable .= '<td id="empname">' .  $row->service_no.'-'.$row->emp_fullname .'</td>'; 
+    $htmlTable .= '<td>';
+    $htmlTable .= '<input type="number" id="amount' . $count . '" name="amount' . $count . '" onkeyup="calculatediscount(this.value, ' . $count . ');">';
+    $htmlTable .= '</td>';   
+    $htmlTable .= '<td id="companydiscount" name="companydiscount' . $count . '"></td>';   
+    $htmlTable .= '<td id="totalcost" name="totalcost' . $count . '"></td>';   
+    $htmlTable .= '<td class="d-none" id="empid">' . $row->id . '</td>'; 
+    $htmlTable .= '<td class="d-none">ExistingData</td>'; 
+    $htmlTable .= '</tr>';
+    $count++;
+   }
+
+   return $htmlTable;
 
 }
 }
