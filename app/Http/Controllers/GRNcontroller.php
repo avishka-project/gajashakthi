@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Grn;
 use App\Grndetail;
 use App\inventory_list_price_summary;
@@ -22,6 +23,9 @@ class GRNcontroller extends Controller
     }
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
         $items = DB::table('inventorylists')->select('inventorylists.*')
         ->whereIn('inventorylists.status', [1, 2])
         // ->where('inventorylists.approve_status', 1)
@@ -42,7 +46,7 @@ class GRNcontroller extends Controller
         ->where('porders.approve_status', 1)
         // ->where('porders.grn_status', 0)
         ->get();
-        return view('GRN.grn', compact('items','suppliers','porders','stores'));
+        return view('GRN.grn', compact('items','suppliers','porders','stores','userPermissions'));
     }
 
     public function getsupplier($porderid)
@@ -113,14 +117,12 @@ public function getpricewithoutporder(Request $request){
 }
 
 public function insert(Request $request){
-    $user = Auth::user();
-    $permission =$user->can('Grn-create');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
-   
 
-    $user = Auth::user();
+    $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Grn-create', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
 
     $grn = new Grn();
     $grn->porder_id = $request->input('porder');
@@ -130,6 +132,7 @@ public function insert(Request $request){
     $grn->supplier_id = $request->input('supplier');
     $grn->terms = $request->input('terms');
     $grn->store_id = $request->input('store');
+    $grn->employee_id = $request->input('employee');
     $grn->sub_total = $request->input('sub_total');
     $grn->discount = $request->input('discount');
     $grn->total = $request->input('net_total');
@@ -155,6 +158,9 @@ public function insert(Request $request){
         $qty = $rowDataArray['qty'];
         $unitPrice = $rowDataArray['unitPrice'];
         $total = $rowDataArray['total'];
+        $vat_precentage = $rowDataArray['vat_precentage'];
+        $vat_amount = $rowDataArray['vat_amount'];
+        $aftervat = $rowDataArray['aftervat'];
         $detailID = $rowDataArray['porderdetail_id'];
 
         $grndetail = new Grndetail();
@@ -163,6 +169,9 @@ public function insert(Request $request){
         $grndetail->qty = $qty;
         $grndetail->unit_price = $unitPrice;
         $grndetail->total = $total;
+        $grndetail->vat_precentage = $vat_precentage;
+        $grndetail->vat_amount = $vat_amount;
+        $grndetail->total_after_vat = $aftervat;
         $grndetail->grn_id = $requestID;
         $grndetail->porderdetail_id = $detailID;
         $grndetail->status = '1';
@@ -213,26 +222,24 @@ public function requestlist()
         ->addIndexColumn()
         ->addColumn('action', function ($row) {
             $btn = '';
-            $user = Auth::user();
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
 
-                    $permission = $user->can('Approve-Level-01');
-                    if($permission){
+                    if(in_array('Approve-Level-01',$userPermissions)){
                         if($row->approve_01 == 0){
                             $btn .= ' <button name="appL1" id="'.$row->id.'" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             $btn .= ' <button name="edit" id="'.$row->id.'" porder_id="'.$row->porder_id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                             $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
                     }
-                    $permission = $user->can('Approve-Level-02');
-                    if($permission){
+                    if(in_array('Approve-Level-02',$userPermissions)){
                         if($row->approve_01 == 1 && $row->approve_02 == 0){
                             $btn .= ' <button name="appL2" id="'.$row->id.'" class="appL2 btn btn-outline-warning btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             $btn .= ' <button name="edit" id="'.$row->id.'" porder_id="'.$row->porder_id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                              $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
                     }
-                    $permission = $user->can('Approve-Level-03');
-                    if($permission){
+                    if(in_array('Approve-Level-03',$userPermissions)){
                         if($row->approve_02 == 1 && $row->approve_03 == 0 ){
                             $btn .= ' <button name="appL3" id="'.$row->id.'" batch_no="'.$row->batch_no.'" porder_id="'.$row->porder_id.'" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             $btn .= ' <button name="edit" id="'.$row->id.'" porder_id="'.$row->porder_id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
@@ -240,21 +247,17 @@ public function requestlist()
                         }
                     }
 
-                    $permission = $user->can('Grn-edit');
-                    if ($permission) {
                         if($row->approve_03 == 1 ){
                        $btn .= ' <button name="view" id="'.$row->id.'" class="view btn btn-outline-secondary btn-sm"
                        role="button"><i class="fa fa-eye"></i></button>';
                        }
-                    }
 
                     // $permission = $user->can('Porder-edit');
                     // if($permission){
                     //     $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                     // }
 
-                $permission = $user->can('Grn-status');
-                    if($permission){
+                    if(in_array('Grn-status',$userPermissions)){
                         if($row->status == 1){
                             $btn .= ' <a href="'.route('grnstatus', ['id' => $row->id, 'stasus' => 2]) .'" onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
                         }else{
@@ -275,17 +278,18 @@ public function requestlist()
     }
 
     public function edit(Request $request){
-        $user = Auth::user();
-        $user = Auth::user();
-        $permission =$user->can('Porder-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Grn-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
 
         $id = Request('id');
         if (request()->ajax()){
         $data = DB::table('grns')
-        ->select('grns.*')
+        ->leftjoin('employees', 'grns.employee_id', '=', 'employees.id')
+        ->select('grns.*','employees.id AS empid','employees.service_no','employees.emp_name_with_initial')
         ->where('grns.id', $id)
         ->get(); 
 
@@ -355,11 +359,15 @@ public function requestlist()
      $htmlTable .= '</td>';
      $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit1_uom[]" id="edit1_uom' . $uniqueIdentifier . '" value="' . $row->uom . '" readonly></td>';
      $htmlTable .= '<td><span style="color:red">(' . $dataArray[$count]['PorderQty'] .')</span><input style="width:70%;" type="number" name="edit1_qty[]" id="edit1_qty' . $uniqueIdentifier . '" value="' . ($row->qty) . '" onkeyup="editsum1(this.value, '.$uniqueIdentifier.')"></td>';
-     $htmlTable .= '<td><input style="border: none;width:70%;" type="number" name="edit1_unit_price[]" id="edit1_unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum1(this.value, '.$uniqueIdentifier.')" readonly></td>';
-     $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit1_total[]" id="edit1_total' . $uniqueIdentifier . '" value="' .($row->total). '" readonly></td>';
+     $htmlTable .= '<td style="width:20%;"><input style="border: none;width:100%;" type="number" name="edit1_unit_price[]" id="edit1_unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum1(this.value, '.$uniqueIdentifier.')" readonly></td>';
+     $htmlTable .= '<td style="width:20%;"><input style="width:100%;border: none;" type="text" name="edit1_total[]" id="edit1_total' . $uniqueIdentifier . '" value="' .($row->total). '" readonly></td>';
+     $htmlTable .= '<td style="width:20%;"><input style="width:100%;border: none;" type="text" name="edit1_vat[]" id="edit1_vat' . $uniqueIdentifier . '" value="' .($row->vat_precentage). '" readonly></td>';
+     $htmlTable .= '<td style="width:20%;"><input style="width:100%;border: none;text-align:right" type="text" name="edit1_vatamount[]" id="edit1_vatamount' . $uniqueIdentifier . '" value="' .($row->vat_amount). '" readonly></td>';
+     $htmlTable .= '<td style="width:10%;"><input style="width:100%;border: none;text-align:right" type="text" name="edit1_aftervat[]" id="edit1_aftervat' . $uniqueIdentifier . '" value="' .($row->total_after_vat). '" readonly></td>';
      $htmlTable .= '<td class="d-none"><input type="text" name="edit1_insertstatus[]" id="edit1_insertstatus' . $uniqueIdentifier . '" value="PorderExistingData"></td>';
      $htmlTable .= '<td class="d-none"><input type="text" name="edit1_grndetail_id[]" id="edit1_grndetail_id' . $uniqueIdentifier . '" value="' . $row->id . '"></td>';
      $htmlTable .= '<td class="d-none"><input type="text" name="edit1_porderdetail_id[]" id="edit1_porderdetail_id' . $uniqueIdentifier . '" value="' . $row->porderdetail_id . '"></td>';
+     $htmlTable .= '<td class="d-none"><input type="text" name="edit1_preqty[]" id="edit1_preqty' . $uniqueIdentifier . '" value="' . $row->qty . '"></td>';
      $htmlTable .= '</tr>';
 
     $uniqueIdentifier++;
@@ -371,17 +379,18 @@ public function requestlist()
    }
 
    public function editwithoutporder(Request $request){
-    $user = Auth::user();
-    $user = Auth::user();
-    $permission =$user->can('Porder-edit');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+   
+    $commen= new Commen();
+    $userPermissions = $commen->Allpermission();
+    if (!in_array('Grn-edit', $userPermissions)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
 
     $id = Request('id');
     if (request()->ajax()){
     $data = DB::table('grns')
-    ->select('grns.*')
+    ->leftjoin('employees', 'grns.employee_id', '=', 'employees.id')
+    ->select('grns.*','employees.id AS empid','employees.service_no','employees.emp_name_with_initial')
     ->where('grns.id', $id)
     ->get(); 
 
@@ -435,12 +444,16 @@ foreach ($inventoryListData as $inventory) {
  $htmlTable .= '</select>';
  $htmlTable .= '</td>';
  $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit1_uom[]" id="edit1_uom' . $uniqueIdentifier . '" value="' . $row->uom . '" readonly></td>';
- $htmlTable .= '<td><span style="color:red">(' . $row->qty .')</span><input style="width:70%;" type="number" name="edit1_qty[]" id="edit1_qty' . $uniqueIdentifier . '" value="' . ($row->qty) . '" onkeyup="editsum1(this.value, '.$uniqueIdentifier.')"></td>';
- $htmlTable .= '<td><span style="color:red">(' . $row->unit_price .')</span><input style="width:70%;" type="number" name="edit1_unit_price[]" id="edit1_unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum1(this.value, '.$uniqueIdentifier.')"></td>';
- $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit1_total[]" id="edit1_total' . $uniqueIdentifier . '" value="' .($row->total). '"></td>';
+ $htmlTable .= '<td style="width:20%;"><span style="color:red">(' . $row->qty .')</span><input style="width:100%;" type="number" name="edit1_qty[]" id="edit1_qty' . $uniqueIdentifier . '" value="' . ($row->qty) . '" onkeyup="editsum1(this.value, '.$uniqueIdentifier.')"></td>';
+ $htmlTable .= '<td style="width:20%;"><span style="color:red">(' . $row->unit_price .')</span><input style="width:100%;" type="number" name="edit1_unit_price[]" id="edit1_unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum1(this.value, '.$uniqueIdentifier.')"></td>';
+ $htmlTable .= '<td style="width:20%;"><input style="width:100%;border: none;" type="text" name="edit1_total[]" id="edit1_total' . $uniqueIdentifier . '" value="' .($row->total). '"></td>';
+ $htmlTable .= '<td><input style="width:100%;border: none;" type="text" name="edit1_vat[]" id="edit1_vat' . $uniqueIdentifier . '" value="' .($row->vat_precentage). '" readonly></td>';
+ $htmlTable .= '<td style="width:20%;"><input style="width:100%;border: none;text-align:right" type="text" name="edit1_vatamount[]" id="edit1_vatamount' . $uniqueIdentifier . '" value="' .($row->vat_amount). '" readonly></td>';
+ $htmlTable .= '<td style="width:10%;"><input style="width:100%;border: none;text-align:right" type="text" name="edit1_aftervat[]" id="edit1_aftervat' . $uniqueIdentifier . '" value="' .($row->total_after_vat). '" readonly></td>';
  $htmlTable .= '<td class="d-none"><input type="text" name="edit1_insertstatus[]" id="edit1_insertstatus' . $uniqueIdentifier . '" value="ExistingData"></td>';
  $htmlTable .= '<td class="d-none"><input type="text" name="edit1_grndetail_id[]" id="edit1_grndetail_id' . $uniqueIdentifier . '" value="' . $row->id . '"></td>';
  $htmlTable .= '<td class="d-none"><input type="text" name="edit1_porderdetail_id[]" id="edit1_porderdetail_id' . $uniqueIdentifier . '" value="0"></td>';
+ $htmlTable .= '<td class="d-none"><input type="text" name="edit1_preqty[]" id="edit1_preqty' . $uniqueIdentifier . '" value="' . $row->qty . '"></td>';
  $htmlTable .= '<td><button class="btn btn-sm btn-danger py-0" type="button" onclick="rem_item($(this))"><i class="fa fa-times"></i></button></td>';
  $htmlTable .= '</tr>';
 
@@ -464,12 +477,12 @@ $count++;
 }
 
 public function update(Request $request){
-    $user = Auth::user();
-   
-    $permission =$user->can('Grn-edit');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+    
+    $commen= new Commen();
+    $userPermissions = $commen->Allpermission();
+    if (!in_array('Grn-edit', $userPermissions)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
    
         $current_date_time = Carbon::now()->toDateTimeString();
 
@@ -483,6 +496,7 @@ public function update(Request $request){
             'supplier_id' => $request->input('supplier'),
             'terms' => $request->input('terms'),
             'store_id' => $request->input('store'),
+            'employee_id' => $request->input('employee'),
             'sub_total' => $request->input('sub_total'),
             'discount' => $request->input('discount'),
             'total' => $request->input('net_total'),
@@ -511,6 +525,9 @@ public function update(Request $request){
             $qty = $rowDataArray['qty'];
             $unitPrice = $rowDataArray['unitPrice'];
             $total = $rowDataArray['total'];
+            $vat_precentage = $rowDataArray['vat_precentage'];
+            $vat_amount = $rowDataArray['vat_amount'];
+            $aftervat = $rowDataArray['aftervat'];
             $detailID = $rowDataArray['porderdetail_id'];
     
             $grndetail = new Grndetail();
@@ -519,6 +536,9 @@ public function update(Request $request){
             $grndetail->qty = $qty;
             $grndetail->unit_price = $unitPrice;
             $grndetail->total = $total;
+            $grndetail->vat_precentage = $vat_precentage;
+            $grndetail->vat_amount = $vat_amount;
+            $grndetail->total_after_vat = $aftervat;
             $grndetail->grn_id = $hidden_id;
             $grndetail->porderdetail_id = $detailID;
             $grndetail->status = '1';
@@ -531,10 +551,23 @@ public function update(Request $request){
       foreach ($DataArray as $rowDataArray) {
         if($rowDataArray['edit_insertstatus'] == "PorderExistingData"){
             $qty = $rowDataArray['qty'];
+            $preqty = $rowDataArray['preqty'];
             $detailID = $rowDataArray['porderdetail_id'];
 
+            $data = DB::table('porderdetails')
+            ->select('porderdetails.*')
+            ->where('porderdetails.id', $detailID)
+            ->where('porderdetails.status', 1)
+            ->get(); 
+            $orderqty = '';
+            foreach ($data as $row) {
+             $orderqty=$row->grn_issue_qty;
+            }
+            $restoreqty=$orderqty-$preqty;
+            $newqty=$restoreqty+$qty;
+
             $porderdetail = Porderdetail::where('id', $detailID)->first();
-            $porderdetail->grn_issue_qty = $qty;
+            $porderdetail->grn_issue_qty = $newqty;
             $porderdetail->update_by = Auth::id();
             $porderdetail->save();
         }
@@ -545,16 +578,17 @@ public function update(Request $request){
 
 
 public function approvel_details(Request $request){
-    $user = Auth::user();
-    $permission =$user->can('Grn-edit');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+    $commen= new Commen();
+    $userPermissions = $commen->Allpermission();
+    if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    } 
 
     $id = Request('id');
     if (request()->ajax()){
         $data = DB::table('grns')
-        ->select('grns.*')
+        ->leftjoin('employees', 'grns.employee_id', '=', 'employees.id')
+        ->select('grns.*','employees.id AS empid','employees.service_no','employees.emp_name_with_initial')
         ->where('grns.id', $id)
         ->get(); 
 
@@ -594,6 +628,9 @@ $data = DB::table('grndetails')
     $htmlTable .= '<td class="text-center">' . $row->qty . '</td>'; 
     $htmlTable .= '<td class="text-right">' . number_format($row->unit_price, 2) . '</td>';
     $htmlTable .= '<td class="text-right">' .  number_format($total,2) . '</td>'; 
+    $htmlTable .= '<td class="text-right">' .  number_format($row->vat_precentage,1) . '</td>'; 
+    $htmlTable .= '<td class="text-right">' .  number_format($row->vat_amount,2) . '</td>'; 
+    $htmlTable .= '<td class="text-right">' .  number_format($row->total_after_vat,2) . '</td>'; 
     $htmlTable .= '<td class="d-none">' . $row->inven_id . '</td>'; 
     $htmlTable .= '<td class="d-none">ExistingData</td>'; 
     $htmlTable .= '</tr>';
@@ -606,12 +643,10 @@ $data = DB::table('grndetails')
 
 
 public function delete(Request $request){
-
-    $user = Auth::user();
-  
-    $permission =$user->can('Grn-delete');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Grn-delete', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
     
         $id = Request('id');
@@ -631,17 +666,11 @@ public function delete(Request $request){
 
 public function approve(Request $request){
 
-    $user = Auth::user();
-   
-   
-    $permission =$user->can('Approve-Level-01');
-    $permission =$user->can('Approve-Level-02');
-    $permission =$user->can('Approve-Level-03');
-
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
-   
+    $commen= new Commen();
+    $userPermissions = $commen->Allpermission();
+    if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    } 
    
     $id = Request('id');
      $applevel = Request('applevel');
@@ -694,16 +723,11 @@ public function approve(Request $request){
 
 public function reject(Request $request){
 
-    $user = Auth::user();
-   
-   
-    $permission =$user->can('Approve-Level-01');
-    $permission =$user->can('Approve-Level-02');
-    $permission =$user->can('Approve-Level-03');
-
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+    $commen= new Commen();
+    $userPermissions = $commen->Allpermission();
+    if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    } 
       
     $id = Request('id');
      $current_date_time = Carbon::now()->toDateTimeString();
@@ -719,14 +743,11 @@ public function reject(Request $request){
 }
 
 public function stockupdate(Request $request){
-    $user = Auth::user();
-    $permission =$user->can('Approve-Level-03');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Approve-Level-03', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
-   
-
-    $user = Auth::user();
 
 
     $store_id=$request->input('store_id');
@@ -736,7 +757,7 @@ public function stockupdate(Request $request){
     
     $assetvalue="brandnew";
     foreach ($tableData as $rowtabledata) {
-        $item = $rowtabledata['col_7'];
+        $item = $rowtabledata['col_10'];
         $qty = $rowtabledata['col_4'];
         $unit_price = $rowtabledata['col_5'];
         $itemname = $rowtabledata['col_2'];
@@ -768,14 +789,12 @@ public function stockupdate(Request $request){
 
 
 public function status($id,$statusid){
-    $user = Auth::user();
-   
-   
-    $permission =$user->can('Grn-status');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
 
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Grn-status', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        } 
 
     if($statusid == 1){
         $form_data = array(
@@ -801,13 +820,11 @@ public function status($id,$statusid){
 
 
 public function deletelist(Request $request){
-
-    $user = Auth::user();
-  
-    $permission =$user->can('Grn-delete');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Grn-delete', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        } 
     
         $id = Request('id');
 
@@ -861,7 +878,7 @@ public function viewDetails(Request $request){
 
     $data = DB::table('grns')
         ->leftJoin('suppliers', 'grns.supplier_id', '=', 'suppliers.id')
-        ->select('grns.*', 'suppliers.*')
+        ->select('grns.*', 'suppliers.*','grns.id AS grnid')
         ->where('grns.id', $id)
         ->get();
 
@@ -925,18 +942,14 @@ public function getbatchno(Request $request){
 }
 
     public function porderdetails(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Porder-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
 
             $id = Request('id');
             if (request()->ajax()){
             $porders = DB::table('porders')
+            ->leftjoin('employees', 'porders.employee_id', '=', 'employees.id')
             ->leftjoin('suppliers', 'porders.supplier_id', '=', 'suppliers.id')
             ->leftjoin('storelists', 'porders.store_id', '=', 'storelists.id')
-            ->select('porders.*','suppliers.id AS supplier_name','suppliers.payment_terms AS payment_terms','storelists.id AS storename')
+            ->select('porders.*','suppliers.id AS supplier_name','suppliers.payment_terms AS payment_terms','storelists.id AS storename','employees.id AS empid','employees.service_no','employees.emp_name_with_initial')
             ->where('porders.id', '=', $id)->get();
 
         $requestlist = $this->porderdetailsTablelist($id); 
@@ -987,9 +1000,12 @@ public function getbatchno(Request $request){
      $htmlTable .= '</select>';
      $htmlTable .= '</td>';
      $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit_uom[]" id="uom' . $uniqueIdentifier . '" value="' . $row->uom . '" readonly></td>';
-     $htmlTable .= '<td><span style="color:red">(' . ($row->qty - $row->grn_issue_qty) . ')</span><input style="width:70%;" type="number" name="edit_qty[]" id="qty' . $uniqueIdentifier . '" value="' . ($row->qty - $row->grn_issue_qty) . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')" ></td>';
-     $htmlTable .= '<td><input style="border: none;width:70%;" type="number" name="edit_unit_price[]" id="unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')"></td>';
-     $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit_total[]" id="total' . $uniqueIdentifier . '" value="' .(($row->qty - $row->grn_issue_qty) * $row->unit_price). '" readonly></td>';
+     $htmlTable .= '<td style="width:120%;"><span style="color:red">(' . ($row->qty - $row->grn_issue_qty) . ')</span><input style="width:65%;" type="number" name="edit_qty[]" id="qty' . $uniqueIdentifier . '" value="' . ($row->qty - $row->grn_issue_qty) . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')" onclick="editsum(this.value, '.$uniqueIdentifier.')"></td>';
+     $htmlTable .= '<td><input style="border: none;width:100px;text-align:right" type="number" name="edit_unit_price[]" id="unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')"></td>';
+     $htmlTable .= '<td><input style="width:100px;border: none;text-align:right" type="text" name="edit_total[]" id="total' . $uniqueIdentifier . '" value="' .(($row->qty - $row->grn_issue_qty) * $row->unit_price). '" readonly></td>';
+     $htmlTable .= '<td><input style="width:70%;border: none;" type="text" name="edit_vat[]" id="vat' . $uniqueIdentifier . '" value="' .($row->vat_precentage). '" readonly></td>';
+     $htmlTable .= '<td style="width:20%;"><input style="width:100%;border: none;text-align:right" type="text" name="edit_vatamount[]" id="vatamount' . $uniqueIdentifier . '" value="' .($row->vat_amount). '" readonly></td>';
+     $htmlTable .= '<td style="width:10%;"><input style="width:100%;border: none;text-align:right" type="text" name="edit_aftervat[]" id="aftervat' . $uniqueIdentifier . '" value="' .($row->total_after_vat). '" readonly></td>';
      $htmlTable .= '<td class="d-none"><input type="text" name="edit_insertstatus[]" id="edit_insertstatus' . $uniqueIdentifier . '" value="ExistingData"></td>';
      $htmlTable .= '<td class="d-none"><input type="text" name="porderdetail_id[]" id="porderdetail_id' . $uniqueIdentifier . '" value="' . $row->id . '"></td>';
      $htmlTable .= '<td><button class="btn btn-sm btn-danger py-0" type="button" onclick="rem_item($(this))"><i class="fa fa-times"></i></button></td>';

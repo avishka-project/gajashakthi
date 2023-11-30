@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Vehicletype;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,17 +18,18 @@ class Vehicletypecontroller extends Controller
     }
     public function index()
     {
-        return view('Vehicletype.vehicletype');
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
+        return view('Vehicletype.vehicletype',compact('userPermissions'));
     }
     public function insert(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Vehicletype-create');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
-       
-    
-        $user = Auth::user();
+
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Vehicletype-create', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            } 
 
         $vehicletype = new Vehicletype();
         $vehicletype->vehicle_type = $request->input('vehicletype');
@@ -53,42 +55,37 @@ class Vehicletypecontroller extends Controller
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 $btn = '';
-                $user = Auth::user();
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();
 
-                        $permission = $user->can('Approve-Level-01');
-                        if($permission){
+                        if(in_array('Approve-Level-01',$userPermissions)){
                             if($row->approve_01 == 0 && $row->approve_status != 2){
                                 $btn .= ' <button name="appL1" id="'.$row->id.'" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
-                        $permission = $user->can('Approve-Level-02');
-                        if($permission){
+                        if(in_array('Approve-Level-02',$userPermissions)){
                             if($row->approve_01 == 1 && $row->approve_02 == 0 && $row->approve_status != 2){
                                 $btn .= ' <button name="appL2" id="'.$row->id.'" class="appL2 btn btn-outline-warning btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
-                        $permission = $user->can('Approve-Level-03');
-                        if($permission){
+                        if(in_array('Approve-Level-03',$userPermissions)){
                             if($row->approve_02 == 1 && $row->approve_03 == 0 && $row->approve_status != 2){
                                 $btn .= ' <button name="appL3" id="'.$row->id.'" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
 
-                        $permission = $user->can('Vehicletype-edit');
-                        if($permission && $row->approve_status != 2){
+                        if(in_array('Vehicletype-edit',$userPermissions) && $row->approve_status != 2){
                             $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                         }
 
-                    $permission = $user->can('Vehicletype-status');
-                        if($permission){
+                        if(in_array('Vehicletype-status',$userPermissions)){
                             if($row->status == 1){
                                 $btn .= ' <a href="'.route('vehicletypestatus', ['id' => $row->id, 'stasus' => 2]) .'" onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
                             }else{
                                 $btn .= '&nbsp;<a href="'.route('vehicletypestatus', ['id' => $row->id, 'stasus' => 1]) .'" onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
                             }
                         }
-                        $permission = $user->can('Vehicletype-delete');
-                        if($permission){
+                        if(in_array('Vehicletype-delete',$userPermissions)){
                             $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
               
@@ -100,11 +97,11 @@ class Vehicletypecontroller extends Controller
     }
 
     public function edit(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Vehicletype-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Vehicletype-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            } 
 
         $id = Request('id');
         if (request()->ajax()){
@@ -120,12 +117,12 @@ class Vehicletypecontroller extends Controller
 
 
     public function update(Request $request){
-        $user = Auth::user();
-       
-        $permission =$user->can('Vehicletype-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
+        
+            $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Vehicletype-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        } 
        
             $current_date_time = Carbon::now()->toDateTimeString();
 
@@ -151,12 +148,11 @@ class Vehicletypecontroller extends Controller
 
     public function delete(Request $request){
 
-        $user = Auth::user();
-      
-        $permission =$user->can('Vehicletype-delete');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
+            $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Vehicletype-delete', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         
             $id = Request('id');
         $current_date_time = Carbon::now()->toDateTimeString();
@@ -176,17 +172,11 @@ class Vehicletypecontroller extends Controller
 
     public function approve(Request $request){
 
-        $user = Auth::user();
-       
-       
-        $permission =$user->can('Approve-Level-01');
-        $permission =$user->can('Approve-Level-02');
-        $permission =$user->can('Approve-Level-03');
-
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
-       
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            } 
        
         $id = Request('id');
          $applevel = Request('applevel');
@@ -230,17 +220,11 @@ class Vehicletypecontroller extends Controller
     }
 
     public function reject(Request $request){
-
-        $user = Auth::user();
-       
-       
-        $permission =$user->can('Approve-Level-01');
-        $permission =$user->can('Approve-Level-02');
-        $permission =$user->can('Approve-Level-03');
-    
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        } 
           
         $id = Request('id');
          $current_date_time = Carbon::now()->toDateTimeString();
@@ -262,14 +246,12 @@ class Vehicletypecontroller extends Controller
 
 
     public function status($id,$statusid){
-        $user = Auth::user();
        
-       
-        $permission =$user->can('Vehicletype-status');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
-
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Vehicletype-status', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            } 
 
         if($statusid == 1){
             $form_data = array(

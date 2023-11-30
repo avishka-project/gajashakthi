@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\EmployeeAttachment;
 use App\EmployeeEducation;
 use App\EmployeeExperience;
@@ -108,13 +109,17 @@ class EmployeeEducationController extends Controller
      */
     public function show($id)
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+       
+        
         $education = EmployeeEducation::where('emp_id',$id)->get();
         $experience = EmployeeExperience::where('emp_id',$id)->get();
         $skill = EmployeeSkill::where('emp_id',$id)->with('skill')->get();
         $languages = EmployeeLanguages::where('emp_id',$id)->get();
         $attachments = EmployeeAttachment::where('emp_id',$id)->get();
 
-        return view('Employee.viewQualification',compact('education','experience','skill','languages','id', 'attachments'));
+        return view('Employee.viewQualification',compact('education','experience','skill','languages','id', 'attachments','userPermissions'));
     }
 
     /**

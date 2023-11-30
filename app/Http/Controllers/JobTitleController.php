@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\JobTitle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,14 +23,14 @@ class JobTitleController extends Controller
 
     public function index()
     {
-        $user = Auth::user();
-        $permission = $user->can('job-title-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-title-list', $userPermissions)) {
             abort(403);
-        }
-
+        } 
+        
         $title = JobTitle::orderBy('id', 'asc')->get();
-        return view('Job.jobtitle', compact('title'));
+        return view('Job.jobtitle', compact('title','userPermissions'));
     }
 
     /**
@@ -50,10 +51,10 @@ class JobTitleController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-title-create');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-title-create', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -98,10 +99,10 @@ class JobTitleController extends Controller
      */
     public function edit($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-title-edit');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-title-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         if (request()->ajax()) {
@@ -119,10 +120,10 @@ class JobTitleController extends Controller
      */
     public function update(Request $request, JobTitle $jobTitle)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-title-edit');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-title-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -155,11 +156,12 @@ class JobTitleController extends Controller
      */
     public function destroy($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-title-delete');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-title-delete', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
+
 
         $data = JobTitle::findOrFail($id);
         $data->delete();

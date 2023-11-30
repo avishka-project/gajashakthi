@@ -5,12 +5,7 @@
 <main>
     <div class="page-header page-header-light bg-white shadow">
         <div class="container-fluid">
-        <div class="page-header-content py-3">
-            <h1 class="page-header-title">
-                <div class="page-header-icon"><i class="fas fa-truck"></i></div>
-                <span>Good Receive Note</span>
-            </h1>
-        </div>
+            @include('layouts.corporate_nav_bar')
         </div>
     </div>
     <br>
@@ -29,8 +24,10 @@
                     </div>
                     @endif
                     <div class="col-12">
+                        @if(in_array('Grn-create',$userPermissions))
                         <button type="button" class="btn btn-outline-primary btn-sm fa-pull-right" name="create_record"
                             id="create_record"><i class="fas fa-plus mr-2"></i>Create Good Receive Note</button>
+                            @endif
                     </div>
                     <div class="col-12">
                         <hr class="border-dark">
@@ -97,7 +94,8 @@
                     <br>
                     <div class="row">
                         <div class="col-12">
-                            <table class="table table-striped table-bordered table-sm small" id="view_tableorder">
+                            <div class="center-block fix-width scroll-inner">
+                            <table class="table table-striped table-bordered table-sm small nowrap display" id="view_tableorder">
                                 <thead>
                                     <tr>
                                         <th>Item Code</th>
@@ -105,24 +103,28 @@
                                         <th>Unit Price</th>
                                         <th>Qty</th>
                                         <th class="text-right">Total</th>
+                                        <th class="px-1 py-1 text-center">Vat(%)</th>
+                                        <th class="text-right">Vat(Amount)</th>
+                                        <th class="text-right">Vat+Total</th>
                                     </tr>
                                 </thead>
                                 <tbody id="view_tableorderlist"></tbody>
                                 <tfoot>
                                     <tr style="font-weight: bold;font-size: 15px">
-                                        <td class="text-right" colspan="4">Sub Total:</td>
+                                        <td class="text-right" colspan="7">Sub Total:</td>
                                         <td id="view_subtotalField" class="text-right">0</td>
                                     </tr>
                                     <tr style="font-weight: bold;font-size: 15px">
-                                        <td class="text-right" colspan="4">Discount:</td>
+                                        <td class="text-right" colspan="7">Discount:</td>
                                         <td id="view_discountField" class="text-right">0</td>
                                     </tr>
                                     <tr style="font-weight: bold;font-size: 15px">
-                                        <td class="text-right" colspan="4">Total:</td>
+                                        <td class="text-right" colspan="7">Total:</td>
                                         <td id="view_totalField" class="text-right">0</td>
                                     </tr>
                                 </tfoot>
                             </table>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -165,7 +167,7 @@
                                             <div class="col-6">
                                                 <label class="small font-weight-bold text-dark">Order Date*</label>
                                             <input type="date" id="orderdate" name="orderdate"
-                                                class="form-control form-control-sm" required>
+                                                class="form-control form-control-sm" required onchange="getVatDateInputChange();">
                                             </div>
                                         </div>
                                         <div class="form-row mb-1">
@@ -211,6 +213,12 @@
                                                 </select>
                                             </div>
                                             <div class="col-6">
+                                                <label class="small font-weight-bold text-dark">Employee*</label><br>
+                                                <select name="employee" id="employee"
+                                                    class="form-control form-control-sm custom-select-width">
+                                                    <option value="">Select Employee</option>
+        
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -219,6 +227,7 @@
                                 <hr>
                                 <div class="row">
                                     <div class="col-md-12">
+                                        <div class="center-block fix-width scroll-inner">
                                         <table class="table table-striped table-bordered table-sm small nowrap display" style="width: 100%" id="edit_tableorder">
                                             <colgroup>
                                                 <col width="10%">
@@ -236,6 +245,9 @@
                                                     <th class="px-1 py-1 text-center">Qty</th>
                                                     <th class="px-1 py-1 text-center">Price</th>
                                                     <th class="px-1 py-1 text-center">Total</th>
+                                                    <th class="px-1 py-1 text-center">Vat(%)</th>
+                                                    <th class="px-1 py-1 text-center">Vat(Amount)</th>
+                                                    <th class="px-1 py-1 text-center">Vat+Total</th>
                                                     
                                                 </tr>
                                             </thead>
@@ -243,25 +255,26 @@
                                             <tfoot>
                                                 <tr class="bg-lightblue">
                                                     <tr>
-                                                        <th class="p-1 text-right" colspan="5">
+                                                        <th class="p-1 text-right" colspan="8">
                                                             <button class="btn btn btn-sm btn-flat btn-primary py-0 mx-1" type="button" id="add_editrow">Add Row</button>
                                                         <th></th>
                                                     </tr>
                                                     <tr style="font-weight: bold;font-size: 16px">
-                                                        <td colspan="5" class="text-right">Sub Total	:</td>
-                                                        <td id="edit_subtotal1" class="text-left">0</td>
+                                                        <td colspan="8" class="text-right">Sub Total	:</td>
+                                                        <td id="edit_subtotal1" class="text-right">0</td>
                                                     </tr>
                                                     <tr style="font-weight: bold;font-size: 16px">
-                                                        <td colspan="5" class="text-right">Discount:</td>
-                                                        <td class="text-left"><input type="number" id="edit_discount1" value="0" onkeyup="editdiscount(this.value)"/></td>
+                                                        <td colspan="8" class="text-right">Discount:</td>
+                                                        <td class="text-right"><input type="number" id="edit_discount1" value="0" onkeyup="editdiscount(this.value)"/></td>
                                                     </tr>
                                                     <tr style="font-weight: bold;font-size: 16px">
-                                                        <td colspan="5" class="text-right">Total:</td>
-                                                        <td id="edit_total1" class="text-left">0</td>
+                                                        <td colspan="8" class="text-right">Total:</td>
+                                                        <td id="edit_total1" class="text-right">0</td>
                                                     </tr>
                                                 </tr>
                                             </tfoot>
                                         </table>
+                                    </div>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <label for="notes" class="control-label">Remark</label>
@@ -323,7 +336,7 @@
                                         <div class="col-6">
                                             <label class="small font-weight-bold text-dark">Order Date*</label>
                                         <input type="date" id="edit_orderdate" name="edit_orderdate"
-                                            class="form-control form-control-sm" required>
+                                            class="form-control form-control-sm" required onchange="editgetVatDateInputChange();">
                                         </div>
                                     </div>
                                     <div class="form-row mb-1">
@@ -369,6 +382,12 @@
                                             </select>
                                         </div>
                                         <div class="col-6">
+                                            <label class="small font-weight-bold text-dark">Employee*</label><br>
+                                            <select name="edit_employee" id="edit_employee"
+                                                class="form-control form-control-sm custom-select-width">
+                                                <option value="">Select Employee</option>
+    
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -377,6 +396,7 @@
                             <hr>
                             <div class="row">
                                 <div class="col-md-12">
+                                    <div class="center-block fix-width scroll-inner">
                                     <table class="table table-striped table-bordered table-sm small nowrap display" style="width: 100%" id="edit_tableorder2">
                                         <colgroup>
                                             <col width="10%">
@@ -394,6 +414,9 @@
                                                 <th class="px-1 py-1 text-center">Qty</th>
                                                 <th class="px-1 py-1 text-center">Price</th>
                                                 <th class="px-1 py-1 text-center">Total</th>
+                                                <th class="px-1 py-1 text-center">Vat(%)</th>
+                                                <th class="px-1 py-1 text-center">Vat(Amount)</th>
+                                                <th class="px-1 py-1 text-center">Vat+Total</th>
                                                 
                                             </tr>
                                         </thead>
@@ -401,25 +424,26 @@
                                         <tfoot>
                                             <tr class="bg-lightblue">
                                                 <tr>
-                                                    <th class="p-1 text-right" colspan="5">
+                                                    <th class="p-1 text-right" colspan="8">
                                                         <button class="btn btn btn-sm btn-flat btn-primary py-0 mx-1" type="button" id="editadd_editrow">Add Row</button>
                                                     <th></th>
                                                 </tr>
                                                 <tr style="font-weight: bold;font-size: 16px">
-                                                    <td colspan="5" class="text-right">Sub Total	:</td>
+                                                    <td colspan="8" class="text-right">Sub Total	:</td>
                                                     <td id="edit_subtotal2" class="text-left">0</td>
                                                 </tr>
                                                 <tr style="font-weight: bold;font-size: 16px">
-                                                    <td colspan="5" class="text-right">Discount:</td>
+                                                    <td colspan="8" class="text-right">Discount:</td>
                                                     <td class="text-left"><input type="number" id="edit_discount2" value="0" onkeyup="editdiscount2(this.value)"/></td>
                                                 </tr>
                                                 <tr style="font-weight: bold;font-size: 16px">
-                                                    <td colspan="5" class="text-right">Total:</td>
+                                                    <td colspan="8" class="text-right">Total:</td>
                                                     <td id="edit_total2" class="text-left">0</td>
                                                 </tr>
                                             </tr>
                                         </tfoot>
                                     </table>
+                                </div>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <label for="notes" class="control-label">Remark</label>
@@ -576,6 +600,12 @@
                                             </select>
                                         </div>
                                         <div class="col-6">
+                                            <label class="small font-weight-bold text-dark">Employee*</label><br>
+                                            <select name="app_employee" id="app_employee"
+                                                class="form-control form-control-sm custom-select-width" readonly>
+                                                <option value="">Select Employee</option>
+    
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -584,6 +614,7 @@
                             <hr>
                             <div class="row">
                                 <div class="col-md-12">
+                                    <div class="center-block fix-width scroll-inner">
                                     <table class="table table-striped table-bordered table-sm small nowrap display" style="width: 100%" id="app_tableorder">
                                         <colgroup>
                                             <col width="10%">
@@ -601,6 +632,9 @@
                                                 <th class="px-1 py-1 text-center">Qty</th>
                                                 <th class="px-1 py-1 text-center">Price</th>
                                                 <th class="px-1 py-1 text-center">Total</th>
+                                                <th class="px-1 py-1 text-center">Vat(%)</th>
+                                                <th class="px-1 py-1 text-center">Vat(Amount)</th>
+                                                <th class="px-1 py-1 text-center">Vat+Total</th>
                                                 
                                             </tr>
                                         </thead>
@@ -611,20 +645,21 @@
                                                     
                                                 </tr>
                                                 <tr style="font-weight: bold;font-size: 16px">
-                                                    <td colspan="5" class="text-right">Sub Total	:</td>
+                                                    <td colspan="8" class="text-right">Sub Total	:</td>
                                                     <td id="app_subtotal" class="text-right">0</td>
                                                 </tr>
                                                 <tr style="font-weight: bold;font-size: 16px">
-                                                    <td colspan="5" class="text-right">Discount:</td>
+                                                    <td colspan="8" class="text-right">Discount:</td>
                                                     <td id="app_discount" class="text-right"></td>
                                                 </tr>
                                                 <tr style="font-weight: bold;font-size: 16px">
-                                                    <td colspan="5" class="text-right">Total:</td>
+                                                    <td colspan="8" class="text-right">Total:</td>
                                                     <td id="app_total" class="text-right">0</td>
                                                 </tr>
                                             </tr>
                                         </tfoot>
                                     </table>
+                                </div>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <label for="notes" class="control-label">Remark</label>
@@ -664,10 +699,8 @@
 <script>
     $(document).ready(function () {
 
-        $('#collapseCorporation').addClass('show');
-        $('#collapsgrninfo').addClass('show');
-        $('#grn_pruchaseinfodrop').addClass('show');
-        $('#grn_link').addClass('active');
+        $("#inventorylink").addClass('navbtnactive');
+        $('#corporate_link').addClass('active');
 
         $('#dataTable').DataTable({
             processing: true,
@@ -763,6 +796,9 @@
                             qty: $(this).find("[name='edit_qty[]']").val(),
                             unitPrice: $(this).find("[name='edit_unit_price[]']").val(),
                             total: $(this).find("[name='edit_total[]']").val(),
+                            vat_precentage: $(this).find("[name='edit_vat[]']").val(),
+                            vat_amount: $(this).find("[name='edit_vatamount[]']").val(),
+                            aftervat: $(this).find("[name='edit_aftervat[]']").val(),
                             edit_insertstatus: $(this).find("[name='edit_insertstatus[]']").val(),
                             porderdetail_id: $(this).find("[name='porderdetail_id[]']").val()
 
@@ -789,6 +825,7 @@
                         var supplier = $('#supplier').val();
                         var terms = $('#terms').val();
                         var store = $('#store').val();
+                        var employee = $('#employee').val();
                         var sub_total = parseFloat($('#edit_subtotal1').text());
                         var discount = parseFloat($('#edit_discount1').val());
                         var total = parseFloat($('#edit_total1').text());
@@ -809,6 +846,7 @@
                         supplier: supplier,
                         terms: terms,
                         store: store,
+                        employee:employee,
                         remark: remark,
                         sub_total: sub_total,
                         discount: discount,
@@ -868,9 +906,13 @@
                             qty: $(this).find("[name='edit1_qty[]']").val(),
                             unitPrice: $(this).find("[name='edit1_unit_price[]']").val(),
                             total: $(this).find("[name='edit1_total[]']").val(),
+                            vat_precentage: $(this).find("[name='edit1_vat[]']").val(),
+                            vat_amount: $(this).find("[name='edit1_vatamount[]']").val(),
+                            aftervat: $(this).find("[name='edit1_aftervat[]']").val(),
                             edit_insertstatus: $(this).find("[name='edit1_insertstatus[]']").val(),
                             grndetail_id: $(this).find("[name='edit1_grndetail_id[]']").val(),
-                            porderdetail_id: $(this).find("[name='edit1_porderdetail_id[]']").val()
+                            porderdetail_id: $(this).find("[name='edit1_porderdetail_id[]']").val(),
+                            preqty: $(this).find("[name='edit1_preqty[]']").val()
 
                         };
 
@@ -895,13 +937,14 @@
                         var supplier = $('#edit_supplier').val();
                         var terms = $('#edit_terms').val();
                         var store = $('#edit_store').val();
+                        var employee = $('#edit_employee').val();
                         var sub_total = parseFloat($('#edit_subtotal2').text());
                         var discount = parseFloat($('#edit_discount2').val());
                         var total = parseFloat($('#edit_total2').text());
                         var remark = $('#edit_remark').val();
                         var hidden_id = $('#edit_hidden_id').val();
                         // console.log(porder,orderdate,billdate,batchno,supplier,terms,store,remark,sub_total,discount,total,hidden_id);
-                        // console.log(rowDataArray);
+                        console.log(rowDataArray);
                         action_url = "{{ route('grnupdate') }}";
                         $.ajax({
                     method: "POST",
@@ -916,6 +959,7 @@
                         supplier: supplier,
                         terms: terms,
                         store: store,
+                        employee:employee,
                         remark: remark,
                         sub_total: sub_total,
                         discount: discount,
@@ -1058,6 +1102,20 @@
                     $('#edit_supplier').val(data.result.mainData.supplier_id);
                     $('#edit_terms').val(data.result.mainData.terms);
                     $('#edit_store').val(data.result.mainData.store_id);
+
+                    var empid = data.result.mainData.empid;
+                    if(empid!==null){
+                        console.log(empid);
+                        var empname = (data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
+                        var newOption = new Option(empname, empid, true, true);
+                        $('#edit_employee').append(newOption).trigger('change');
+                    }else{
+                        var empname = 'Select Employee';
+                        var empid1 = '';
+                        var newOption = new Option(empname, empid1, true, true);
+                        $('#edit_employee').append(newOption).trigger('change');
+                    }
+
                     $('#edit_remark').val(data.result.mainData.remark);
 
                     $('#edit_tableorderlist2').html(data.result.requestdata);
@@ -1092,6 +1150,20 @@
                     $('#edit_supplier').val(data.result.mainData.supplier_id);
                     $('#edit_terms').val(data.result.mainData.terms);
                     $('#edit_store').val(data.result.mainData.store_id);
+
+                    var empid = data.result.mainData.empid;
+                    if(empid!==null){
+                        console.log(empid);
+                        var empname = (data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
+                        var newOption = new Option(empname, empid, true, true);
+                        $('#edit_employee').append(newOption).trigger('change');
+                    }else{
+                        var empname = 'Select Employee';
+                        var empid1 = '';
+                        var newOption = new Option(empname, empid1, true, true);
+                        $('#edit_employee').append(newOption).trigger('change');
+                    }
+
                     $('#edit_remark').val(data.result.mainData.remark);
 
                     $('#edit_tableorderlist2').html(data.result.requestdata);
@@ -1176,6 +1248,20 @@
                     $('#app_supplier').val(data.result.mainData.supplier_id);
                     $('#app_terms').val(data.result.mainData.terms);
                     $('#app_store').val(data.result.mainData.store_id);
+
+                    var empid = data.result.mainData.empid;
+                    if(empid!==null){
+                        console.log(empid);
+                        var empname = (data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
+                        var newOption = new Option(empname, empid, true, true);
+                        $('#app_employee').append(newOption).trigger('change');
+                    }else{
+                        var empname = 'Select Employee';
+                        var empid1 = '';
+                        var newOption = new Option(empname, empid1, true, true);
+                        $('#app_employee').append(newOption).trigger('change');
+                    }
+
                     $('#app_remark').val(data.result.mainData.remark);
 
                     $('#app_tableorderlist').html(data.result.requestdata);
@@ -1217,6 +1303,20 @@
                     $('#app_supplier').val(data.result.mainData.supplier_id);
                     $('#app_terms').val(data.result.mainData.terms);
                     $('#app_store').val(data.result.mainData.store_id);
+
+                    var empid = data.result.mainData.empid;
+                    if(empid!==null){
+                        console.log(empid);
+                        var empname = (data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
+                        var newOption = new Option(empname, empid, true, true);
+                        $('#app_employee').append(newOption).trigger('change');
+                    }else{
+                        var empname = 'Select Employee';
+                        var empid1 = '';
+                        var newOption = new Option(empname, empid1, true, true);
+                        $('#app_employee').append(newOption).trigger('change');
+                    }
+
                     $('#app_remark').val(data.result.mainData.remark);
 
                     $('#app_tableorderlist').html(data.result.requestdata);
@@ -1260,6 +1360,20 @@
                     $('#app_supplier').val(data.result.mainData.supplier_id);
                     $('#app_terms').val(data.result.mainData.terms);
                     $('#app_store').val(data.result.mainData.store_id);
+
+                    var empid = data.result.mainData.empid;
+                    if(empid!==null){
+                        console.log(empid);
+                        var empname = (data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
+                        var newOption = new Option(empname, empid, true, true);
+                        $('#app_employee').append(newOption).trigger('change');
+                    }else{
+                        var empname = 'Select Employee';
+                        var empid1 = '';
+                        var newOption = new Option(empname, empid1, true, true);
+                        $('#app_employee').append(newOption).trigger('change');
+                    }
+                    
                     $('#app_remark').val(data.result.mainData.remark);
 
                     $('#app_tableorderlist').html(data.result.requestdata);
@@ -1342,7 +1456,6 @@
 
         $(document).on('click', '.view', function () {
             var id = $(this).attr('id');
-            $('#porderno').text('POD-0000' + id);
             var total = 0;
 
             $('#view_tableorder').DataTable({
@@ -1394,6 +1507,42 @@
                         },
                         className: 'text-right' // Apply a CSS class for right alignment
                     },
+                    {
+                        data: 'vat_precentage',
+                        name: 'vat_precentage',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                // Format the number to 2 decimal places and align it to the right
+                                return parseFloat(data).toFixed(2);
+                            }
+                            return data;
+                        },
+                        className: 'text-right' // Apply a CSS class for right alignment
+                    },
+                    {
+                        data: 'vat_amount',
+                        name: 'vat_amount',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                // Format the number to 2 decimal places and align it to the right
+                                return parseFloat(data).toFixed(1);
+                            }
+                            return data;
+                        },
+                        className: 'text-right' // Apply a CSS class for right alignment
+                    },
+                    {
+                        data: 'total_after_vat',
+                        name: 'total_after_vat',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                // Format the number to 2 decimal places and align it to the right
+                                return parseFloat(data).toFixed(2);
+                            }
+                            return data;
+                        },
+                        className: 'text-right' // Apply a CSS class for right alignment
+                    },
                 ],     
                 "bDestroy": true,
                 "order": [
@@ -1415,6 +1564,8 @@
                     id: id
                 },
                 success: function (data) {
+                    $('#porderno').text('POD-' + (data.result[0].porder_id==null?"Direct GRN":data.result[0].porder_id));
+
                     $('#view_subtotalField').text((data.result[0].sub_total).toFixed(2)),
                     $('#view_discountField').text((data.result[0].discount).toFixed(2)),
                     $('#view_totalField').text((data.result[0].total).toFixed(2)),
@@ -1437,7 +1588,7 @@
                     $('#supplieraddress').text(data.result[0].address1 + ', ' + data.result[0]
                         .address2 + ', ' + data.result[0].city);
 
-                        $('#invoiceno').text(data.result[0].invoice_no?'Invoice No: '+data.result[0].invoice_no:'Invoice No: ');
+                        $('#invoiceno').text(data.result[0].grnid?'Invoice No: '+data.result[0].grnid:'Invoice No: ');
                         $('#dispatchno').text(data.result[0].dispatch_no?'Dispatch No: '+data.result[0].dispatch_no:'Dispatch No: ');
                         $('#viewbatchno').text('Batch No: '+data.result[0].batch_no); 
                 }
@@ -1497,6 +1648,20 @@
             $('#supplier').val(data.result.mainData.supplier_name).prop('disabled', true);
             $('#terms').val(data.result.mainData.payment_terms);
             $('#store').val(data.result.mainData.storename).prop('disabled', true);
+
+            var empid = data.result.mainData.empid;
+            if(empid!==null){
+                console.log(empid);
+                var empname = (data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
+                var newOption = new Option(empname, empid, true, true);
+                $('#employee').append(newOption).trigger('change');
+            }else{
+                var empname = 'Select Employee';
+                var empid1 = '';
+                var newOption = new Option(empname, empid1, true, true);
+                $('#employee').append(newOption).trigger('change');
+            }
+            
             getbatchno(data.result.mainData.supplier_name);
             $('#edit_discount1').val(data.result.mainData.discount_amount);
             $('#edit_tableorderlist').html(data.result.requestdata);
@@ -1514,6 +1679,12 @@
                     $('#supplier').val('').prop('disabled', false);
                     $('#terms').val('');
                     $('#store').val('').prop('disabled', false);
+
+                    var empname = 'Select Employee';
+                    var empid1 = '';
+                    var newOption = new Option(empname, empid1, true, true);
+                    $('#employee').append(newOption).trigger('change');
+
                     $('#batchno').val('');
                     $('#add_editrow').show();
                     $('#edit_discount1').val(0).css('border', '1px solid').prop('readonly', false);
@@ -1561,9 +1732,12 @@
                     </select>
                 </td>
                 <td><input style="width:100px;border:none;" type="text" name="edit_uom[]" id="uom${editrowCounter}" value="" readonly></td>
-                <td><input style="width:100px" type="number" name="edit_qty[]" id="qty${editrowCounter}" value="0" onkeyup="editsum(this.value, ${editrowCounter})"></td>
-                <td><input style="width:100%" type="number" name="edit_unit_price[]" id="unit_price${editrowCounter}" value="0" onkeyup="editsum(this.value, ${editrowCounter})"></td>
-                <td><input style="width:100%;border:none;" type="text" name="edit_total[]" id="total${editrowCounter}" value="" readonly></td>  
+                <td><input style="width:80px" type="number" name="edit_qty[]" id="qty${editrowCounter}" value="0" onkeyup="editsum(this.value, ${editrowCounter})"></td>
+                <td><input style="width:100px;text-align:right" type="number" name="edit_unit_price[]" id="unit_price${editrowCounter}" value="0" onkeyup="editsum(this.value, ${editrowCounter})"></td>
+                <td><input style="width:100px;border:none;text-align:right" type="text" name="edit_total[]" id="total${editrowCounter}" value="" readonly></td> 
+                <td><input style="width:100%;border:none;" type="text" name="edit_vat[]" id="vat${editrowCounter}" value="0" readonly></td>  
+                <td style="width:20%;"><input style="width:100%;border:none;text-align:right" type="text" name="edit_vatamount[]" id="vatamount${editrowCounter}" value="0" readonly></td>  
+                <td style="width:10%;"><input style="width:70%;border:none;text-align:right" type="text" name="edit_aftervat[]" id="aftervat${editrowCounter}" value="0" readonly></td>   
                 <td class="d-none"><input type="text" name="edit_insertstatus[]" id="edit_insertstatus${editrowCounter}" value="NewData"></td>  
                 <td class="d-none"><input type="text" name="porderdetail_id[]" id="porderdetail_id${editrowCounter1}" value="0"></td>  
                 <td><button class="btn btn-sm btn-danger py-0" type="button" onclick="rem_item($(this))"><i class="fa fa-times"></i></button></td>  
@@ -1580,6 +1754,7 @@
     // Attach a click event handler to the "Add Row" button
     $('#add_editrow').click(function () {
         addNewRow();
+        getVatDateInputChange();
     });
 
     function getItemeditDetails(item_code, rowCounter) {
@@ -1678,20 +1853,26 @@
         })
     }
     // insert part calculation
-    function editsum(value, rowCounter){
+function editsum(value, rowCounter){
     var qty = parseFloat($('#qty' + rowCounter).val());
-var unitPrice = parseFloat($('#unit_price' + rowCounter).val());
-var presubtotal = parseFloat($('#total' + rowCounter).val());
+    var unitPrice = parseFloat($('#unit_price' + rowCounter).val());
+    var presubtotal = parseFloat($('#total' + rowCounter).val());
 
-var total=qty*unitPrice;
-$('#total' + rowCounter).val(total)
+    var total=qty*unitPrice;
+    $('#total' + rowCounter).val(total)
+
+    var vatprecentage = parseFloat($('#vat' + rowCounter).val());
+    var vatamount=total*(vatprecentage/100);
+    $('#vatamount' + rowCounter).val(vatamount);
+    var aftervat=(parseFloat(total))+(parseFloat(vatamount));
+    $('#aftervat' + rowCounter).val(aftervat);
 
 updateEditTotal();
 }
 
 function updateEditTotal(){
     let grandTotal = 0;
-    $('input[name="edit_total[]"]').each(function() {
+    $('input[name="edit_aftervat[]"]').each(function() {
         const value = parseFloat($(this).val()) || 0;
         grandTotal += value;
     });
@@ -1729,9 +1910,12 @@ let editrowCounter1 =1000;
                     </select>
                 </td>
                 <td><input style="width:100px;border:none;" type="text" name="edit1_uom[]" id="edit1_uom${editrowCounter1}" value="" readonly></td>
-                <td><input style="width:100px" type="number" name="edit1_qty[]" id="edit1_qty${editrowCounter1}" value="0" onkeyup="editsum1(this.value, ${editrowCounter1})"></td>
-                <td><input style="width:100%" type="number" name="edit1_unit_price[]" id="edit1_unit_price${editrowCounter1}" value="0" onkeyup="editsum1(this.value, ${editrowCounter1})"></td>
-                <td><input style="width:100%;border:none;" type="text" name="edit1_total[]" id="edit1_total${editrowCounter1}" value="" readonly></td>  
+                <td><input style="width:80px" type="number" name="edit1_qty[]" id="edit1_qty${editrowCounter1}" value="0" onkeyup="editsum1(this.value, ${editrowCounter1})"></td>
+                <td><input style="width:100px;text-align:right" type="number" name="edit1_unit_price[]" id="edit1_unit_price${editrowCounter1}" value="0" onkeyup="editsum1(this.value, ${editrowCounter1})"></td>
+                <td><input style="width:100px;border:none;text-align:right"" type="text" name="edit1_total[]" id="edit1_total${editrowCounter1}" value="" readonly></td>  
+                <td><input style="width:100%;border:none;" type="text" name="edit1_vat[]" id="edit1_vat${editrowCounter}" value="0" readonly></td>  
+                <td style="width:20%;"><input style="width:100%;border:none;text-align:right" type="text" name="edit1_vatamount[]" id="edit1_vatamount${editrowCounter}" value="0" readonly></td>  
+                <td style="width:10%;"><input style="width:70%;border:none;text-align:right" type="text" name="edit1_aftervat[]" id="edit1_aftervat${editrowCounter}" value="0" readonly></td>   
                 <td class="d-none"><input type="text" name="edit1_insertstatus[]" id="edit1_insertstatus${editrowCounter1}" value="NewData"></td>  
                 <td class="d-none"><input type="text" name="edit1_porderdetail_id[]" id="edit1_porderdetail_id${editrowCounter1}" value="0"></td>  
                 <td><button class="btn btn-sm btn-danger py-0" type="button" onclick="rem_item($(this))"><i class="fa fa-times"></i></button></td>  
@@ -1748,6 +1932,7 @@ let editrowCounter1 =1000;
     // Attach a click event handler to the "Add Row" button
     $('#editadd_editrow').click(function () {
         editaddNewRow();
+        editgetVatDateInputChange();
     });
 
 // edit details get
@@ -1775,18 +1960,24 @@ let editrowCounter1 =1000;
 // edit part calculation
 function editsum1(value, rowCounter){
     var qty = parseFloat($('#edit1_qty' + rowCounter).val());
-var unitPrice = parseFloat($('#edit1_unit_price' + rowCounter).val());
-var presubtotal = parseFloat($('#edit1_total' + rowCounter).val());
+    var unitPrice = parseFloat($('#edit1_unit_price' + rowCounter).val());
+    var presubtotal = parseFloat($('#edit1_total' + rowCounter).val());
 
-var total=qty*unitPrice;
-$('#edit1_total' + rowCounter).val(total)
+    var total=qty*unitPrice;
+    $('#edit1_total' + rowCounter).val(total)
+
+    var vatprecentage = parseFloat($('#edit1_vat' + rowCounter).val());
+    var vatamount=total*(vatprecentage/100);
+    $('#edit1_vatamount' + rowCounter).val(vatamount);
+    var aftervat=(parseFloat(total))+(parseFloat(vatamount));
+    $('#edit1_aftervat' + rowCounter).val(aftervat);
 
 updateEditTotal1();
 }
 
 function updateEditTotal1(){
     let grandTotal = 0;
-    $('input[name="edit1_total[]"]').each(function() {
+    $('input[name="edit1_aftervat[]"]').each(function() {
         const value = parseFloat($(this).val()) || 0;
         grandTotal += value;
     });
@@ -1844,6 +2035,167 @@ function rem_item(_this){
             }
         });
     });
+
+
+    $(document).ready(function () {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $('#employee').select2({
+            width: '100%',
+            minimumInputLength: 1,
+            ajax: {
+                url: '{!! route("getemployeeinselect2") !!}',
+                type: 'POST',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        search: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.service_no + ' - ' + item.emp_name_with_initial,
+                                id: item.id
+                            };
+                        })
+                    };
+                }
+            }
+        });
+
+        // edit model emp select
+        $('#edit_employee').select2({
+            width: '100%',
+            minimumInputLength: 1,
+            ajax: {
+                url: '{!! route("getemployeeinselect2") !!}',
+                type: 'POST',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        search: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.service_no + ' - ' + item.emp_name_with_initial,
+                                id: item.id
+                            };
+                        })
+                    };
+                }
+            }
+        });
+
+    });
+
+    // get vat for insert model
+    function getVatDateInputChange(){
+        var porderid=$('#porder').val()
+        if(porderid==''){
+            var value=$('#orderdate').val()
+        // console.log(value);
+        $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    })
+
+                    var ajaxRequest = $.ajax({
+                        url: '{!! route("pordercashgetvat") !!}',
+                        type: 'POST',
+                        dataType: "json",
+                        data: { date: value },
+                    });
+
+                    ajaxRequest.done(function (data) {
+                        $('[name="edit_vat[]"]').val(data.result);
+                        console.log(data.result);
+                    });
+
+                    ajaxRequest.then(function () {
+                        calculate();
+                    });
+        }   
+
+    }
+
+     // get vat for edit model
+     function editgetVatDateInputChange(){
+        var porderid=$('#edit_porder').val()
+        if(porderid==''){
+            var value=$('#edit_orderdate').val()
+        // console.log(value);
+        $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    })
+
+                    var ajaxRequest = $.ajax({
+                        url: '{!! route("pordercashgetvat") !!}',
+                        type: 'POST',
+                        dataType: "json",
+                        data: { date: value },
+                    });
+
+                    ajaxRequest.done(function (data) {
+                        $('[name="edit1_vat[]"]').val(data.result);
+                    });
+
+                    ajaxRequest.then(function () {
+                        calculate1();
+                    });
+
+        }
+    }
+
+    function calculate(){
+        $('#edit_tableorderlist tr').each(function () {
+    var qty = parseFloat($(this).find("[name='edit_qty[]']").val());
+    var unitPrice = parseFloat($(this).find("[name='edit_unit_price[]']").val());
+    var presubtotal = parseFloat($(this).find("[name='edit_total[]']").val());
+
+    var total=qty*unitPrice;
+    $(this).find("[name='edit_total[]']").val(total)
+
+    var vatprecentage = parseFloat($(this).find("[name='edit_vat[]']").val());
+    var vatamount=total*(vatprecentage/100);
+    $(this).find("[name='edit_vatamount[]']").val(vatamount)
+    var aftervat=(parseFloat(total))+(parseFloat(vatamount));
+    $(this).find("[name='edit_aftervat[]']").val(aftervat)
+        });
+
+updateEditTotal();
+}
+
+function calculate1(){
+        $('#edit_tableorderlist2 tr').each(function () {
+    var qty = parseFloat($(this).find("[name='edit1_qty[]']").val());
+    var unitPrice = parseFloat($(this).find("[name='edit1_unit_price[]']").val());
+    var presubtotal = parseFloat($(this).find("[name='edit1_total[]']").val());
+
+    var total=qty*unitPrice;
+    $(this).find("[name='edit1_total[]']").val(total)
+
+    var vatprecentage = parseFloat($(this).find("[name='edit1_vat[]']").val());
+    var vatamount=total*(vatprecentage/100);
+    $(this).find("[name='edit1_vatamount[]']").val(vatamount)
+    var aftervat=(parseFloat(total))+(parseFloat(vatamount));
+    $(this).find("[name='edit1_aftervat[]']").val(aftervat)
+        });
+
+        updateEditTotal1();
+}
+
 </script>
 </body>
 

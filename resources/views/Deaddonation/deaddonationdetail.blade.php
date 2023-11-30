@@ -391,10 +391,10 @@
                     $('#voregion').val(data.result.subregion || 'NOT Assign');
                     $('#funeral_place').val(data.result.funeral_pace || 'NOT Assign');
                     $('#funeral_date').val(data.result.funeral_date || 'NOT Assign');
-                    $('#firstallocation').val(data.result.firstallocation || 'NOT Assign');
+                    $('#firstallocation').val((data.result.firstallocation !==null) ? data.result.firstallocation+" - "+(data.result.firstallocationapprovel==0?"Not Approved":"Approved"): 'NOT Assign');
                     $('#documentupload').val(data.result.filename ? 'Document Upload' :
                         'Document not Uploaded yet');
-                    $('#secondallocation').val(data.result.lastallocation || 'NOT Assign');
+                    $('#secondallocation').val(data.result.lastallocation !==null ? data.result.lastallocation+" - "+(data.result.lastallocationapprovel==0?"Not Approved":"Approved"): 'NOT Assign');
 
                     fieldcolor()
                 }

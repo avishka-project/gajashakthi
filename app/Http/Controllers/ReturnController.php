@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Returnlist;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -19,6 +20,9 @@ class ReturnController extends Controller
     }
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
         $approvel01permission = 0;
         $approvel02permission = 0;
         $approvel03permission = 0;
@@ -27,28 +31,30 @@ class ReturnController extends Controller
         $editpermission = 0;
         $deletepermission = 0;
         $statuspermission = 0;
-        
-        if (Auth::user()->can('Approve-Level-01')) {
+
+        if (in_array('Approve-Level-01', $userPermissions)) {
             $approvel01permission = 1;
         } 
-        if (Auth::user()->can('Approve-Level-02')) {
+        if (in_array('Approve-Level-02', $userPermissions)) {
             $approvel02permission = 1;
         } 
-        if (Auth::user()->can('Approve-Level-03')) {
+        if (in_array('Approve-Level-03', $userPermissions)) {
             $approvel03permission = 1;
         } 
-        if (Auth::user()->can('Return-list')) {
+        if (in_array('Return-list', $userPermissions)) {
             $listpermission = 1;
         } 
-        if (Auth::user()->can('Return-edit')) {
+        if (in_array('Return-edit', $userPermissions)) {
             $editpermission = 1;
-        }
-        if (Auth::user()->can('Return-status')) {
+        } 
+        if (in_array('Return-status', $userPermissions)) {
             $statuspermission = 1;
-        }
-        if (Auth::user()->can('Return-delete')) {
+        } 
+        if (in_array('Return-delete', $userPermissions)) {
             $deletepermission = 1;
-        }
+        } 
+
+
         $locations = DB::table('customerbranches')->select('customerbranches.*')
         ->whereIn('customerbranches.status', [1, 2])
         ->where('customerbranches.approve_status', 1)
@@ -64,16 +70,17 @@ class ReturnController extends Controller
         // ->where('employees.approve_status', 1)
         ->get();
 
-        return view('Returnlist.return',compact('locations','departments','listpermission','editpermission','deletepermission','statuspermission','employees'));
+        return view('Returnlist.return',compact('locations','departments','listpermission','editpermission','deletepermission','statuspermission','employees','userPermissions'));
     }
  
 
     public function edit(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Return-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Return-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
+
 
         $id = Request('id');
         if (request()->ajax()){
@@ -139,14 +146,14 @@ return response() ->json(['result'=>  $responseData]);
    }
 
    public function add(Request $request){
-    $user = Auth::user();
-    $permission =$user->can('Return-create');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
-        $current_date_time = Carbon::now()->toDateTimeString();
 
-    $user = Auth::user();
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Return-create', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+        $current_date_time = Carbon::now()->toDateTimeString();
 
     $returnlist = new Returnlist();
     $returnlist->issuing = $request->input('issuing');

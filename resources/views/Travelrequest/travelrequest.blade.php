@@ -19,8 +19,10 @@
             <div class="card-body p-0 p-2">
                 <div class="row">
                     <div class="col-12">
+                        @if(in_array('Travelrequest-create',$userPermissions))
                         <button type="button" class="btn btn-outline-primary btn-sm fa-pull-right" name="create_record"
                             id="create_record"><i class="fas fa-plus mr-2"></i>Add Travel Request</button>
+                            @endif
                     </div>
                     <div class="col-12">
                         <hr class="border-dark">
@@ -328,7 +330,7 @@
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header p-2">
-                    <h5 class="modal-title" id="staticBackdropLabel">Approve Travel Request Details</h5>
+                    <h5 class="app_modal-title" id="staticBackdropLabel">Approve Travel Request Details</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -452,7 +454,7 @@
             ],
             "bDestroy": true,
             "order": [
-                [2, "desc"]
+                [0, "desc"]
             ]
         });
 

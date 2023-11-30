@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\EmployeeImmigration;
 use App\EmployeeAttachment;
 use Illuminate\Http\Request;
@@ -35,10 +36,10 @@ class EmployeeImmigrationController extends Controller
     public function create(Request $request)
  
     {
-        $user = Auth::user();
-        $permission = $user->can('employee-edit');
-        if (!$permission) {
-            abort(403);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $this->validate($request, array(
@@ -74,9 +75,10 @@ class EmployeeImmigrationController extends Controller
 
     public function immigrationattacment(Request $request){
 
-        $permission = \Auth::user()->can('employee-edit');
-        if (!$permission) {
-            abort(403);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $file = $request->file('empattachment');
@@ -98,23 +100,25 @@ class EmployeeImmigrationController extends Controller
 
     public function show($id)
     {
-        $permission = \Auth::user()->can('employee-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $immigration = EmployeeImmigration::where('emp_id',$id)->get();
 
         //dd($immigration);
        
-        return view('Employee.viewImmigration',compact('immigration','id'));
+        return view('Employee.viewImmigration',compact('immigration','id','userPermissions'));
     }
 
     public function edit_json($id)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         if (request()->ajax()) {
@@ -125,9 +129,10 @@ class EmployeeImmigrationController extends Controller
 
     public function update(Request $request )
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -164,9 +169,10 @@ class EmployeeImmigrationController extends Controller
      */
     public function destroy($id)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $data = (new \App\EmployeeImmigration)->findOrFail($id);

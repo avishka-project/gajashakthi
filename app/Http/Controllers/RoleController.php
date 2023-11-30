@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Commen;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -19,41 +20,37 @@ class RoleController extends Controller
 
     public function index(Request $request)
     {
-
-        $user = \Auth::user();
-        $permission = $user->can('role-list');
-
-        if(!$permission){
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('role-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $roles = Role::orderBy('id','DESC')->get();
-        return view('roles.index',compact('roles'))
+        return view('roles.index',compact('roles','userPermissions'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function create()
     {
-        $user = \Auth::user();
-        $permission = $user->can('role-create');
-
-        if(!$permission){
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('role-create', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $permission = Permission::get();
-        return view('roles.create',compact('permission'));
+        return view('roles.create',compact('permission','userPermissions'));
     }
 
 
     public function store(Request $request)
     {
-        $user = \Auth::user();
-        $permission = $user->can('role-create');
-
-        if(!$permission){
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('role-create', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $this->validate($request, [
             'name' => 'required|unique:roles,name',
@@ -69,31 +66,28 @@ class RoleController extends Controller
 
     public function show($id)
     {
-
-        $user = \Auth::user();
-        $permission = $user->can('role-list');
-
-        if(!$permission){
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('role-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $role = Role::find($id);
         $rolePermissions = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")
             ->where("role_has_permissions.role_id",$id)
             ->get();
 
-        return view('roles.show',compact('role','rolePermissions'));
+        return view('roles.show',compact('role','rolePermissions','userPermissions'));
     }
 
 
     public function edit($id)
     {
-        $user = \Auth::user();
-        $permission = $user->can('role-edit');
-
-        if(!$permission){
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('role-edit', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $role = Role::find($id);
         $permission = Permission::get();
@@ -107,18 +101,19 @@ class RoleController extends Controller
             ->get()
             ->toArray();
 
-        return view('roles.edit',compact('role','permission','rolePermissions', 'perms_with_modules'));
+        return view('roles.edit',compact('role','permission','rolePermissions', 'perms_with_modules','userPermissions'));
     }
 
 
     public function update(Request $request, $id)
     {
-        $user = \Auth::user();
-        $permission = $user->can('role-edit');
-
-        if(!$permission){
+        $user = Auth::user();
+        
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('role-edit', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $this->validate($request, [
             'name' => 'required',
@@ -142,12 +137,11 @@ class RoleController extends Controller
 
     public function destroy($id)
     {
-        $user = \Auth::user();
-        $permission = $user->can('role-delete');
-
-        if(!$permission){
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('role-delete', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         DB::table("roles")->where('id',$id)->delete();
         return redirect()->route('roles.index')

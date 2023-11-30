@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\EmployeePassport;
 use App\EmployeeAttachment;
 use Illuminate\Http\Request;
@@ -42,9 +43,10 @@ class EmployeePassportController extends Controller
      */
     public function store(Request $request)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $this->validate($request, array(
@@ -107,9 +109,12 @@ class EmployeePassportController extends Controller
      */
     public function show($id)
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+
         $passport = EmployeePassport::where('emp_id',$id)->get();
 
-        return view('Employee.viewPassport',compact('passport','id'));
+        return view('Employee.viewPassport',compact('passport','id','userPermissions'));
     }
 
     /**
@@ -133,9 +138,10 @@ class EmployeePassportController extends Controller
      */
     public function update(Request $request, EmployeePassport $employeePassport)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $this->validate($request, array(

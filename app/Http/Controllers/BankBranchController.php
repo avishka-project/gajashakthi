@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Bank;
 use App\Bank_branch;
+use App\Commen;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -22,14 +23,15 @@ class BankBranchController extends Controller
 
     public function index($bankcode)
     {
-        $user = Auth::user();
-        $permission = $user->can('bank-list');
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('bank-list', $userPermissions)) {
             abort(403);
-        }
+        } 
+        
 
         $bank = Bank::where('code',$bankcode)->first();
-        return view('Organization.bank_branch', compact( 'bank'));
+        return view('Organization.bank_branch', compact( 'bank','userPermissions'));
     }
 
     public function bank_branches_list_dt(Request $request)
@@ -47,14 +49,14 @@ class BankBranchController extends Controller
 
                 $btn = '';
 
-                $user = Auth::user();
-                $permission = $user->can('bank-edit');
-                if($permission){
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();
+
+                if(in_array('bank-edit',$userPermissions)){
                     $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                 }
 
-                $permission = $user->can('bank-delete');
-                if($permission){
+                if(in_array('bank-delete',$userPermissions)){
                     $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                 }
 
@@ -66,10 +68,10 @@ class BankBranchController extends Controller
 
     public function store(Request $request)
     {
-        $user = Auth::user();
-        $permission = $user->can('bank-create');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('bank-create', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -97,11 +99,11 @@ class BankBranchController extends Controller
 
     public function edit($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('bank-edit');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('bank-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
 
         if (request()->ajax()) {
             $data = Bank_branch::findOrFail($id);
@@ -111,11 +113,11 @@ class BankBranchController extends Controller
 
     public function update(Request $request, Bank_branch $bank_branch)
     {
-        $user = Auth::user();
-        $permission = $user->can('bank-edit');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('bank-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
 
         $rules = array(
             'name' => 'required',
@@ -145,10 +147,10 @@ class BankBranchController extends Controller
 
     public function destroy($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('bank-delete');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('bank-delete', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $data = Bank_branch::findOrFail($id);

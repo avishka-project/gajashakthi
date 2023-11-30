@@ -80,9 +80,9 @@
             <div class="card-body p-0 p-2">
                 <div class="row">
                     <div class="col-12">
-                        @can('employee-create')
+                        @if(in_array('employee-create',$userPermissions))
                             <button type="button" class="btn btn-outline-primary btn-sm fa-pull-right" name="create_record" id="create_record"><i class="fas fa-plus mr-2"></i>Add Employee</button>
-                        @endcan
+                            @endif
                     </div>
                     <div class="col-12">
                         <hr class="border-dark">

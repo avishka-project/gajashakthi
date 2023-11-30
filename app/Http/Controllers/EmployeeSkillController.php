@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\EmployeeSkill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,9 +34,10 @@ class EmployeeSkillController extends Controller
      */
     public function create(REQUEST $request)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
       
        $rules = array(
@@ -101,9 +103,10 @@ class EmployeeSkillController extends Controller
      */
     public function edit($id)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         if(request()->ajax())
@@ -122,9 +125,10 @@ class EmployeeSkillController extends Controller
      */
     public function update(Request $request, EmployeeSkill $employeeSkill)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -162,9 +166,10 @@ class EmployeeSkillController extends Controller
      */
     public function destroy($id)
     {
-        $permission = Auth::user()->can('employee-delete');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-delete', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $data = EmployeeSkill::findOrFail($id);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\ShiftType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,8 +22,11 @@ class ShiftTypeController extends Controller
     
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
         $shifttype= ShiftType::orderBy('id', 'asc')->where('deleted', 0)->get();
-        return view('Shift.shifttype',compact('shifttype'));
+        return view('Shift.shifttype',compact('shifttype','userPermissions'));
     }
 
     /**

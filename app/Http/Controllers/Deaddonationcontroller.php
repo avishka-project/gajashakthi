@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Deaddonation;
 use App\Deaddonationallocation;
 use App\Deaddonationincomplete;
@@ -21,18 +22,19 @@ class Deaddonationcontroller extends Controller
     }
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
         $employees = DB::table('employees')->select('employees.*')->get();
-        return view('Deaddonation.deaddonation', compact('employees'));
+        return view('Deaddonation.deaddonation', compact('employees','userPermissions'));
     }
     public function insert(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Deaddonation-create');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Deaddonation-create', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 403);
             }
-       
-    
-        $user = Auth::user();
+
 
         $deaddonation = new Deaddonation();
         $deaddonation->employee_id = $request->input('serviceno');
@@ -126,42 +128,37 @@ class Deaddonationcontroller extends Controller
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 $btn = '';
-                $user = Auth::user();
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();
 
-                        $permission = $user->can('Approve-Level-01');
-                        if($permission){
+                        if(in_array('Approve-Level-01',$userPermissions)){
                             if($row->approve_01 == 0){
                                 $btn .= ' <button name="appL1" id="'.$row->id.'" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
-                        $permission = $user->can('Approve-Level-02');
-                        if($permission){
+                        if(in_array('Approve-Level-02',$userPermissions)){
                             if($row->approve_01 == 1 && $row->approve_02 == 0){
                                 $btn .= ' <button name="appL2" id="'.$row->id.'" class="appL2 btn btn-outline-warning btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
-                        $permission = $user->can('Approve-Level-03');
-                        if($permission){
+                        if(in_array('Approve-Level-03',$userPermissions)){
                             if($row->approve_02 == 1 && $row->approve_03 == 0 ){
                                 $btn .= ' <button name="appL3" id="'.$row->id.'" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
 
-                        $permission = $user->can('Deaddonation-edit');
-                        if($permission){
+                        if(in_array('Deaddonation-edit',$userPermissions)){
                             $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                         }
 
-                    $permission = $user->can('Deaddonation-status');
-                        if($permission){
+                        if(in_array('Deaddonation-status',$userPermissions)){
                             if($row->status == 1){
                                 $btn .= ' <a href="'.route('deaddonationstatus', ['id' => $row->id, 'stasus' => 2]) .'" onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
                             }else{
                                 $btn .= '&nbsp;<a href="'.route('deaddonationstatus', ['id' => $row->id, 'stasus' => 1]) .'" onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
                             }
                         }
-                        $permission = $user->can('Deaddonation-delete');
-                        if($permission){
+                        if(in_array('Deaddonation-delete',$userPermissions)){
                             $btn .= ' <button name="delete" id="'.$row->id.'" relative_id="'.$row->relative_id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
               
@@ -173,10 +170,10 @@ class Deaddonationcontroller extends Controller
     }
 
     public function edit(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Deaddonation-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Deaddonation-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
 
         $id = Request('id');
@@ -193,12 +190,11 @@ class Deaddonationcontroller extends Controller
 
 
     public function update(Request $request){
-        $user = Auth::user();
-       
-        $permission =$user->can('Deaddonation-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Deaddonation-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
        
             $current_date_time = Carbon::now()->toDateTimeString();
 
@@ -246,11 +242,10 @@ class Deaddonationcontroller extends Controller
 
     public function delete(Request $request){
 
-        $user = Auth::user();
-      
-        $permission =$user->can('Deaddonation-delete');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Deaddonation-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
         
             $id = Request('id');
@@ -306,17 +301,11 @@ class Deaddonationcontroller extends Controller
 
     public function approve(Request $request){
 
-        $user = Auth::user();
-       
-       
-        $permission =$user->can('Approve-Level-01');
-        $permission =$user->can('Approve-Level-02');
-        $permission =$user->can('Approve-Level-03');
-
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
-       
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
        
         $id = Request('id');
          $applevel = Request('applevel');
@@ -363,14 +352,11 @@ class Deaddonationcontroller extends Controller
 
 
     public function status($id,$statusid){
-        $user = Auth::user();
-       
-       
-        $permission =$user->can('Deaddonation-status');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Deaddonation-status', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
-
 
         if($statusid == 1){
             $form_data = array(

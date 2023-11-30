@@ -14,11 +14,11 @@
                                     <div class="card card-header-actions mb-4">
                                         <div class="card-header">
                                             Work Experience
-                                            @can('employee-edit')
+                                            @if(in_array('employee-edit',$userPermissions))
                                                 <button type="button" name="create_work" id="create_work"
                                                     class="btn btn-success btn-sm">Add
                                                 </button>
-                                            @endcan
+                                            @endif
                                         </div>
 
                                         <div id="expModal" class="modal fade" role="dialog">
@@ -103,11 +103,11 @@
                                                             <div class="form-group">
                                                                 <input type="hidden" name="action" id="action"/>
                                                                 <input type="hidden" name="hidden_id" id="hidden_id"/>
-                                                                @can('employee-edit')
+                                                                @if(in_array('employee-edit',$userPermissions))
                                                                     <input type="submit" name="action_button"
                                                                        id="action_button" class="btn btn-warning float-right btn-sm"
                                                                        value="Add"/>
-                                                                @endcan
+                                                                @endif
                                                             </div>
                                                         </form>
                                                     </div>
@@ -171,7 +171,7 @@
                                                                     <td>{{$experiences->emp_to_date}}</td>
                                                                     <td>{{$experiences->emp_comment}}</td>
                                                                     <td>
-                                                                        @can('employee-edit')
+                                                                        @if(in_array('employee-edit',$userPermissions))
                                                                             <button name="expedit" id="{{$experiences->id}}"
                                                                                     class="expedit btn btn-primary btn-sm mr-1 mt-1"
                                                                                     type="submit"> <i class="fa fa-pencil-alt"></i>
@@ -181,7 +181,7 @@
                                                                                     class="expdelete btn btn-danger btn-sm  mr-1 mt-1">
                                                                                 <i class="fa fa-trash"></i>
                                                                             </button>
-                                                                        @endcan
+                                                                        @endif
                                                                     </td>
                                                                 </tr>
 
@@ -201,11 +201,11 @@
                                     <div class="card card-header-actions mb-4">
                                         <div class="card-header">
                                             Education
-                                            @can('employee-edit')
+                                            @if(in_array('employee-edit',$userPermissions))
                                                 <button type="button" name="create_education" id="create_education"
                                                         class="btn btn-success btn-sm">Add
                                                 </button>
-                                            @endcan
+                                            @endif
                                         </div>
 
 
@@ -322,7 +322,7 @@
 
                                                             <br/>
                                                             <div class="form-group" align="center">
-                                                                @can('employee-edit')
+                                                                @if(in_array('employee-edit',$userPermissions))
                                                                     <input type="hidden" name="eduaction" id="eduaction"
                                                                            value="Add"/>
                                                                     <input type="hidden" name="edu_hidden_id"
@@ -330,7 +330,7 @@
                                                                     <input type="submit" name="eduaction_button"
                                                                            id="eduaction_button" class="btn btn-warning float-right  btn-sm"
                                                                            value="Add"/>
-                                                                @endcan
+                                                                @endif
                                                             </div>
                                                         </form>
                                                     </div>
@@ -354,14 +354,14 @@
                                                             remove this data?</h4>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        @can('employee-delete')
+                                                        @if(in_array('employee-delete',$userPermissions))
                                                             <button type="button" name="eduok_button" id="eduok_button"
                                                                     class="btn btn-danger  btn-sm">OK
                                                             </button>
                                                             <button type="button" class="btn btn-default  btn-sm"
                                                                     data-dismiss="modal">Cancel
                                                             </button>
-                                                        @endcan
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -396,7 +396,7 @@
                                                                     <td>{{$educations->emp_year}}</td>
                                                                     <td>{{$educations->emp_gpa}}</td>
                                                                     <td>
-                                                                        @can('employee-edit')
+                                                                        @if(in_array('employee-edit',$userPermissions))
                                                                             <button name="eduedit" id="{{$educations->id}}"
                                                                                     class="eduedit btn btn-primary btn-sm  mr-1 mt-1"
                                                                                     type="submit">
@@ -407,7 +407,7 @@
                                                                                     class="edudelete btn btn-danger btn-sm  mr-1 mt-1">
                                                                                 <i class="fa fa-trash"></i>
                                                                             </button>
-                                                                        @endcan
+                                                                        @endif
                                                                     </td>
                                                                 </tr>
 
@@ -426,11 +426,11 @@
                                     <div class="card card-header-actions mb-4">
                                         <div class="card-header">
                                             Skill
-                                            @can('employee-edit')
+                                            @if(in_array('employee-edit',$userPermissions))
                                                 <button type="button" name="create_skill" id="create_skill"
                                                         class="btn btn-success btn-sm">Add
                                                 </button>
-                                            @endcan
+                                            @endif
                                         </div>
 
                                         <div id="skillModal" class="modal fade" role="dialog">
@@ -493,7 +493,7 @@
 
                                                             <br/>
                                                             <div class="form-group">
-                                                                @can('employee-edit')
+                                                                @if(in_array('employee-edit',$userPermissions))
                                                                     <input type="hidden" name="skillaction" id="skillaction"
                                                                            value="Add"/>
                                                                     <input type="hidden" name="skill_hidden_id"
@@ -501,7 +501,7 @@
                                                                     <input type="submit" name="skillaction_button"
                                                                            id="skillaction_button" class="btn btn-warning float-right  btn-sm"
                                                                            value="Add"/>
-                                                                @endcan
+                                                                @endif
                                                             </div>
                                                         </form>
                                                     </div>
@@ -560,7 +560,7 @@
                                                                     <td>{{$skills->emp_experience}}</td>
                                                                     <td>{{$skills->emp_comment}}</td>
                                                                     <td class="text-right">
-                                                                        @can('employee-edit')
+                                                                        @if(in_array('employee-edit',$userPermissions))
                                                                             <button name="skilledit" id="{{$skills->id}}"
                                                                                     class="skilledit btn btn-primary btn-sm  mr-1 mt-1"
                                                                                     type="submit">
@@ -571,7 +571,7 @@
                                                                                     class="skilldelete btn btn-danger btn-sm  mr-1 mt-1">
                                                                                 <i class="fa fa-trash"></i>
                                                                             </button>
-                                                                        @endcan
+                                                                        @endif
                                                                     </td>
                                                                 </tr>
 
@@ -638,9 +638,9 @@
                                     </div>
                                 </div>
 
-                                @can('employee-edit')
+                                @if(in_array('employee-edit',$userPermissions))
                                     <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                                @endcan
+                                @endif
                             </form>
                         </div>
                     </div>

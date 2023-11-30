@@ -5,12 +5,7 @@
 <main>
     <div class="page-header page-header-light bg-white shadow">
         <div class="container-fluid">
-            <div class="page-header-content py-3">
-                <h1 class="page-header-title">
-                    <div class="page-header-icon"><i class="fas fa-money-bill-wave-alt"></i></div>
-                    <span>Petty Cash Rermbursement</span>
-                </h1>
-            </div>
+            @include('layouts.corporate_nav_bar')
         </div>
     </div>
     <br>
@@ -19,8 +14,10 @@
             <div class="card-body p-0 p-2">
                 <div class="row">
                     <div class="col-12">
+                        @if(in_array('Pettycash-create',$userPermissions))
                         <button type="button" class="btn btn-outline-primary btn-sm fa-pull-right" name="create_record"
                             id="create_record" onclick="inserttable();getdocno()"><i class="fas fa-plus mr-2"></i>Add Pettycash</button>
+                            @endif
                     </div>
                     <div class="col-12">
                         <hr class="border-dark">
@@ -403,9 +400,8 @@
 
 <script>
     $(document).ready(function () {
-        $('#collapseCorporation').addClass('show');
-        $('#collapexpenses').addClass('show');
-        $('#pettycash_link').addClass('active');
+        $("#expenseslink").addClass('navbtnactive');
+        $('#corporate_link').addClass('active');
 
         var approvel01 = {{$approvel01permission}};
         var approvel02 = {{$approvel02permission}};
@@ -502,11 +498,11 @@
                                     button += ' <button name="appL3" id="' + full['id'] + '" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
-                        if (editcheck) {
+
                             if (full['approve_03']==1) {
                                     button += ' <button name="view" id="' + full['id'] + '" class="view btn btn-outline-secondary btn-sm" type="submit"><i class="fas fa-eye"></i></button>';      
                             }
-                        }
+
                         if (editcheck) {
                             if (full['approve_status']==0) {
                                     button += ' <button name="edit" id="' + full['id'] + '" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';                      
@@ -2641,7 +2637,7 @@ else if(selectedOption=='employee_nic'){
                     })
 
                 $.ajax({
-                    url: '{!! route("pettycashgetVat") !!}',
+                    url: '{!! route("pordercashgetvat") !!}',
                         type: 'POST',
                         dataType: "json",
                         data: {date: value },

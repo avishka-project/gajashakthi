@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Deaddonation;
 use App\Deaddonationallocation;
 use App\Deaddonationincomplete;
@@ -21,20 +22,22 @@ class Deaddonationlastallocationcontroller extends Controller
     }
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
         $banks = DB::table('banks')->select('banks.*')
         ->whereIn('banks.status', [1, 2])
         ->get();
 
-        return view('Deaddonation.lastallocation',compact('banks'));
+        return view('Deaddonation.lastallocation',compact('banks','userPermissions'));
     }
 
     public function insert(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Deaddonationlastallocation-create');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Deaddonationlastallocation-create', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 403);
             }
-       
 
         $id=$request->input('hidden_id');
         $chequeno = $request->input('chequno');
@@ -71,47 +74,47 @@ class Deaddonationlastallocationcontroller extends Controller
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 $btn = '';
-                $user = Auth::user();
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();
                 $amountEmpty = empty($row->amount);
 
-                        $permission = $user->can('Approve-Level-01');
-                        if($permission && !$amountEmpty){
+                if(in_array('Approve-Level-01',$userPermissions)){
+                    if(!$amountEmpty){
                             if($row->approve_01 == 0){
                                 $btn .= ' <button name="appL1" id="'.$row->id.'" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
-                        $permission = $user->can('Approve-Level-02');
-                        if($permission){
+                    }
+                    if(in_array('Approve-Level-02',$userPermissions)){
                             if($row->approve_01 == 1 && $row->approve_02 == 0){
                                 $btn .= ' <button name="appL2" id="'.$row->id.'" class="appL2 btn btn-outline-warning btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
-                        $permission = $user->can('Approve-Level-03');
-                        if($permission){
+                        if(in_array('Approve-Level-03',$userPermissions)){
                             if($row->approve_02 == 1 && $row->approve_03 == 0 ){
                                 $btn .= ' <button name="appL3" id="'.$row->id.'" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
-                        $permission = $user->can('Deaddonationlastallocation-edit');
-                        if($permission && $amountEmpty){
+                        if(in_array('Deaddonationlastallocation-edit',$userPermissions)){
+                            if($amountEmpty){
                             $btn .= ' <button name="allocate" id="'.$row->id.'" class="allocate btn btn-outline-secondary btn-sm" type="submit"><i class="fas fa-plus"></i></button>';
                         }
+                    }
 
-                        $permission = $user->can('Deaddonationlastallocation-edit');
-                        if($permission && !$amountEmpty){
+                    if(in_array('Deaddonationlastallocation-edit',$userPermissions)){
+                        if(!$amountEmpty){
                             $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                         }
+                    }
 
-                    $permission = $user->can('Deaddonationlastallocation-status');
-                        if($permission){
+                    if(in_array('Deaddonationlastallocation-status',$userPermissions)){
                             if($row->status == 1){
                                 $btn .= ' <a href="'.route('lastallocationstatus', ['id' => $row->id, 'stasus' => 2]) .'" onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
                             }else{
                                 $btn .= '&nbsp;<a href="'.route('lastallocationstatus', ['id' => $row->id, 'stasus' => 1]) .'" onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
                             }
                         }
-                        $permission = $user->can('Deaddonationlastallocation-delete');
-                        if($permission){
+                        if(in_array('Deaddonationlastallocation-delete',$userPermissions)){
                             $btn .= ' <button name="delete" id="'.$row->id.'" relative_id="'.$row->relative_id.'" deaddonation_id="'.$row->deaddonation_id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
               
@@ -123,10 +126,10 @@ class Deaddonationlastallocationcontroller extends Controller
     }
 
     public function edit(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Deaddonationlastallocation-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Deaddonationlastallocation-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
 
         $id = Request('id');
@@ -143,11 +146,10 @@ class Deaddonationlastallocationcontroller extends Controller
 
 
     public function update(Request $request){
-        $user = Auth::user();
-       
-        $permission =$user->can('Deaddonationlastallocation-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Deaddonationlastallocation-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
        
             $current_date_time = Carbon::now()->toDateTimeString();
@@ -175,12 +177,10 @@ class Deaddonationlastallocationcontroller extends Controller
 
 
     public function delete(Request $request){
-
-        $user = Auth::user();
-      
-        $permission =$user->can('Deaddonationlastallocation-delete');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Deaddonationlastallocation-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
         
             $id = Request('id');
@@ -234,18 +234,11 @@ class Deaddonationlastallocationcontroller extends Controller
 
 
     public function approve(Request $request){
-
-        $user = Auth::user();
-       
-       
-        $permission =$user->can('Approve-Level-01');
-        $permission =$user->can('Approve-Level-02');
-        $permission =$user->can('Approve-Level-03');
-
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
-       
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        } 
        
         $id = Request('id');
          $applevel = Request('applevel');
@@ -292,14 +285,11 @@ class Deaddonationlastallocationcontroller extends Controller
 
 
     public function status($id,$statusid){
-        $user = Auth::user();
-       
-       
-        $permission =$user->can('Deaddonationlastallocation-status');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Deaddonationlastallocation-status', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
-
 
         if($statusid == 1){
             $form_data = array(

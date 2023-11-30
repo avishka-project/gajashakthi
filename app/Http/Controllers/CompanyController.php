@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Company;
 use App\Department;
 use Illuminate\Http\Request;
@@ -24,15 +25,14 @@ class CompanyController extends Controller
 
     public function index()
     {
-        $user = auth()->user();
-        $permission = $user->can('company-list');
-
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('company-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $company = Company::orderBy('id', 'asc')->paginate(10);
-        return view('Organization.company', compact('company'));
+        return view('Organization.company', compact('company','userPermissions'));
     }
 
     /**
@@ -43,12 +43,11 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        $user = auth()->user();
-        $permission = $user->can('company-create');
-
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('company-create', $userPermissions)) {
             return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        } 
 
         $rules = array(
             'name' => 'required',
@@ -84,12 +83,12 @@ class CompanyController extends Controller
      */
     public function edit($id)
     {
-        $user = auth()->user();
-        $permission = $user->can('company-edit');
 
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('company-edit', $userPermissions)) {
             return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        } 
 
         if (request()->ajax()) {
             $data = Company::findOrFail($id);
@@ -106,12 +105,11 @@ class CompanyController extends Controller
      */
     public function update(Request $request, Company $company)
     {
-        $user = auth()->user();
-        $permission = $user->can('company-edit');
-
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('company-edit', $userPermissions)) {
             return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        } 
 
         $rules = array(
             'name' => 'required',
@@ -148,12 +146,12 @@ class CompanyController extends Controller
      */
     public function destroy($id)
     {
-        $user = auth()->user();
-        $permission = $user->can('company-delete');
-
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('company-delete', $userPermissions)) {
             return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        } 
+
 
         $data = Company::findOrFail($id);
         $data->delete();

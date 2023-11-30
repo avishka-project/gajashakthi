@@ -6,6 +6,7 @@ use App\Department;
 use App\Employee;
 use App\Branch;
 use App\Attendance;
+use App\Commen;
 use App\EmployeePaySlip;
 use App\EmployeeSalary;
 use App\Holiday;
@@ -36,19 +37,21 @@ class Report extends Controller
 
     public function getemployeelist()
     {
-        $permission = Auth::user()->can('employee-report');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-report', $userPermissions)) {
             abort(403);
-        }
-        return view('Report.employeereport');
+        } 
+        return view('Report.employeereport',compact('userPermissions'));
     }
 
     public function employee_report_list(Request $request)
     {
-        $permission = Auth::user()->can('employee-report');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-report', $userPermissions)) {
             return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        } 
 
         ## Read value
         $department = $request->get('department');
@@ -245,7 +248,8 @@ class Report extends Controller
 
     public function empoloyeeattendentall()
     {
-
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
 
         $attendents = DB::query()
             ->select('at1.*', DB::raw('Max(at1.timestamp) as lasttimestamp'), 'employees.emp_name_with_initial', 'branches.location')
@@ -257,7 +261,7 @@ class Report extends Controller
             ->get();
 
 
-        return view('Report.attendentreportall', compact('attendents'));
+        return view('Report.attendentreportall', compact('attendents','userPermissions'));
     }
 
     public function exportattendances()
@@ -296,7 +300,10 @@ class Report extends Controller
 
     function daterange()
     {
-        return view('Report.attendentreport');
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+       
+        return view('Report.attendentreport',compact('userPermissions'));
     }
 
 
@@ -384,18 +391,21 @@ class Report extends Controller
 
     public function attendentbyemployee(Request $request)
     {
-        $permission = Auth::user()->can('attendance-report');
-        if (!$permission) {
-           abort(403);
-        }
-        return view('Report.attendentbyemployee');
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('jattendance-report', $userPermissions)) {
+            abort(403);
+        } 
+        return view('Report.attendentbyemployee',compact('userPermissions'));
     }
 
     public function attendance_report_list(Request $request)
     {
-        $permission = Auth::user()->can('attendance-report');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('attendance-report', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
         ## Read value
         $department = $request->get('department');
@@ -1138,19 +1148,21 @@ class Report extends Controller
 
     public function leavereport(Request $request)
     {
-        $permission = Auth::user()->can('leave-report');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('leave-report', $userPermissions)) {
             abort(403);
-        }
-        return view('Report.leavereport' );
+        } 
+        return view('Report.leavereport',compact('userPermissions') );
     }
 
     public function leave_report_list(Request $request)
     {
-        $permission = Auth::user()->can('leave-report');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('leave-report', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
         ## Read value
         $department = $request->get('department');
         $employee = $request->get('employee');
@@ -1395,18 +1407,20 @@ class Report extends Controller
 
     public function lateattendent()
     {
-        $permission = Auth::user()->can('late-attendance-report');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('late-attendance-report', $userPermissions)) {
             abort(403);
-        }
-        return view('Report.lateattendance' );
+        } 
+        return view('Report.lateattendance',compact('userPermissions') );
     }
 
     public function late_attendance_report_list(Request $request)
     {
-        $permission = Auth::user()->can('late-attendance-report');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('late-attendance-report', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
         ## Read value
         $department = $request->get('department');
@@ -1658,6 +1672,8 @@ class Report extends Controller
 
     public function attendetreport(Request $request)
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
 
         $employee = DB::table('employees')
             ->join('job_titles', 'employees.emp_job_code', '=', 'job_titles.id')
@@ -1666,7 +1682,7 @@ class Report extends Controller
             ->get();
         $branch = Branch::orderBy('id', 'asc')->get();
 
-        return view('Report.attendetreport', compact('employee', 'branch'));
+        return view('Report.attendetreport', compact('employee', 'branch','userPermissions'));
 
     }
 
@@ -1794,19 +1810,21 @@ class Report extends Controller
     }
 
     public function ot_report(){
-        $permission = Auth::user()->can('ot-report');
-        if(!$permission){
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('ot-report', $userPermissions)) {
             abort(403);
-        }
+        } 
 
-        return view('Report.ot_report' );
+        return view('Report.ot_report',compact('userPermissions') );
     }
 
     public function ot_report_list(Request $request)
     {
-        $permission = Auth::user()->can('ot-report');
-        if(!$permission){
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('ot-report', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $department = $request->get('department');
@@ -1928,9 +1946,10 @@ class Report extends Controller
     }
 
     public function ot_report_list_view_more(Request $request) {
-        $permission = Auth::user()->can('ot-report');
-        if(!$permission){
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('ot-report', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $emp_id = $request->emp_id;
@@ -1987,9 +2006,10 @@ class Report extends Controller
 
     public function ot_report_list_month(Request $request)
     {
-        $permission = Auth::user()->can('ot-report');
-        if(!$permission){
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('ot-report', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $department = $request->get('department');
@@ -2069,12 +2089,13 @@ class Report extends Controller
     }
 
     public function no_pay_report(){
-        $permission = Auth::user()->can('no-pay-report');
-        if(!$permission){
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('no-pay-report', $userPermissions)) {
             abort(403);
-        }
+        } 
 
-        return view('Report.no_pay_report' );
+        return view('Report.no_pay_report',compact('userPermissions') );
     }
 
     // public function get_no_pay_amount($emp_etfno, $emp_work, $emp_leave, $emp_nopay, $emp_ot_i, $emp_ot_ii  ){
@@ -2237,9 +2258,10 @@ class Report extends Controller
 
     public function no_pay_report_list_month(Request $request)
     {
-        $permission = Auth::user()->can('no-pay-report');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('no-pay-report', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $department = $request->get('department');
@@ -2365,9 +2387,10 @@ class Report extends Controller
 
     public function no_pay_days_data(Request $request)
     {
-        $permission = Auth::user()->can('no-pay-report');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('no-pay-report', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $emp_id = $request->emp_id;

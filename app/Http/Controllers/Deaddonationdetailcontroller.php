@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Deaddonation;
 use App\Deaddonationallocation;
 use App\Deaddonationdetail;
@@ -23,8 +24,11 @@ class Deaddonationdetailcontroller extends Controller
     }
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+
         $employees = DB::table('employees')->select('employees.*')->get();
-        return view('Deaddonation.deaddonationdetail', compact('employees'));
+        return view('Deaddonation.deaddonationdetail', compact('employees','userPermissions'));
     }
 
 
@@ -39,7 +43,7 @@ class Deaddonationdetailcontroller extends Controller
             ->leftjoin('employee_dependents', 'deaddonations.relative_id', '=', 'employee_dependents.id')
             ->join('subregions', 'employees.subregion_id', '=', 'subregions.id')
             ->select('deaddonationlastallocations.*','deaddonations.relative_id AS relative_id','deaddonations.dateofdead AS dateofdead','employees.emp_name_with_initial AS emp_name_with_initial','employee_dependents.emp_dep_relation AS emp_dep_relation','employee_dependents.emp_dep_name AS emp_dep_name','subregions.subregion')
-            // ->whereIn('deaddonationlastallocations.status', [1, 2])
+            ->whereIn('deaddonations.status', [1, 2])
             // ->where('deaddonationlastallocations.approve_status', 1)
             ->where('employee_dependents.life_status', 'dead')
             ->where('employee_dependents.emp_id', $emp_id)
@@ -50,25 +54,21 @@ class Deaddonationdetailcontroller extends Controller
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 $btn = '';
-                $user = Auth::user();
-
-                       
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();      
                      
-                        $permission = $user->can('Deaddonationdetail-view');
-                        if($permission){
+                            if(in_array('Deaddonationdetail-view',$userPermissions)){
                             $btn .= ' <button name="details" id="'.$row->id.'" class="details btn btn-outline-secondary btn-sm" type="submit"><i class="fas fa-eye"></i></button>';
                         }
 
-                    $permission = $user->can('Deaddonationdetail-status');
-                        if($permission){
+                    if(in_array('Deaddonationdetail-status',$userPermissions)){
                             if($row->status == 1){
                                 $btn .= ' <a href="'.route('deaddonationdetailstatus', ['id' => $row->id, 'stasus' => 2]) .'" onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
                             }else{
                                 $btn .= '&nbsp;<a href="'.route('deaddonationdetailstatus', ['id' => $row->id, 'stasus' => 1]) .'" onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
                             }
                         }
-                        $permission = $user->can('Deaddonationdetail-delete');
-                        if($permission){
+                        if(in_array('Deaddonationdetail-delete',$userPermissions)){
                             $btn .= ' <button name="delete" id="'.$row->id.'" relative_id="'.$row->relative_id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
               
@@ -102,11 +102,10 @@ class Deaddonationdetailcontroller extends Controller
 
     public function delete(Request $request){
 
-        $user = Auth::user();
-      
-        $permission =$user->can('Deaddonationdetail-delete');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Deaddonationdetail-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
         
             $id = Request('id');
@@ -161,14 +160,11 @@ class Deaddonationdetailcontroller extends Controller
 
 
     public function status($id,$statusid){
-        $user = Auth::user();
-       
-       
-        $permission =$user->can('Deaddonationdetail-status');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Deaddonationdetail-status', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
-
 
         if($statusid == 1){
             $form_data = array(
@@ -206,7 +202,7 @@ class Deaddonationdetailcontroller extends Controller
             ->leftjoin('employees', 'deaddonations.employee_id', '=', 'employees.id') 
             ->leftjoin('employee_dependents', 'deaddonations.relative_id', '=', 'employee_dependents.id')
             ->join('subregions', 'employees.subregion_id', '=', 'subregions.id')
-            ->select('employees.service_no AS service_no','deaddonations.causesofdead AS causesofdead','deaddonationlastallocations.amount AS lastallocation','deaddonationallocations.amount AS firstallocation','deaddonations.dateofdead AS dateofdead','employees.emp_name_with_initial AS emp_name_with_initial','employee_dependents.emp_dep_relation AS emp_dep_relation','deaddonationincompletes.filename AS filename','subregions.subregion','deaddonations.funeral_pace','deaddonations.funeral_date')
+            ->select('employees.service_no AS service_no','deaddonations.causesofdead AS causesofdead','deaddonationlastallocations.amount AS lastallocation','deaddonationlastallocations.approve_status AS lastallocationapprovel','deaddonationallocations.amount AS firstallocation','deaddonationallocations.approve_status AS firstallocationapprovel','deaddonations.dateofdead AS dateofdead','employees.emp_name_with_initial AS emp_name_with_initial','employee_dependents.emp_dep_relation AS emp_dep_relation','deaddonationincompletes.filename AS filename','subregions.subregion','deaddonations.funeral_pace','deaddonations.funeral_date')
             // ->whereIn('deaddonationlastallocations.status', [1, 2])
             // ->where('deaddonationlastallocations.approve_status', 1)
             ->where('employee_dependents.life_status', 'dead')

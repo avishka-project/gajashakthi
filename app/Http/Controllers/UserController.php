@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
@@ -15,16 +16,22 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
         $data = User::orderBy('id','DESC')->get();
-        return view('users.index',compact('data'))
+        return view('users.index',compact('data','userPermissions'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
 
     public function create()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
         $roles = Role::pluck('name','name')->all();
-        return view('users.create',compact('roles'));
+        return view('users.create',compact('roles','userPermissions'));
     }
 
 
@@ -50,18 +57,24 @@ class UserController extends Controller
 
     public function show($id)
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+
         $user = User::find($id);
-        return view('users.show',compact('user'));
+        return view('users.show',compact('user','userPermissions'));
     }
 
 
     public function edit($id)
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+
         $user = User::find($id);
         $roles = Role::pluck('name','name')->all();
         $userRole = $user->roles->pluck('name','name')->all();
 
-        return view('users.edit',compact('user','roles','userRole'));
+        return view('users.edit',compact('user','roles','userRole','userPermissions'));
     }
 
 

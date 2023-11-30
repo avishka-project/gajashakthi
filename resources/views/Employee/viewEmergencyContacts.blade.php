@@ -55,10 +55,10 @@
                                     </div>
                                 </div>
                                 <div class="form-group mt-3 text-right">
-                                    @can('employee-edit')
+                                    @if(in_array('employee-edit',$userPermissions))
                                         <button type="submit" name="action_button" id="action_button" class="btn btn-outline-primary btn-sm fa-pull-right px-4"><i class="fas fa-plus"></i>&nbsp;Add</button>
                                         <button type="reset" class="btn btn-outline-danger btn-sm mr-2"><i class="far fa-trash-alt"></i>&nbsp;Clear</button>
-                                    @endcan
+                                        @endif
                                 </div>
                                 <input type="hidden" class="form-control form-control-sm" id="emp_id" name="emp_id" value="{{$id}}">
                             </form>
@@ -81,10 +81,10 @@
                                         <td>{{$ec->address}}</td>
                                         <td>{{$ec->contact_no}}</td>
                                         <td>
-                                            @can('employee-edit')
+                                            @if(in_array('employee-edit',$userPermissions))
                                                 <a href="#" class="btn btn-outline-primary btn-sm btn-edit mr-1 mt-1" data-id="{{$ec->id}}"><i class="fas fa-pencil-alt"></i></a>
                                                 <a href="#" class="btn btn-outline-danger btn-sm btn-delete mr-1 mt-1" data-id="{{$ec->id}}"><i class="far fa-trash-alt"></i></a>
-                                            @endcan
+                                                @endif
                                         </td>
                                     </tr>
                                 @endforeach

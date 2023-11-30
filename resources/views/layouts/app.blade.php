@@ -41,6 +41,7 @@
                 Gaja Shakthi HRM
             </a>
             <button class="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><i class="fas fa-bars text-light"></i></button>
+            @include('layouts.breadcrumblist')
 
             <ul class="navbar-nav align-items-center ml-auto">
                 @if (Auth::guest())

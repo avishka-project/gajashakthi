@@ -6,6 +6,7 @@ use App\Shift;
 use App\Employee;
 use App\ShiftType;
 use App\Branch;
+use App\Commen;
 use Illuminate\Http\Request;
 use Validator;
 use DB;
@@ -25,12 +26,15 @@ class ShiftController extends Controller
     
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
         $shifttype= ShiftType::orderBy('id', 'asc')->get();
         $employee=Employee::orderBy('id', 'desc')->get();
         $branch=Branch::orderBy('id', 'desc')->get();
 
     //   dd($shift);
-        return view('Shift.shift',compact('employee','shifttype','branch'));
+        return view('Shift.shift',compact('employee','shifttype','branch','userPermissions'));
     }
 
     public function shift_list_dt(Request $request)

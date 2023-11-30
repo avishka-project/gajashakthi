@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\JobCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,14 +23,14 @@ class JobCategoryController extends Controller
     
     public function index()
     {
-        $user = Auth::user();
-        $permission = $user->can('job-category-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-category-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $jobcategory= JobCategory::orderBy('id', 'asc')->get();
-        return view('Job.jobcategory',compact('jobcategory'));
+        return view('Job.jobcategory',compact('jobcategory','userPermissions'));
     }
 
     /**
@@ -49,10 +50,10 @@ class JobCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-category-create');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-category-create', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
         $rules = array(
             'jobcategory'    =>  'required'
@@ -99,10 +100,10 @@ class JobCategoryController extends Controller
      */
     public function edit($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-category-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-category-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
         if(request()->ajax())
         {
@@ -120,10 +121,10 @@ class JobCategoryController extends Controller
      */
     public function update(Request $request, JobCategory $jobCategory)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-category-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-category-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
         $rules = array(
             'jobcategory'    =>  'required'
@@ -155,10 +156,10 @@ class JobCategoryController extends Controller
      */
     public function destroy($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-category-delete');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-category-delete', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
         $data = JobCategory::findOrFail($id);
         $data->delete();

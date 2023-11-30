@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\EmployeeSalary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,14 +53,15 @@ class EmployeeSalaryController extends Controller
      */
     public function show($id)
     {
-        $permission = Auth::user()->can('employee-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $employees = EmployeeSalary::where('emp_id',$id)->get();
  
-        return view('Employee.viewSalaryDetails',compact('employees','id'));
+        return view('Employee.viewSalaryDetails',compact('employees','id','userPermissions'));
     }
 
     /**

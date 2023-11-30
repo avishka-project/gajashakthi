@@ -18,15 +18,15 @@
                 <div class="card-body p-0 p-2">
                     <div class="row">
                         <div class="col-12">
-                            @can('bank-create')
+                            @if(in_array('bank-create',$userPermissions))
                                 <button type="button" class="btn btn-outline-primary btn-sm fa-pull-right" name="create_record" id="create_record"><i class="fas fa-plus mr-2"></i>Add Bank</button>
-                            @endcan
+                                @endif
                         </div>
                         <div class="col-12">
                             <hr class="border-dark">
                         </div>
                         <div class="col-12">
-                            @can('bank-list')
+                            @if(in_array('bank-list',$userPermissions))
                             <div class="center-block fix-width scroll-inner">
                                 <table class="table table-striped table-bordered table-sm small nowrap display" style="width: 100%" id="dataTable">
                                     <thead>
@@ -42,7 +42,7 @@
                                     </tbody>
                                 </table>
                                 </div>
-                            @endcan
+                                @endif
                         </div>
                     </div>
                 </div>

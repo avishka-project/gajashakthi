@@ -31,7 +31,7 @@ $primaryKey = 'id';
 $columns = array(
 	array( 'db' => '`u`.`id`', 'dt' => 'id', 'field' => 'id' ),
 	array( 'db' => '`u`.`month`', 'dt' => 'month', 'field' => 'month' ),
-	array( 'db' => '`cb`.`branch_name`', 'dt' => 'branch_name', 'field' => 'branch_name' ),
+	array( 'db' => '`cb`.`subregion`', 'dt' => 'subregion', 'field' => 'subregion' ),
     array( 'db' => '`ua`.`supplier_name`', 'dt' => 'supplier_name', 'field' => 'supplier_name' ),
 	array( 'db' => '`u`.`approve_01`', 'dt' => 'approve_01', 'field' => 'approve_01' ),
 	array( 'db' => '`u`.`approve_02`', 'dt' => 'approve_02', 'field' => 'approve_02' ),
@@ -59,7 +59,7 @@ require('ssp.customized.class.php' );
 
 $joinQuery = "FROM `boardingfees` AS `u` 
 LEFT JOIN `suppliers` AS `ua` ON (`ua`.`id` = `u`.`sup_id`)
-LEFT JOIN `customerbranches` AS `cb` ON (`cb`.`id` = `u`.`location_id`)";
+LEFT JOIN `subregions` AS `cb` ON (`cb`.`id` = `u`.`location_id`)";
 
 $extraWhere = "`u`.`status` IN (1, 2)";
 

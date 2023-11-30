@@ -69,10 +69,10 @@
                                     </div>
 
                                     <div class="form-group col">
-                                        @can('employee-edit')
+                                        @if(in_array('employee-edit',$userPermissions))
                                             <button type="submit" class="btn btn-primary btn-sm">Save</button>
                                             <button type="reset" class="btn btn-success btn-sm">Clear</button>
-                                        @endcan
+                                            @endif
                                     </div>
                                 </form>
                             </div>
@@ -109,11 +109,11 @@
                                                 <td>{{$employeebanks->bank_ac_no}}</td>
                                                 <td>{{$employeebanks->bank_ac_name}}</td>
                                                 <td>
-                                                    @can('employee-edit')
+                                                    @if(in_array('employee-edit',$userPermissions))
                                                         <button type="submit" name="delete" id="{{$employeebanks->id}}"
                                                             class="delete btn btn-outline-danger btn-sm"><i
                                                                 class="far fa-trash-alt"></i></button>
-                                                    @endcan
+                                                                @endif
                                                 </td>
                                             </tr>
 

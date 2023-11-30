@@ -552,10 +552,10 @@
 									</div>
 
 									<div class="form-group mt-3 text-right">
-										@can('employee-edit')
+										@if(in_array('employee-edit',$userPermissions))
 										<button type="submit" class="btn btn-outline-primary btn-sm  px-4"><i
 												class="fas fa-pencil-alt mr-2"></i>&nbsp;Update</button>
-										@endcan
+												@endif
 									</div>
 								</div>
 							</div>
@@ -597,11 +597,11 @@
 										</div>
 									</div>
 									<div class="form-group mt-3">
-										@can('employee-edit')
+										@if(in_array('employee-edit',$userPermissions))
 										<button type="submit" name="" id=""
 											class="btn btn-outline-primary btn-sm fa-pull-right px-4"><i
 												class="fas fa-save"></i>&nbsp;Add Attachments</button>
-										@endcan
+												@endif
 									</div>
 									<input type="hidden" class="form-control" id="id" name="id"
 										value="{{$employee->id}}">

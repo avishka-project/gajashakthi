@@ -18,9 +18,9 @@
                 <div class="card-body p-0 p-2">
                     <div class="row">
                         <div class="col-12">
-                            @can('department-create')
+                            @if(in_array('department-create',$userPermissions))
                                 <button type="button" class="btn btn-outline-primary btn-sm fa-pull-right" name="create_record" id="create_record"><i class="fas fa-plus mr-2"></i>Add Department</button>
-                            @endcan
+                                @endif
                         </div>
                         <div class="col-12">
                             <hr class="border-dark">
@@ -41,12 +41,12 @@
                                         <td>{{$companies->id}}</td>
                                         <td>{{$companies->name}}</td>
                                         <td class="text-right">
-                                            @can('department-edit')
+                                            @if(in_array('department-edit',$userPermissions))
                                                 <button name="edit" id="{{$companies->id}}" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>
-                                            @endcan
-                                            @can('department-delete')
+                                                @endif
+                                            @if(in_array('department-delete',$userPermissions))
                                                 <button type="submit" name="delete" id="{{$companies->id}}" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>
-                                            @endcan
+                                                @endif
                                         </td>
                                     </tr>
                                 @endforeach

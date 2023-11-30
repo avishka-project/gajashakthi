@@ -39,10 +39,10 @@
                                     <td>{{$employee->emp_sal_basic_salary}}</td>
                                     <td>{{$employee->emp_sal_account}}</td>
                                     <td>
-                                        @can('employee-edit')
+                                        @if(in_array('employee-edit',$userPermissions))
                                             <button class="btn btn-outline-primary btn-sm"><i class="fas fa-pencil-alt"></i></button>
                                             <button class="btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>
-                                        @endcan
+                                            @endif
                                     </td>
                                 </tr>
                                 @endforeach
@@ -61,9 +61,9 @@
                                 </div>
                             </div>
                             <div class="form-group mt-3">
-                                @can('employee-edit')
+                                @if(in_array('employee-edit',$userPermissions))
                                     <button type="submit" class="btn btn-outline-primary btn-sm fa-pull-right px-4"><i class="fas fa-save"></i>&nbsp;Save</button>
-                                @endcan
+                                    @endif
                             </div>
                         </form>
                     </div>

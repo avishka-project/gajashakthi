@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Employee;
 use App\Attendance;
+use App\Commen;
 use DB;
 use Carbon\Carbon;
 
@@ -27,6 +28,9 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+
         $today = Carbon::now()->format('Y-m-d');
         $empcount = DB::table('employees')->count();
         $todaycount = Attendance::where('date',$today)->count();
@@ -36,6 +40,6 @@ class HomeController extends Controller
 //                ->where('attendances.status', '=', 'Late')
 //                ->get();
 
-        return view('home',compact('empcount','todaycount'));
+        return view('home',compact('empcount','todaycount','userPermissions'));
     }
 }

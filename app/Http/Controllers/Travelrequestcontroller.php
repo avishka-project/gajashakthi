@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Emp_expense;
 use App\Travelrequest;
 use App\Travelrequestdetail;
@@ -20,20 +21,22 @@ class Travelrequestcontroller extends Controller
 
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
         $branches = DB::table('customerbranches')->select('customerbranches.*')->get();
         $employees = DB::table('employees')->select('employees.*')
         ->whereIn('employees.emp_status', [1, 2])->get();
-        return view('Travelrequest.travelrequest', compact('branches', 'employees'));
+        return view('Travelrequest.travelrequest', compact('branches', 'employees','userPermissions'));
     } 
 
     public function insert(Request $request)
     {
-        $user = Auth::user();
-        $permission =$user->can('Travelrequest-create');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Travelrequest-create', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
-
         $this->validate($request, [
         //     'customer' => 'required',
         //     'subcustomer' => 'required',
@@ -96,31 +99,28 @@ class Travelrequestcontroller extends Controller
         return Datatables::of($requests)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
-                $user = Auth::user();
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();      
 
                 $btn='';
 
-                $permission = $user->can('Approve-Level-01');
-                if($permission){
+                if(in_array('Approve-Level-01',$userPermissions)){
                     if($row->approve_01 == 0){
                         $btn .= ' <button name="appL1" id="'.$row->id.'" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                     }
                 }
-                $permission = $user->can('Approve-Level-02');
-                if($permission){
+                if(in_array('Approve-Level-02',$userPermissions)){
                     if($row->approve_01 == 1 && $row->approve_02 == 0){
                         $btn .= ' <button name="appL2" id="'.$row->id.'" class="appL2 btn btn-outline-warning btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                     }
                 }
-                $permission = $user->can('Approve-Level-03');
-                if($permission){
+                if(in_array('Approve-Level-03',$userPermissions)){
                     if($row->approve_02 == 1 && $row->approve_03 == 0 ){
                         $btn .= ' <button name="appL3" id="'.$row->id.'" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                     }
                 }
 
-                        $permission = $user->can('Travelrequest-edit');
-                        if($permission){
+                if(in_array('Travelrequest-edit',$userPermissions)){
                             if($row->approve_status == 0){
                             $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                         }
@@ -129,8 +129,7 @@ class Travelrequestcontroller extends Controller
                         }
                     }
                     
-                        $permission = $user->can('Travelrequest-status');
-                        if($permission){
+                    if(in_array('Travelrequest-status',$userPermissions)){
                             if($row->status == 1){
                                 $btn .= ' <a href="'.route('travelrequeststatus', ['id' => $row->id, 'stasus' => 2]) .'" onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
                             }else{
@@ -138,8 +137,7 @@ class Travelrequestcontroller extends Controller
                             }
                         }
 
-                $permission = $user->can('Travelrequest-delete');
-                if($permission){
+                        if(in_array('Travelrequest-delete',$userPermissions)){
                     $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';  
                 }
                  return $btn;
@@ -150,11 +148,10 @@ class Travelrequestcontroller extends Controller
 
 
     public function delete(Request $request){
-        $user = Auth::user();
-      
-        $permission =$user->can('Travelrequest-delete');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Travelrequest-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
         
         $id = Request('id');
@@ -173,11 +170,11 @@ class Travelrequestcontroller extends Controller
 
 
     public function approvel_details(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Travelrequest-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
             $id = Request('id');
             if (request()->ajax()){
@@ -231,11 +228,11 @@ private function app_reqestcountlist($id){
 
 
 public function edit(Request $request){
-    $user = Auth::user();
-    $permission =$user->can('Travelrequest-edit');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Travelrequest-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
 
     $id = Request('id');
     if (request()->ajax()){
@@ -310,12 +307,11 @@ public function editlist(Request $request){
 
 
 public function update(Request $request){
-    $user = Auth::user();
-   
-    $permission =$user->can('Travelrequest-edit');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+    $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Travelrequest-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
    
         $current_date_time = Carbon::now()->toDateTimeString();
 
@@ -369,17 +365,11 @@ public function update(Request $request){
 
 
 public function approve(Request $request){
-
-    $user = Auth::user();
-   
-   
-    $permission =$user->can('Approve-Level-01');
-    $permission =$user->can('Approve-Level-02');
-    $permission =$user->can('Approve-Level-03');
-
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+    $commen= new Commen();
+    $userPermissions = $commen->Allpermission();
+    if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
    
    
     $id = Request('id');
@@ -443,14 +433,11 @@ public function approve(Request $request){
 
 
 public function status($id,$statusid){
-    $user = Auth::user();
-   
-   
-    $permission =$user->can('Travelrequest-status');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Travelrequest-status', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
-
 
     if($statusid == 1){
         $form_data = array(
@@ -475,13 +462,11 @@ public function status($id,$statusid){
 }
 
 public function deletelist(Request $request){
-
-    $user = Auth::user();
-  
-    $permission =$user->can('Travelrequest-delete');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Travelrequest-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
     
         $id = Request('id');
     $current_date_time = Carbon::now()->toDateTimeString();

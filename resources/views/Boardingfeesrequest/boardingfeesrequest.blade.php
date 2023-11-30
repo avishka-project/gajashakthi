@@ -5,12 +5,7 @@
 <main>
     <div class="page-header page-header-light bg-white shadow">
         <div class="container-fluid">
-        <div class="page-header-content py-3">
-            <h1 class="page-header-title">
-                <div class="page-header-icon"><i class="fas fa-bed"></i></div>
-                Boarding Fees Request
-            </h1>
-        </div>
+            @include('layouts.employee_nav_bar')
     </div>
     </div>
     <br>
@@ -19,8 +14,10 @@
             <div class="card-body p-0 p-2">
                 <div class="row">
                     <div class="col-12">
+                        @if(in_array('Boardingfees-create',$userPermissions))
                         <button type="button" class="btn btn-outline-primary btn-sm fa-pull-right" name="create_record"
                             id="create_record"><i class="fas fa-plus mr-2"></i>Add Boarding Fees Request</button>
+                            @endif
                     </div>
                     <div class="col-12">
                         <hr class="border-dark">
@@ -32,7 +29,7 @@
                                 <tr>
                                     <th>ID </th>
                                     <th>Supplier</th>
-                                    <th>Location</th>
+                                    <th>VO Region</th>
                                     <th>Month</th>
                                     <th class="text-right">Action</th>
                                 </tr>
@@ -89,37 +86,29 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                        <div class="col-3">
-                                            <label class="small font-weight-bold text-dark">Location*</label>
-                                            <select name="volocation" id="volocation" class="form-control form-control-sm" onchange="getAllVoEmp();" required>
-                                                <option value="">Select Location</option>
-                                                @foreach($branches as $branche)
-                                                <option value="{{$branche->id}}">
-                                                    {{$branche->branch_name}}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                           
-                                        <div class="col-3">
-                                            <label class="small font-weight-bold text-dark">VO Region*</label>
-                                            <input type="text" class="form-control form-control-sm" placeholder=""
-                                                name="voregion" id="voregion" readonly>
-                                                <input type="hidden" class="form-control form-control-sm" placeholder=""
-                                            name="voregion_id" id="voregion_id" readonly>
-                                        </div>
+                                            <div class="col-3">
+                                                <label class="small font-weight-bold text-dark">VO Region*</label>
+                                                <select name="voregion" id="voregion" class="form-control form-control-sm" onchange="getAllVoEmp();" required>
+                                                    <option value="">Select VO Region</option>
+                                                    @foreach($voregions as $voregion)
+                                                    <option value="{{$voregion->id}}">
+                                                        {{$voregion->subregion}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         <div class="col-3">
                                             <label class="small font-weight-bold text-dark">Month*</label>
                                             <input type="month" id="vomonth" name="vomonth" class="form-control form-control-sm"
                                                 required>
                                         </div>
-                                    </div>
-    
-                                    <div class="form-row mb-1">
                                         <div class="col-3">
                                             <label class="small font-weight-bold text-dark">Company Discount Precentage*</label>
                                             <input type="number" id="vodiscountprecentage" name="vodiscountprecentage" class="form-control form-control-sm"
                                                 required onkeyup="calculatediscountAll(this.value)">
                                         </div>
+                                    </div>
+    
+                                    <div class="form-row mb-1">
                                         <div class="col-6">
                                             <label class="small font-weight-bold text-dark">Remark*</label>
                                             <textarea type="text" id="voremark" name="voremark"
@@ -159,18 +148,18 @@
                                                 </select>
                                             </div>
                                         </div>
-                                            <div class="form-row mb-1">
-                                                <div class="col-12">
-                                                    <label class="small font-weight-bold text-dark">Location*</label>
-                                                    <select name="location" id="location" class="form-control form-control-sm" required>
-                                                        <option value="">Select Location</option>
-                                                        @foreach($branches as $branche)
-                                                        <option value="{{$branche->id}}">
-                                                            {{$branche->branch_name}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
+                                        <div class="form-row mb-1">
+                                            <div class="col-12">
+                                                <label class="small font-weight-bold text-dark">Location*</label>
+                                                <select name="region" id="region" class="form-control form-control-sm" required>
+                                                    <option value="">Select VO Region</option>
+                                                    @foreach($voregions as $voregion)
+                                                    <option value="{{$voregion->id}}">
+                                                        {{$voregion->subregion}}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
+                                        </div>
                                                 
                                                 <div class="form-row mb-1">
                                                     <div class="col">
@@ -317,29 +306,20 @@
                                     </select>
                                 </div>
                             </div>
-
                             <div class="form-row mb-1">
                                 <div class="col">
-                                    <label class="small font-weight-bold text-dark">Location*</label><br>
-                                    <select name="view_location" id="view_location"
+                                    <label class="small font-weight-bold text-dark">VO Region*</label><br>
+                                    <select name="view_voregion" id="view_voregion"
                                         class="form-control form-control-sm" readonly>
-                                        <option value="">Select Location</option>
-                                        @foreach($branches as $branche)
-                                        <option value="{{$branche->id}}">
-                                            {{$branche->branch_name}}</option>
-                                        @endforeach
+                                        <option value="">Select VO Region</option>
+                                                @foreach($voregions as $voregion)
+                                                <option value="{{$voregion->id}}">
+                                                    {{$voregion->subregion}}</option>
+                                                @endforeach
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-row mb-1">
-                            <div class="col-12">
-                                <label class="small font-weight-bold text-dark">VO Region*</label>
-                                <input type="text" class="form-control form-control-sm" placeholder=""
-                                    name="view_voregion" id="view_voregion" readonly>
-                                    <input type="hidden" class="form-control form-control-sm" placeholder=""
-                                name="view_voregion_id" id="view_voregion_id" readonly>
-                            </div>
-                             </div>
+                           
                             <div class="form-row mb-1">
                                 <div class="col">
                                     <label class="small font-weight-bold text-dark">Month*</label>
@@ -392,7 +372,7 @@
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header p-2">
-                    <h5 class="modal-title" id="staticBackdropLabel">Approve Boarding Fees Request Details</h5>
+                    <h5 class="app_modal-title" id="staticBackdropLabel">Approve Boarding Fees Request Details</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -417,29 +397,20 @@
                                         </select>
                                     </div>
                                 </div>
-
                                 <div class="form-row mb-1">
                                     <div class="col">
-                                        <label class="small font-weight-bold text-dark">Location*</label><br>
-                                        <select name="app_location" id="app_location"
+                                        <label class="small font-weight-bold text-dark">VO Region*</label><br>
+                                        <select name="app_voregion" id="app_voregion"
                                             class="form-control form-control-sm" readonly>
-                                            <option value="">Select Location</option>
-                                            @foreach($branches as $branche)
-                                            <option value="{{$branche->id}}">
-                                                {{$branche->branch_name}}</option>
-                                            @endforeach
+                                            <option value="">Select VO Region</option>
+                                                @foreach($voregions as $voregion)
+                                                <option value="{{$voregion->id}}">
+                                                    {{$voregion->subregion}}</option>
+                                                @endforeach
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-row mb-1">
-                                <div class="col-12">
-                                    <label class="small font-weight-bold text-dark">VO Region*</label>
-                                    <input type="text" class="form-control form-control-sm" placeholder=""
-                                        name="app_voregion" id="app_voregion" readonly>
-                                        <input type="hidden" class="form-control form-control-sm" placeholder=""
-                                    name="app_voregion_id" id="app_voregion_id" readonly>
-                                </div>
-                            </div>
+                               
                                 <div class="form-row mb-1">
                                     <div class="col">
                                         <label class="small font-weight-bold text-dark">Month*</label>
@@ -505,44 +476,8 @@
 
 <script>
     $(document).ready(function () {
-        $('#collapseemployee').addClass('show');
-        $('#employee_request_collapse').addClass('show');
-        $('#Boardingfees_link').addClass('active');
-
-        // $('#dataTable').DataTable({
-        //     processing: true,
-        //     serverSide: true,
-        //     ajax: {
-        //         "url": "{!! route('travelrequestlist') !!}",
-
-        //     },
-        //     columns: [{
-        //             data: 'id',
-        //             name: 'id'
-        //         },
-        //         {
-        //             data: 'branch_name',
-        //             name: 'branch_name'
-        //         },
-        //         {
-        //             data: 'month',
-        //             name: 'month'
-        //         },
-        //         {
-        //             data: 'action',
-        //             name: 'action',
-        //             orderable: false,
-        //             searchable: false,
-        //             render: function (data, type, row) {
-        //                 return '<div style="text-align: right;">' + data + '</div>';
-        //             }
-        //         },
-        //     ],
-        //     "bDestroy": true,
-        //     "order": [
-        //         [2, "desc"]
-        //     ]
-        // });
+        $('#employee_link').addClass('active');
+    $("#employeerequest").addClass('navbtnactive');
 
         var approvel01 = {{$approvel01permission}};
         var approvel02 = {{$approvel02permission}};
@@ -603,7 +538,7 @@
                 },
 
                 {
-                    "data": "branch_name",
+                    "data": "subregion",
                     "className": 'text-dark'
                 },
                 {
@@ -694,7 +629,7 @@
 
             if(requesttype=="voregion"){
                 supplier = $('#vosupplier').val();
-                location = $('#volocation').val();
+                location = $('#voregion').val();
                 month = $('#vomonth').val();
                 discount_presentage = $('#vodiscountprecentage').val();
                 remark = $('#voremark').val();
@@ -729,7 +664,7 @@
                 var rowCount = $('#tableorder tbody tr').length;
 
                 supplier = $('#supplier').val();
-                location = $('#location').val();
+                location = $('#region').val();
                 month = $('#month').val();
                 discount_presentage = $('#discountprecentage').val();
                 remark = $('#remark').val();
@@ -848,18 +783,17 @@
                         $("#DivRegion").show();
                         $("#DivSingle").hide();
 
-                        $("#volocation").prop("required", true);
+                        $("#voregion").prop("required", true);
                         $("#vomonth").prop("required", true);
                         $("#vodiscountprecentage").prop("required", true);
 
-                        $("#location").prop("required", false);
+                        $("#region").prop("required", false);
                         $("#employee").prop("required", false);
                         $("#month").prop("required", false);
                         $("#discountprecentage").prop("required", false);
 
                         $('#vosupplier').val(data.result.mainData.sup_id);
-                        $('#volocation').val(data.result.mainData.location_id);
-                        $('#voregion').val(data.result.mainData.subregion);
+                        $('#voregion').val(data.result.mainData.location_id);
                         $('#vomonth').val(data.result.mainData.month);
                         $('#vodiscountprecentage').val(data.result.mainData.discount_precentage);
                         $('#voremark').val(data.result.mainData.remark);
@@ -870,17 +804,17 @@
                         $("#DivRegion").hide();
                         $("#DivSingle").show();
 
-                        $("#location").prop("required", true);
+                        $("#region").prop("required", true);
                         $("#employee").prop("required", true);
                         $("#month").prop("required", true);
                         $("#discountprecentage").prop("required", true);
 
-                        $("#volocation").prop("required", false);
+                        $("#voregion").prop("required", false);
                         $("#vomonth").prop("required", false);
                         $("#vodiscountprecentage").prop("required", false);
 
                         $('#supplier').val(data.result.mainData.sup_id);
-                        $('#location').val(data.result.mainData.location_id);
+                        $('#region').val(data.result.mainData.location_id);
                         $('#month').val(data.result.mainData.month);
                         $('#discountprecentage').val(data.result.mainData.discount_precentage);
                         $('#remark').val(data.result.mainData.remark);
@@ -897,7 +831,7 @@
                     // }
 
                     $('#hidden_id').val(id);
-                    $('.modal-title').text('Edit Travel Request');
+                    $('.modal-title').text('Edit Boarding fees Request');
                     $('#action_button').html('Edit');
                     $('#btncreateorder').html('Update Request');
                     $('#action').val('Edit');
@@ -965,8 +899,7 @@
                 success: function (data) {
                     $('#app_supplier').val(data.result.mainData.sup_id);
                     $('#app_discountprecentage').val(data.result.mainData.discount_precentage);
-                    $('#app_location').val(data.result.mainData.location_id);
-                    $('#app_voregion').val(data.result.mainData.subregion);
+                    $('#app_voregion').val(data.result.mainData.location_id);
                     $('#app_month').val(data.result.mainData.month);
                     $('#app_remark').val(data.result.mainData.remark);
                     $('#app_tableorderlist').html(data.result.requestdata);
@@ -1000,8 +933,7 @@
                 success: function (data) {
                     $('#app_supplier').val(data.result.mainData.sup_id);
                     $('#app_discountprecentage').val(data.result.mainData.discount_precentage);
-                    $('#app_location').val(data.result.mainData.location_id);
-                    $('#app_voregion').val(data.result.mainData.subregion);
+                    $('#app_voregion').val(data.result.mainData.location_id);
                     $('#app_month').val(data.result.mainData.month);
                     $('#app_remark').val(data.result.mainData.remark);
                     $('#app_tableorderlist').html(data.result.requestdata);
@@ -1035,8 +967,7 @@
                 success: function (data) {
                     $('#app_supplier').val(data.result.mainData.sup_id);
                     $('#app_discountprecentage').val(data.result.mainData.discount_precentage);
-                    $('#app_location').val(data.result.mainData.location_id);
-                    $('#app_voregion').val(data.result.mainData.subregion);
+                    $('#app_voregion').val(data.result.mainData.location_id);
                     $('#app_month').val(data.result.mainData.month);
                     $('#app_remark').val(data.result.mainData.remark);
                     $('#app_tableorderlist').html(data.result.requestdata);
@@ -1127,8 +1058,7 @@
                 success: function (data) {
                     $('#view_supplier').val(data.result.mainData.sup_id);
                     $('#view_discountprecentage').val(data.result.mainData.discount_precentage);
-                    $('#view_location').val(data.result.mainData.location_id);
-                    $('#view_voregion').val(data.result.mainData.subregion);
+                    $('#view_voregion').val(data.result.mainData.location_id);
                     $('#view_month').val(data.result.mainData.month);
                     $('#view_remark').val(data.result.mainData.remark);
                     $('#view_tableorderlist').html(data.result.requestdata);
@@ -1152,7 +1082,7 @@
 </script>
 <script>
 function getAllVoEmp() {
-        var location = $('#volocation').val();
+        var subregion = $('#voregion').val();
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1160,14 +1090,13 @@ function getAllVoEmp() {
         })
 
         $.ajax({
-            url: '{!! route("boardingfeeGetAllEmployee") !!}',
+            url: '{!! route("accommodationfeeGetAllEmployee") !!}',
             type: 'POST',
             dataType: "json",
             data: {
-                location_id: location
+                subregion_id: subregion
             },
             success: function (data) {
-                $('#voregion').val(data.result.mainData.subregion);
                 $('#votableorderlist').html(data.result.requestdata);
             }
         })

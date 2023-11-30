@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\EmpType;
 use App\Skill;
 use Illuminate\Http\Request;
@@ -23,14 +24,14 @@ class SkillController extends Controller
     
     public function index()
     {
-        $user = auth()->user();
-        $permission = $user->can('skill-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('skill-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $skill= Skill::orderBy('id', 'asc')->get();
-        return view('Qulification.skill',compact('skill'));
+        return view('Qulification.skill',compact('skill','userPermissions'));
     }
 
     /**
@@ -51,10 +52,10 @@ class SkillController extends Controller
      */
     public function store(Request $request)
     {
-        $user = auth()->user();
-        $permission = $user->can('skill-create');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('skill-create', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -101,11 +102,11 @@ class SkillController extends Controller
      */
     public function edit($id)
     {
-        $user = auth()->user();
-        $permission = $user->can('skill-edit');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('skill-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
 
         if(request()->ajax())
         {
@@ -123,10 +124,10 @@ class SkillController extends Controller
      */
     public function update(Request $request, Skill $skill)
     {
-        $user = auth()->user();
-        $permission = $user->can('skill-edit');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('skill-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -158,11 +159,11 @@ class SkillController extends Controller
      */
     public function destroy($id)
     {
-        $user = auth()->user();
-        $permission = $user->can('skill-delete');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('skill-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
 
         $data = Skill::findOrFail($id);
         $data->delete();

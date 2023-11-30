@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Suppliercontact;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,19 +15,19 @@ class Suppliercontactcontroller extends Controller
 {
     public function index($id)
     {
-
-        return view('Supplier.suppliercontact' ,compact('id'));
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
+        return view('Supplier.suppliercontact' ,compact('id','userPermissions'));
     }
 
     public function insert(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Supplier-create');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
-       
-    
-        $user = Auth::user();
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Supplier-create', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
 
         $contact = new Suppliercontact();
         $contact->contact = $request->input('contact');
@@ -57,15 +58,14 @@ class Suppliercontactcontroller extends Controller
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 $btn = '';
-                $user = Auth::user();
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();
                        
-                        $permission = $user->can('Supplier-edit');
-                        if($permission){
+                        if(in_array('Supplier-status',$userPermissions)){
                             $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                         }
 
-                        $permission = $user->can('Supplier-delete');
-                        if($permission){
+                        if(in_array('Supplier-delete',$userPermissions)){
                             $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
               
@@ -79,10 +79,10 @@ class Suppliercontactcontroller extends Controller
 
 
     public function edit(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Supplier-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Supplier-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
 
         $id = Request('id');
@@ -99,11 +99,10 @@ class Suppliercontactcontroller extends Controller
 
 
     public function update(Request $request){
-        $user = Auth::user();
-       
-        $permission =$user->can('Supplier-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Supplier-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
        
             $current_date_time = Carbon::now()->toDateTimeString();
@@ -127,11 +126,10 @@ class Suppliercontactcontroller extends Controller
 
     public function delete(Request $request){
 
-        $user = Auth::user();
-      
-        $permission =$user->can('Supplier-delete');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Supplier-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
         
             $id = Request('id');

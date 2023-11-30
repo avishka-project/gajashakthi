@@ -122,10 +122,10 @@
                                     </div>
 
                                     <div class="form-group col-lg-8">
-                                        @can('employee-edit')
+                                        @if(in_array('employee-edit',$userPermissions))
                                             <button type="submit" class="btn btn-primary btn-sm">Save</button>
                                             <button type="reset" class="btn btn-success btn-sm">Clear</button>
-                                        @endcan
+                                            @endif
                                     </div>
                                 </form>
                             </div>
@@ -171,10 +171,10 @@
                                     <td>{{$passports->epf_no}}</td>
 
                                     <td>
-                                        @can('employee-edit')
+                                        @if(in_array('employee-edit',$userPermissions))
                                             <a href="{{route('passportEdit',$passports->emp_pass_id)}}" class="btn btn-sm btn-primary mr-1 mt-1"><i class="fa fa-pencil-alt"></i></a>
                                             <a href="{{route('passportDestroy',$passports->emp_pass_id)}}" class="btn btn-sm btn-danger mr-1 mt-1"><i class="fa fa-trash"></i></a>
-                                        @endcan
+                                            @endif
                                     </td>
                                 </tr>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Bank;
+use App\Commen;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -22,21 +23,22 @@ class BankController extends Controller
 
     public function index()
     {
-        $user = Auth::user();
-        $permission = $user->can('bank-list');
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('bank-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
-        return view('Organization.bank' );
+        return view('Organization.bank',compact('userPermissions') );
     }
 
     public function store(Request $request)
     {
-        $user = Auth::user();
-        $permission = $user->can('bank-create');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+       
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('bank-create', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -62,11 +64,11 @@ class BankController extends Controller
 
     public function edit($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('bank-edit');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('bank-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
 
         if (request()->ajax()) {
             $data = Bank::findOrFail($id);
@@ -76,10 +78,10 @@ class BankController extends Controller
 
     public function update(Request $request, Bank $bank)
     {
-        $user = Auth::user();
-        $permission = $user->can('bank-edit');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('bank-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -109,11 +111,11 @@ class BankController extends Controller
 
     public function destroy($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('bank-delete');
-        if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('bank-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
 
         $data = Bank::findOrFail($id);
         $data->delete();
@@ -156,17 +158,16 @@ class BankController extends Controller
         return Datatables::of($banks)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
-                $user = Auth::user();
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();
 
                 $btn = ' <a title="View Branches" href=" '.route('bank_branch_show',$row->code) .' " class="branches btn btn-outline-info btn-sm" > <i class="fas fa-building"></i> </a> ';
 
-                $permission = $user->can('bank-edit');
-                if($permission) {
+                if(in_array('bank-edit',$userPermissions)){
                     $btn .= ' <button name="edit" id="' . $row->id . '" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                 }
 
-                $permission = $user->can('bank-delete');
-                if($permission) {
+                if(in_array('bank-delete',$userPermissions)){
                     $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                 }
 

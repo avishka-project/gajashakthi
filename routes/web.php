@@ -18,7 +18,10 @@ Route::get('/', function () {
 
 Auth::routes();
 
-
+Route::get('/reportdashboard' ,'ReportdashboardController@index')->name('reportdashboard');
+Route::get('/payrolldashboard' ,'PayrolldashboardController@index')->name('payrolldashboard');
+Route::get('/administratordashboard' ,'AdministratordashboardController@index')->name('administratordashboard');
+Route::get('/employeemanagementdashboard' ,'EmployeemanagementdashboardController@index')->name('employeemanagementdashboard');
 
 
 /* User Role Permission*/
@@ -930,9 +933,10 @@ Route::post('/pordergetpurchaseprice', 'Pordercontroller@getpurchaseprice')->nam
 Route::get('/porderview', 'Pordercontroller@view')->name('porderview');
 Route::post('/porderviewDetails', 'Pordercontroller@viewDetails')->name('porderviewDetails');
 Route::post('/porderprint', 'Pordercontroller@porderprint')->name('porderprint');
-
 Route::post('/pordergetitemdetail', 'Pordercontroller@pordergetitemdetail')->name('pordergetitemdetail');
 Route::post('/pordergetitemname', 'Pordercontroller@pordergetitemname')->name('pordergetitemname');
+
+Route::post('/pordercashgetvat' ,'Pordercontroller@pordercashgetvat')->name('pordercashgetvat');
 
 // Vehicle Service & Repair controller routes
 Route::get('/vehicleserviceandrepair' ,'Vehicleserviceandrepaircontroller@index')->name('vehicleserviceandrepair');
@@ -1005,6 +1009,20 @@ Route::post('/vehicletypedelete' ,'Vehicletypecontroller@delete')->name('vehicle
 Route::post('/vehicletypeapprove' ,'Vehicletypecontroller@approve')->name('vehicletypeapprove');
 Route::post('/vehicletypereject' ,'Vehicletypecontroller@reject')->name('vehicletypereject');
 Route::get('/vehicletypestatus/{id}/{stasus}','Vehicletypecontroller@status')->name('vehicletypestatus');
+
+// Accommodation Fee Request controller routes
+Route::get('/accommodationfees' ,'AccommodationfeesController@index')->name('accommodationfees');
+Route::get('/accommodationfeeslist' ,'AccommodationfeesController@requestlist')->name('accommodationfeeslist');
+Route::post('/accommodationfeesinsert' ,'AccommodationfeesController@insert')->name('accommodationfeesinsert');
+Route::post('/accommodationfeesedit' ,'AccommodationfeesController@edit')->name('accommodationfeesedit');
+Route::post('/accommodationfeesupdate' ,'AccommodationfeesController@update')->name('accommodationfeesupdate');
+Route::post('/accommodationfeesdelete' ,'AccommodationfeesController@delete')->name('accommodationfeesdelete');
+Route::post('/accommodationfeesapprove' ,'AccommodationfeesController@approve')->name('accommodationfeesapprove');
+Route::post('/accommodationfeesdetailedit' ,'AccommodationfeesController@editlist')->name('accommodationfeesdetailedit');
+Route::post('/accommodationfeesdetaildelete' ,'AccommodationfeesController@deletelist')->name('accommodationfeesdetaildelete');
+Route::post('/accommodationfeesdetailapprovel_details' ,'AccommodationfeesController@approvel_details')->name('accommodationfeesdetailapprovel_details');
+Route::get('/accommodationfeesstatus/{id}/{stasus}','AccommodationfeesController@status')->name('accommodationfeesstatus');
+Route::post('/accommodationfeeGetAllEmployee' ,'AccommodationfeesController@GetAllEmployee')->name('accommodationfeeGetAllEmployee');
 
 Route::post('/attendencesingledelete' ,'Empattendancesapprovecontroller@singledelete')->name('attendencesingledelete');
 Route::post('/empattendancegetsearchempinfo', 'Empattendancescontroller@getsearchempinfo')->name('empattendancegetsearchempinfo');

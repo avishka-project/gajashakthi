@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App;
+use App\Commen;
 use App\Pettycash;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -21,6 +22,9 @@ class PettycashController extends Controller
     }
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
         $approvel01permission = 0;
         $approvel02permission = 0;
         $approvel03permission = 0;
@@ -30,42 +34,41 @@ class PettycashController extends Controller
         $deletepermission = 0;
         $statuspermission = 0;
         
-        if (Auth::user()->can('Approve-Level-01')) {
+
+        if (in_array('Approve-Level-01', $userPermissions)) {
             $approvel01permission = 1;
         } 
-        if (Auth::user()->can('Approve-Level-02')) {
+        if (in_array('Approve-Level-02', $userPermissions)) {
             $approvel02permission = 1;
         } 
-        if (Auth::user()->can('Approve-Level-03')) {
+        if (in_array('Approve-Level-03', $userPermissions)) {
             $approvel03permission = 1;
         } 
-        if (Auth::user()->can('Pettycash-list')) {
+        if (in_array('Pettycash-list', $userPermissions)) {
             $listpermission = 1;
         } 
-        if (Auth::user()->can('Pettycash-edit')) {
+        if (in_array('Pettycash-edit', $userPermissions)) {
             $editpermission = 1;
-        }
-        if (Auth::user()->can('Pettycash-status')) {
-            $deletepermission = 1;
-        }
-        if (Auth::user()->can('Pettycash-delete')) {
+        } 
+        if (in_array('Pettycash-status', $userPermissions)) {
             $statuspermission = 1;
-        }
+        } 
+        if (in_array('Pettycash-delete', $userPermissions)) {
+            $deletepermission = 1;
+        } 
 
         $categories = DB::table('pettycashcategories')->select('pettycashcategories.*')
         ->whereIn('pettycashcategories.status', [1, 2])
         ->where('pettycashcategories.approve_status', 1)
         ->get();
-        return view('Pettycash.pettycash', compact('categories','approvel01permission','approvel02permission','approvel03permission','listpermission','editpermission','deletepermission','statuspermission'));
+        return view('Pettycash.pettycash', compact('categories','approvel01permission','approvel02permission','approvel03permission','listpermission','editpermission','deletepermission','statuspermission','userPermissions'));
     }
     public function insert(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Pettycash-create');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
-       
-        $user = Auth::user();
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Pettycash-create', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            } 
 
         $this->validate($request, [
             'documentno' => 'required',
@@ -147,29 +150,26 @@ class PettycashController extends Controller
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 $btn = '';
-                $user = Auth::user();
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();
 
-                        $permission = $user->can('Approve-Level-01');
-                        if($permission){
+                        if(in_array('Approve-Level-01',$userPermissions)){
                             if($row->approve_01 == 0){
                                 $btn .= ' <button name="appL1" id="'.$row->id.'" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
-                        $permission = $user->can('Approve-Level-02');
-                        if($permission){
+                        if(in_array('Approve-Level-02',$userPermissions)){
                             if($row->approve_01 == 1 && $row->approve_02 == 0){
                                 $btn .= ' <button name="appL2" id="'.$row->id.'" class="appL2 btn btn-outline-warning btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
-                        $permission = $user->can('Approve-Level-03');
-                        if($permission){
+                        if(in_array('Approve-Level-03',$userPermissions)){
                             if($row->approve_02 == 1 && $row->approve_03 == 0 ){
                                 $btn .= ' <button name="appL3" id="'.$row->id.'" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                             }
                         }
 
-                        $permission = $user->can('Pettycash-edit');
-                        if($permission){
+                        if(in_array('Pettycash-edit',$userPermissions)){
                             if($row->approve_status == 0 ){
                                 $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>'; 
                             }else{
@@ -177,16 +177,14 @@ class PettycashController extends Controller
                             }
                         }
 
-                    $permission = $user->can('Pettycash-status');
-                        if($permission){
+                        if(in_array('Pettycash-status',$userPermissions)){
                             if($row->status == 1){
                                 $btn .= ' <a href="'.route('pettycashstatus', ['id' => $row->id, 'stasus' => 2]) .'" onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
                             }else{
                                 $btn .= '&nbsp;<a href="'.route('pettycashstatus', ['id' => $row->id, 'stasus' => 1]) .'" onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
                             }
                         }
-                        $permission = $user->can('Pettycash-delete');
-                        if($permission){
+                        if(in_array('Pettycash-delete',$userPermissions)){
                             $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
               
@@ -198,10 +196,10 @@ class PettycashController extends Controller
     }
 
     public function edit(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Pettycash-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Pettycash-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
 
         $id = Request('id');
@@ -264,11 +262,10 @@ class PettycashController extends Controller
 
 
     public function update(Request $request){
-        $user = Auth::user();
-       
-        $permission =$user->can('Pettycash-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Pettycash-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
        
             $current_date_time = Carbon::now()->toDateTimeString();
@@ -354,12 +351,10 @@ class PettycashController extends Controller
 
 
     public function delete(Request $request){
-
-        $user = Auth::user();
-      
-        $permission =$user->can('Pettycash-delete');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Pettycash-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
         
             $id = Request('id');
@@ -380,16 +375,11 @@ class PettycashController extends Controller
 
     public function approve(Request $request){
 
-        $user = Auth::user();
-       
-       
-        $permission =$user->can('Approve-Level-01');
-        $permission =$user->can('Approve-Level-02');
-        $permission =$user->can('Approve-Level-03');
-
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        } 
        
        
         $id = Request('id');
@@ -463,14 +453,11 @@ class PettycashController extends Controller
 
 
     public function status($id,$statusid){
-        $user = Auth::user();
-       
-       
-        $permission =$user->can('Pettycash-status');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
-
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Pettycash-status', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            } 
 
         if($statusid == 1){
             $form_data = array(
@@ -564,13 +551,16 @@ class PettycashController extends Controller
         $user = Auth::user();
 
         $date = Request('date');
-        if (request()->ajax()){
+
             $data = DB::table('vats')
             ->select('vats.*')
             ->where('vats.approve_status', 1)
             ->whereIn('vats.status', [1, 2])
             ->whereDate('fromdate', '<=', $date)
-            ->whereDate('todate', '>=', $date)
+            ->where(function ($query) use ($date) {
+                $query->whereDate('todate', '>=', $date)
+                    ->orWhereNull('todate');
+            })
             ->get();
     
         if ($data->count() > 0) {
@@ -580,7 +570,7 @@ class PettycashController extends Controller
             // No matching row found
             return response()->json(['result' => 0]);
         }
-    }
+    
     }
 
     public function pettycashprint(Request $request){

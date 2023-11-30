@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\EmploymentStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,13 +23,13 @@ class EmploymentStatusController extends Controller
     
     public function index()
     {
-        $user = Auth::user();
-        $permission = $user->can('job-employment-status-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-employment-status-list', $userPermissions)) {
             abort(403);
-        }
+        } 
         $employmentstatus= EmploymentStatus::orderBy('id', 'asc')->get();
-        return view('Job.employmentstatus',compact('employmentstatus'));
+        return view('Job.employmentstatus',compact('employmentstatus','userPermissions'));
     }
 
     /**
@@ -49,10 +50,10 @@ class EmploymentStatusController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-employment-status-create');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-employment-status-create', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
         $rules = array(
             'emp_status'    =>  'required|unique:employment_statuses'
@@ -98,10 +99,10 @@ class EmploymentStatusController extends Controller
      */
     public function edit($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-employment-status-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-employment-status-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         if(request()->ajax())
@@ -120,10 +121,10 @@ class EmploymentStatusController extends Controller
      */
     public function update(Request $request, EmploymentStatus $employmentStatus)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-employment-status-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-employment-status-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -156,10 +157,10 @@ class EmploymentStatusController extends Controller
      */
     public function destroy($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('job-employment-status-delete');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('job-employment-status-delete', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
         $data = EmploymentStatus::findOrFail($id);
         $data->delete();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\EmployeeDependent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,9 +33,10 @@ class EmployeeDependentController extends Controller
      */
     public function create(Request $request)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $this->validate($request, array(
@@ -79,21 +81,23 @@ class EmployeeDependentController extends Controller
      */
     public function show($id)
     {
-        $permission = Auth::user()->can('employee-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-list', $userPermissions)) {
             abort(403);
-        }
+        } 
         
         $dependent = EmployeeDependent::where('emp_id',$id)->get();  
         //dd($id);
-        return view('Employee.viewDependents',compact('dependent','id'));
+        return view('Employee.viewDependents',compact('dependent','id','userPermissions'));
     }
 
     public function edit_json($id)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         if (request()->ajax()) {
@@ -110,9 +114,10 @@ class EmployeeDependentController extends Controller
      */
     public function edit(REQUEST $request)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            abort(403);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
         
         $id=$request->dependent_id;
@@ -142,9 +147,10 @@ class EmployeeDependentController extends Controller
      */
     public function update(Request $request, EmployeeDependent $employeeDependent)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -179,9 +185,10 @@ class EmployeeDependentController extends Controller
      */
     public function destroy($id)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $data = EmployeeDependent::findOrFail($id);

@@ -19,8 +19,10 @@
             <div class="card-body p-0 p-2">
                 <div class="row">
                     <div class="col-12">
+                        @if(in_array('Vat-create',$userPermissions))
                         <button type="button" class="btn btn-outline-primary btn-sm fa-pull-right" name="create_record"
                             id="create_record"><i class="fas fa-plus mr-2"></i>Add New Vat</button>
+                            @endif
                     </div>
                     <div class="col-12">
                         <hr class="border-dark">
@@ -602,6 +604,7 @@
         $('#approve_button').click(function () {
             var id_hidden = $('#app_hidden_id').val();
             var applevel = $('#app_level').val();
+            var fromdate = $('#app_fromdate').val();
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -613,7 +616,8 @@
                 dataType: "json",
                 data: {
                     id: id_hidden,
-                    applevel: applevel
+                    applevel: applevel,
+                    fromdate:fromdate
                 },
                 success: function (data) { //alert(data);
                     setTimeout(function () {

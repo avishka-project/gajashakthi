@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Company;
 use App\Employee;
 use App\EmpType;
@@ -25,24 +26,23 @@ class DepartmentController extends Controller
 
     public function index($company_id)
     {
-        $user = Auth::user();
-        $permission = $user->can('department-list');
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('company-list', $userPermissions)) {
             abort(403);
-        }
-
+        } 
         $department = Department::orderBy('id', 'asc')->where('company_id', $company_id)->get();
         $company = Company::where('id', $company_id)->first();
-        return view('Organization.department', compact('department', 'company'));
+        return view('Organization.department', compact('department', 'company','userPermissions'));
     }
 
     public function store(Request $request)
     {
-        $user = Auth::user();
-        $permission = $user->can('department-create');
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('department-create', $userPermissions)) {
             return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        } 
 
         $rules = array(
             'name' => 'required',
@@ -66,11 +66,11 @@ class DepartmentController extends Controller
 
     public function edit($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('department-edit');
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('department-edit', $userPermissions)) {
             return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        } 
 
         if (request()->ajax()) {
             $data = Department::findOrFail($id);
@@ -80,11 +80,11 @@ class DepartmentController extends Controller
 
     public function update(Request $request, Department $department)
     {
-        $user = Auth::user();
-        $permission = $user->can('department-edit');
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('department-edit', $userPermissions)) {
             return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        } 
 
         $rules = array(
             'name' => 'required'
@@ -111,9 +111,9 @@ class DepartmentController extends Controller
 
     public function destroy($id)
     {
-        $user = Auth::user();
-        $permission = $user->can('department-delete');
-        if(!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('department-delete', $userPermissions)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
         $data = Department::findOrFail($id);

@@ -18,9 +18,9 @@
             <div class="card-body p-0 p-2">
                 <div class="row">
                     <div class="col-12">
-                        @can('company-create')
+                        @if(in_array('company-create',$userPermissions))
                         <button type="button" class="btn btn-outline-primary btn-sm fa-pull-right" name="create_record" id="create_record"><i class="fas fa-plus mr-2"></i>Add Company</button>
-                        @endcan
+                        @endif
                     </div>
                     <div class="col-12">
                         <hr class="border-dark">
@@ -52,15 +52,15 @@
                                     <td>{{$companies->epf}}</td>
                                     <td>{{$companies->etf}}</td>
                                     <td class="text-right">
-                                        @can('department-list')
+                                        @if(in_array('department-list',$userPermissions))
                                             <a href="{{ route('DepartmentShow',$companies->id) }}" class="branches btn btn-outline-info btn-sm" > <i class="fas fa-building"></i> </a>
-                                        @endcan
-                                        @can('company-edit')
+                                         @endif
+                                        @if(in_array('company-edit',$userPermissions))
                                             <button style="margin:2px;" name="edit" id="{{$companies->id}}" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>
-                                        @endcan
-                                        @can('company-delete')
+                                         @endif
+                                        @if(in_array('company-delete',$userPermissions))
                                             <button style="margin:2px;" type="submit" name="delete" id="{{$companies->id}}" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>
-                                        @endcan
+                                         @endif
                                     </td>
                                 </tr>
                                 @endforeach

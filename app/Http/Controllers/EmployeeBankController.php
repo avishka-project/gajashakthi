@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Daily_task;
 use App\EmployeeBank;
 use Illuminate\Http\Request;
@@ -45,9 +46,10 @@ class EmployeeBankController extends Controller
      */
     public function store(Request $request)
     {
-        $permission = \Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $this->validate($request, array(
@@ -86,10 +88,11 @@ class EmployeeBankController extends Controller
      */
     public function show($id)
     {
-        $permission = \Auth::user()->can('employee-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $employeebank = DB::table('employee_banks as eb')
             ->select(
@@ -109,7 +112,7 @@ class EmployeeBankController extends Controller
             ->leftjoin('banks as b', 'b.code', '=', 'bb.bankcode')
             ->where('eb.emp_id', $id)->get();
 
-        return view('Employee.viewbankDetails', compact('employeebank', 'id'));
+        return view('Employee.viewbankDetails', compact('employeebank', 'id','userPermissions'));
     }
 
     /**
@@ -144,9 +147,10 @@ class EmployeeBankController extends Controller
      */
     public function destroy($id)
     {
-        $permission = \Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $data = EmployeeBank::findOrFail($id);
@@ -158,21 +162,21 @@ class EmployeeBankController extends Controller
 
     public function empBankReport()
     {
-        $permission = \Auth::user()->can('employee-bank-report');
-        if(!$permission)
-        {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-bank-report', $userPermissions)) {
             abort(403);
-        }
+        } 
         return view('Employee.bankReport');
     }
 
     public function bank_report_list(Request $request)
     {
-        $permission = \Auth::user()->can('employee-bank-report');
-        if(!$permission)
-        {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-bank-report', $userPermissions)) {
+            abort(403);
+        } 
         ## Read value
         $department = $request->get('department');
         $draw = $request->get('draw');

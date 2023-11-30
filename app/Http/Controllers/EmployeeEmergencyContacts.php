@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\EmergencyContact;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -13,20 +14,22 @@ class EmployeeEmergencyContacts extends Controller
 {
     public function show($id)
     {
-        $permission = Auth::user()->can('employee-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $emergency_contact = EmergencyContact::where('emp_id',$id)->get();
-        return view('Employee.viewEmergencyContacts',compact('emergency_contact','id'));
+        return view('Employee.viewEmergencyContacts',compact('emergency_contact','id','userPermissions'));
     }
 
     public function create(Request $request)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $this->validate($request, array(
@@ -52,9 +55,10 @@ class EmployeeEmergencyContacts extends Controller
 
     public function edit_json($id)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         if (request()->ajax()) {
@@ -65,9 +69,10 @@ class EmployeeEmergencyContacts extends Controller
 
     public function update(Request $request, EmergencyContact $emergencyContact)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -98,9 +103,10 @@ class EmployeeEmergencyContacts extends Controller
 
     public function destroy($id)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $data = EmergencyContact::findOrFail($id);

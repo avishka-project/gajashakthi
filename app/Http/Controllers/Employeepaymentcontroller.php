@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\Customer;
 use App\Customerbranch;
 use App\Employeepayment;
@@ -22,6 +23,9 @@ class Employeepaymentcontroller extends Controller
 
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+
         $customers = Customer::orderBy('id', 'asc')->whereIn('customers.status', [1])->get();
         $areas = Customerbranch::orderBy('id', 'asc')->whereIn('customerbranches.status', [1])->get();
         $holidays = DB::table('holiday_types')->select('holiday_types.*')->get();
@@ -33,15 +37,15 @@ class Employeepaymentcontroller extends Controller
         ->whereIn('job_titles.id', [3,7,9,23,26, 27, 28, 29, 30, 31])
         ->get();
 
-        return view('Employeepayment.employeepayment', compact('customers', 'subcustomers','areas', 'titles', 'holidays', 'shifttypes'));
+        return view('Employeepayment.employeepayment', compact('customers', 'subcustomers','areas', 'titles', 'holidays', 'shifttypes','userPermissions'));
     } 
 
     public function insert(Request $request)
     {
-        $user = Auth::user();
-        $permission =$user->can('EmployeePayment-create');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('EmployeePayment-create', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 403);
             }
 
         $this->validate($request, [
@@ -114,36 +118,32 @@ class Employeepaymentcontroller extends Controller
         return Datatables::of($requests)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
-                $user = Auth::user();
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();
 
                 $btn='';
 
-                $permission = $user->can('Approve-Level-01');
-                if($permission){
+                if(in_array('Approve-Level-01',$userPermissions)){
                     if($row->approve_01 == 0){
                         $btn .= ' <button name="appL1" id="'.$row->id.'" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                     }
                 }
-                $permission = $user->can('Approve-Level-02');
-                if($permission){
+                if(in_array('Approve-Level-02',$userPermissions)){
                     if($row->approve_01 == 1 && $row->approve_02 == 0){
                         $btn .= ' <button name="appL2" id="'.$row->id.'" class="appL2 btn btn-outline-warning btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                     }
                 }
-                $permission = $user->can('Approve-Level-03');
-                if($permission){
+                if(in_array('Approve-Level-03',$userPermissions)){
                     if($row->approve_02 == 1 && $row->approve_03 == 0 ){
                         $btn .= ' <button name="appL3" id="'.$row->id.'" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                     }
                 }
 
-                        $permission = $user->can('EmployeePayment-edit');
-                        if($permission){
+                if(in_array('EmployeePayment-edit',$userPermissions)){
                             $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                         }
                     
-                        $permission = $user->can('EmployeePayment-status');
-                        if($permission){
+                        if(in_array('EmployeePayment-status',$userPermissions)){
                             if($row->status == 1){
                                 $btn .= ' <a href="'.route('employeepaymentstatus', ['id' => $row->id, 'stasus' => 2]) .'" onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
                             }else{
@@ -151,8 +151,7 @@ class Employeepaymentcontroller extends Controller
                             }
                         }
 
-                $permission = $user->can('EmployeePayment-delete');
-                if($permission){
+                        if(in_array('EmployeePayment-delete',$userPermissions)){
                     $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';  
                 }
                  return $btn;
@@ -163,11 +162,10 @@ class Employeepaymentcontroller extends Controller
 
 
     public function delete(Request $request){
-        $user = Auth::user();
-      
-        $permission =$user->can('EmployeePayment-delete');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('EmployeePayment-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
         
         $id = Request('id');
@@ -186,11 +184,11 @@ class Employeepaymentcontroller extends Controller
 
 
     public function approvel_details(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('EmployeePayment-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
         $id = Request('id');
         if (request()->ajax()){
@@ -252,10 +250,10 @@ private function app_reqestcountlist($id){
 
 
 public function edit(Request $request){
-    $user = Auth::user();
-    $permission =$user->can('EmployeePayment-edit');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('EmployeePayment-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
     $id = Request('id');
@@ -336,11 +334,10 @@ public function editlist(Request $request){
 
 
 public function update(Request $request){
-    $user = Auth::user();
-   
-    $permission =$user->can('EmployeePayment-edit');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+    $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('EmployeePayment-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
    
         $current_date_time = Carbon::now()->toDateTimeString();
@@ -441,17 +438,11 @@ public function update(Request $request){
 
 public function approve(Request $request){
 
-    $user = Auth::user();
-   
-   
-    $permission =$user->can('Approve-Level-01');
-    $permission =$user->can('Approve-Level-02');
-    $permission =$user->can('Approve-Level-03');
-
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
-   
+    $commen= new Commen();
+    $userPermissions = $commen->Allpermission();
+    if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
    
     $id = Request('id');
     $applevel = Request('applevel');
@@ -497,11 +488,10 @@ public function approve(Request $request){
 
 public function deletelist(Request $request){
 
-    $user = Auth::user();
-  
-    $permission =$user->can('EmployeePayment-delete');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('EmployeePayment-delete', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
     
         $id = Request('id');
@@ -520,14 +510,11 @@ public function deletelist(Request $request){
 }
 
 public function status($id,$statusid){
-    $user = Auth::user();
-   
-   
-    $permission =$user->can('EmployeePayment-status');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('EmployeePayment-status', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
-
 
     if($statusid == 1){
         $form_data = array(

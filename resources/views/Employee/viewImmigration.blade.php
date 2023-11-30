@@ -83,10 +83,10 @@
                                 </div>
                             </div>
                             <div class="form-group mt-3 text-right">
-                                @can('employee-edit')
+                                @if(in_array('employee-edit',$userPermissions))
                                     <button type="submit" class="btn btn-outline-primary btn-sm fa-pull-right px-4"><i class="fas fa-save"></i>&nbsp;Save</button>
                                     <button type="reset" class="btn btn-outline-danger btn-sm mr-2"><i class="far fa-trash-alt"></i>&nbsp;Clear</button>
-                                @endcan
+                                    @endif
                             </div>
                             <input class="form-control" id="emp_id" name="emp_id" type="hidden" value="{{$id}}" readonly>
                         </form>
@@ -113,10 +113,10 @@
                                     <td>{{$immigrations->emp_imm_review_date}}</td>
                                     <td>{{$immigrations->emm_imm_comments}}</td>
                                     <td>
-                                        @can('employee-edit')
+                                        @if(in_array('employee-edit',$userPermissions))
                                             <a href="#" class="btn btn-outline-primary btn-sm btn-edit mr-1 mt-1" data-id="{{$immigrations->id}}"><i class="fas fa-pencil-alt"></i></a>
                                             <a href="#" class="btn btn-outline-danger btn-sm btn-delete mr-1 mt-1" data-id="{{$immigrations->id}}"><i class="far fa-trash-alt"></i></a>
-                                        @endcan
+                                            @endif
                                     </td>
                                 </tr>
                                 @endforeach 
@@ -147,9 +147,9 @@
                                 </div>
                             </div>
                             <div class="form-group mt-3">
-                                @can('employee-edit')
+                                @if(in_array('employee-edit',$userPermissions))
                                     <button type="submit" class="btn btn-outline-primary btn-sm fa-pull-right px-4"><i class="fas fa-save"></i>&nbsp;Save</button>
-                                @endcan
+                                    @endif
                             </div>
                             <input type="hidden" class="form-control" id="id" name="id" value="{{$id}}">
                         </form>

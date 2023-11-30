@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Boardingfees;
 use App\Boardingfeesdetail;
+use App\Commen;
 use App\Emp_expense;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -20,6 +21,9 @@ class Boardingfeescontroller extends Controller
 
     public function index()
     {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        
         $approvel01permission = 0;
         $approvel02permission = 0;
         $approvel03permission = 0;
@@ -29,27 +33,28 @@ class Boardingfeescontroller extends Controller
         $deletepermission = 0;
         $statuspermission = 0;
         
-        if (Auth::user()->can('Approve-Level-01')) {
+
+        if (in_array('Approve-Level-01', $userPermissions)) {
             $approvel01permission = 1;
         } 
-        if (Auth::user()->can('Approve-Level-02')) {
+        if (in_array('Approve-Level-02', $userPermissions)) {
             $approvel02permission = 1;
         } 
-        if (Auth::user()->can('Approve-Level-03')) {
+        if (in_array('Approve-Level-03', $userPermissions)) {
             $approvel03permission = 1;
         } 
-        if (Auth::user()->can('Boardingfees-list')) {
+        if (in_array('Boardingfees-list', $userPermissions)) {
             $listpermission = 1;
         } 
-        if (Auth::user()->can('Boardingfees-edit')) {
+        if (in_array('Boardingfees-edit', $userPermissions)) {
             $editpermission = 1;
-        }
-        if (Auth::user()->can('Boardingfees-status')) {
+        } 
+        if (in_array('Boardingfees-status', $userPermissions)) {
             $statuspermission = 1;
-        }
-        if (Auth::user()->can('Boardingfees-delete')) {
+        } 
+        if (in_array('Boardingfees-delete', $userPermissions)) {
             $deletepermission = 1;
-        }
+        } 
 
         $suppliers = DB::table('suppliers')->select('suppliers.*')
         ->whereIn('suppliers.status', [1, 2])
@@ -58,15 +63,20 @@ class Boardingfeescontroller extends Controller
         ->whereIn('employees.emp_status', [1, 2])->get();
         $branches = DB::table('customerbranches')->select('customerbranches.*')->get();
 
-        return view('Boardingfeesrequest.boardingfeesrequest', compact('suppliers', 'employees','branches','approvel01permission','approvel02permission','approvel03permission','listpermission','editpermission','deletepermission','statuspermission'));
+        $voregions = DB::table('subregions')->select('subregions.*')
+        ->whereIn('subregions.status', [1, 2])
+        ->where('subregions.approve_status', 1)
+        ->get();
+
+        return view('Boardingfeesrequest.boardingfeesrequest', compact('suppliers', 'employees','branches','voregions','approvel01permission','approvel02permission','approvel03permission','listpermission','editpermission','deletepermission','statuspermission','userPermissions'));
     } 
 
     public function insert(Request $request)
     {
-        $user = Auth::user();
-        $permission =$user->can('Boardingfees-create');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Boardingfees-create', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
 
         $this->validate($request, [
@@ -81,8 +91,8 @@ class Boardingfeescontroller extends Controller
 
         $boardingfees = new Boardingfees();
         $boardingfees->request_type = $request->input('requesttype');
-        $boardingfees->location_id = $request->input('supplier');
-        $boardingfees->sup_id = $request->input('location');
+        $boardingfees->location_id = $request->input('location');
+        $boardingfees->sup_id = $request->input('supplier');
         $boardingfees->month = $request->input('month');
         $boardingfees->discount_precentage = $request->input('discount_presentage');
         $boardingfees->remark = $request->input('remark');
@@ -134,36 +144,32 @@ class Boardingfeescontroller extends Controller
         return Datatables::of($requests)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
-                $user = Auth::user();
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();      
 
                 $btn='';
 
-                $permission = $user->can('Approve-Level-01');
-                if($permission){
+                if(in_array('Approve-Level-01',$userPermissions)){
                     if($row->approve_01 == 0){
                         $btn .= ' <button name="appL1" id="'.$row->id.'" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                     }
                 }
-                $permission = $user->can('Approve-Level-02');
-                if($permission){
+                if(in_array('Approve-Level-02',$userPermissions)){
                     if($row->approve_01 == 1 && $row->approve_02 == 0){
                         $btn .= ' <button name="appL2" id="'.$row->id.'" class="appL2 btn btn-outline-warning btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                     }
                 }
-                $permission = $user->can('Approve-Level-03');
-                if($permission){
+                if(in_array('Approve-Level-03',$userPermissions)){
                     if($row->approve_02 == 1 && $row->approve_03 == 0 ){
                         $btn .= ' <button name="appL3" id="'.$row->id.'" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
                     }
                 }
 
-                        $permission = $user->can('Boardingfees-edit');
-                        if($permission){
+                if(in_array('Boardingfees-edit',$userPermissions)){
                             $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
                         }
                     
-                        $permission = $user->can('Boardingfees-status');
-                        if($permission){
+                        if(in_array('Boardingfees-status',$userPermissions)){
                             if($row->status == 1){
                                 $btn .= ' <a href="'.route('boardingfeesstatus', ['id' => $row->id, 'stasus' => 2]) .'" onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
                             }else{
@@ -171,8 +177,7 @@ class Boardingfeescontroller extends Controller
                             }
                         }
 
-                $permission = $user->can('Boardingfees-delete');
-                if($permission){
+                        if(in_array('Boardingfees-delete',$userPermissions)){
                     $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';  
                 }
                  return $btn;
@@ -183,11 +188,10 @@ class Boardingfeescontroller extends Controller
 
 
     public function delete(Request $request){
-        $user = Auth::user();
-      
-        $permission =$user->can('Boardingfees-delete');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Boardingfees-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
         
         $id = Request('id');
@@ -206,11 +210,11 @@ class Boardingfeescontroller extends Controller
 
 
     public function approvel_details(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Boardingfees-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
-            }
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
             $id = Request('id');
             if (request()->ajax()){
@@ -239,7 +243,7 @@ private function app_reqestcountlist($id){
     $recordID =$id ;
    $data = DB::table('boardingfeesdetails')
    ->leftjoin('employees', 'boardingfeesdetails.emp_id', '=', 'employees.id')
-   ->select('boardingfeesdetails.*', 'employees.emp_fullname', DB::raw('(boardingfeesdetails.id) AS boardingfeesdetailsID'))
+   ->select('boardingfeesdetails.*','employees.service_no','employees.emp_fullname', DB::raw('(boardingfeesdetails.id) AS boardingfeesdetailsID'))
    ->where('boardingfeesdetails.boardingfees_id', $recordID)
    ->where('boardingfeesdetails.status', 1)
    ->get(); 
@@ -250,7 +254,7 @@ private function app_reqestcountlist($id){
       
       
     $htmlTable .= '<tr>';
-    $htmlTable .= '<td>' . $row->emp_fullname . '</td>'; 
+    $htmlTable .= '<td>' . $row->service_no . '-'. $row->emp_fullname . '</td>'; 
     $htmlTable .= '<td id="boardingfee">' . $row->boardingfee . '</td>'; 
     $htmlTable .= '<td id="company_discount">' . $row->company_discount . '</td>'; 
     $htmlTable .= '<td id="total_cost">' . $row->total_cost . '</td>'; 
@@ -266,11 +270,11 @@ private function app_reqestcountlist($id){
 
 
 public function edit(Request $request){
-    $user = Auth::user();
-    $permission =$user->can('Boardingfees-edit');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Boardingfees-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
 
     $id = Request('id');
 
@@ -349,14 +353,12 @@ public function editlist(Request $request){
 
 
 public function update(Request $request){
-    $user = Auth::user();
-   
-    $permission =$user->can('Boardingfees-edit');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
-   
         $current_date_time = Carbon::now()->toDateTimeString();
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Boardingfees-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
 
 
@@ -414,17 +416,11 @@ public function update(Request $request){
 
 public function approve(Request $request){
 
-    $user = Auth::user();
-   
-   
-    $permission =$user->can('Approve-Level-01');
-    $permission =$user->can('Approve-Level-02');
-    $permission =$user->can('Approve-Level-03');
-
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
-   
+    $commen= new Commen();
+    $userPermissions = $commen->Allpermission();
+    if (!in_array('Approve-Level-01', $userPermissions) || !in_array('Approve-Level-02', $userPermissions) || !in_array('Approve-Level-03', $userPermissions)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
    
     $id = Request('id');
     $applevel = Request('applevel');
@@ -487,14 +483,11 @@ public function approve(Request $request){
 
 
 public function status($id,$statusid){
-    $user = Auth::user();
-   
-   
-    $permission =$user->can('Boardingfees-status');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('Boardingfees-status', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
-
 
     if($statusid == 1){
         $form_data = array(
@@ -519,13 +512,11 @@ public function status($id,$statusid){
 }
 
 public function deletelist(Request $request){
-
-    $user = Auth::user();
-  
-    $permission =$user->can('Boardingfees-delete');
-    if(!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
-        }
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Boardingfees-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
     
         $id = Request('id');
     $current_date_time = Carbon::now()->toDateTimeString();
@@ -543,16 +534,15 @@ public function deletelist(Request $request){
 
 public function GetAllEmployee(Request $request){
 
-    $location_id = Request('location_id');
+    $subregion_id = Request('subregion_id');
     if (request()->ajax()){
-    $data = DB::table('customerbranches')
-    ->leftjoin('subregions', 'customerbranches.subregion_id', '=', 'subregions.id')
-    ->select('customerbranches.*','subregions.subregion','subregions.id AS subregion_id')
-    ->where('customerbranches.id', $location_id)
+    $data = DB::table('subregions')
+    ->select('subregions.*')
+    ->where('subregions.id', $subregion_id)
     ->get(); 
 
     
-    $subregion_id = $data[0]->subregion_id; 
+    $subregion_id = $data[0]->id; 
    
     $requestlist = $this->VoEmpreqestcountlist($subregion_id); 
     

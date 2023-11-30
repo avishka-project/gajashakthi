@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Commen;
 use App\PayGrade;
 use http\Env\Response;
 use Illuminate\Http\Request;
@@ -21,14 +22,14 @@ class PayGradeController extends Controller
     
     public function index()
     {
-        $user = auth()->user();
-        $permission = $user->can('pay-grade-list');
-        if(!$permission){
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('pay-grade-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $paygrade= PayGrade::orderBy('id', 'asc')->get();
-        return view('Job.payGrade',compact('paygrade'));
+        return view('Job.payGrade',compact('paygrade','userPermissions'));
     }
 
     /**
@@ -49,10 +50,11 @@ class PayGradeController extends Controller
      */
     public function store(Request $request)
     {
-        $user = auth()->user();
-        $permission = $user->can('pay-grade-create');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 403);
+
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('pay-grade-create', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -99,10 +101,10 @@ class PayGradeController extends Controller
      */
     public function edit($id)
     {
-        $user = auth()->user();
-        $permission = $user->can('pay-grade-edit');
-        if(!$permission){
-            return response()->json(['error' => 'UnAuthorized'], 403);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('pay-grade-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         if(request()->ajax())
@@ -121,10 +123,10 @@ class PayGradeController extends Controller
      */
     public function update(Request $request, PayGrade $payGrade)
     {
-        $user = auth()->user();
-        $permission = $user->can('pay-grade-edit');
-        if(!$permission){
-            return response()->json(['error' => 'UnAuthorized'], 403);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('pay-grade-edit', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $rules = array(
@@ -157,10 +159,10 @@ class PayGradeController extends Controller
      */
     public function destroy($id)
     {
-        $user = auth()->user();
-        $permission = $user->can('pay-grade-delete');
-        if(!$permission){
-            return response()->json(['error' => 'UnAuthorized'], 403);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('pay-grade-delete', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $data = PayGrade::findOrFail($id);

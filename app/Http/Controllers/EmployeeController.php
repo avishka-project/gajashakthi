@@ -13,6 +13,7 @@ use App\EmployeePicture;
 use App\EmploymentStatus;
 use App\FingerprintDevice;
 use App\Branch;
+use App\Commen;
 use App\JobTitle;
 use App\JobStatus;
 use App\Shift;
@@ -47,10 +48,11 @@ class EmployeeController extends Controller
 
     public function index()
     {
-        $permission = Auth::user()->can('employee-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-list', $userPermissions)) {
             abort(403);
-        }
+        } 
 
         $lastid = DB::table('employees')
             ->latest()
@@ -76,29 +78,30 @@ class EmployeeController extends Controller
         $fingerprintpermission = 0;
         $editpermission = 0;
         $deletepermission = 0;
-        
-        if (Auth::user()->can('employee-list')) {
+
+        if (in_array('employee-list', $userPermissions)) {
             $listpermission = 1;
         } 
-        if (Auth::user()->can('finger-print-user-create')) {
+        if (in_array('finger-print-user-create', $userPermissions)) {
             $fingerprintpermission = 1;
-        }
-        if (Auth::user()->can('employee-edit')) {
+        } 
+        if (in_array('employee-edit', $userPermissions)) {
             $editpermission = 1;
-        }
-        if (Auth::user()->can('employee-delete')) {
+        } 
+        if (in_array('employee-delete', $userPermissions)) {
             $deletepermission = 1;
         }
 
 
-        return view('Employee.employeeAdd', compact('newid', 'employmentstatus', 'branch', 'device', 'title', 'shift_type', 'company', 'departments','listpermission','fingerprintpermission','editpermission','deletepermission','employeecat'));
+        return view('Employee.employeeAdd', compact('newid', 'employmentstatus', 'branch', 'device', 'title', 'shift_type', 'company', 'departments','listpermission','fingerprintpermission','editpermission','deletepermission','employeecat','userPermissions'));
     }
 
 
     public function securitystafflist()
     {
-        $permission = Auth::user()->can('employee-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-list', $userPermissions)) {
             abort(403);
         }
 
@@ -127,28 +130,29 @@ class EmployeeController extends Controller
         $editpermission = 0;
         $deletepermission = 0;
         
-        if (Auth::user()->can('employee-list')) {
+        if (in_array('employee-list', $userPermissions)) {
             $listpermission = 1;
         } 
-        if (Auth::user()->can('finger-print-user-create')) {
+        if (in_array('finger-print-user-create', $userPermissions)) {
             $fingerprintpermission = 1;
-        }
-        if (Auth::user()->can('employee-edit')) {
+        } 
+        if (in_array('employee-edit', $userPermissions)) {
             $editpermission = 1;
-        }
-        if (Auth::user()->can('employee-delete')) {
+        } 
+        if (in_array('employee-delete', $userPermissions)) {
             $deletepermission = 1;
         }
 
 
-        return view('Employee.employeeAddSecuritystaff', compact('newid', 'employmentstatus', 'branch', 'device', 'title', 'shift_type', 'company', 'departments','listpermission','fingerprintpermission','editpermission','deletepermission','employeecat'));
+        return view('Employee.employeeAddSecuritystaff', compact('newid', 'employmentstatus', 'branch', 'device', 'title', 'shift_type', 'company', 'departments','listpermission','fingerprintpermission','editpermission','deletepermission','employeecat','userPermissions'));
     }
 
     public function employee_list_dt(Request $request)
     {
-        $permission = Auth::user()->can('employee-list');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-list', $userPermissions)) {
+            abort(403);
         }
 
         $department = $request->get('department');
@@ -197,21 +201,23 @@ class EmployeeController extends Controller
             })
             ->addColumn('action', function ($row) {
                 $btn = '';
-                if (Auth::user()->can('employee-list')) {
+                $commen= new Commen();
+                $userPermissions = $commen->Allpermission();
+                if (in_array('employee-list', $userPermissions)) {
                     $btn = ' <a style="margin:1px;" data-toggle="tooltip" data-placement="bottom" title="View Employee Details" class="btn btn-outline-dark btn-sm" href="viewEmployee/' . $row->id . '"><i class="far fa-clipboard"></i></a> ';
                 }
 
-                if (Auth::user()->can('finger-print-user-create')) {
+                if (in_array('finger-print-user-create', $userPermissions)) {
                     $btn .= '<button style="margin:1px;" data-toggle="tooltip" data-placement="bottom" title="Add Employee Fingerprint Details" class="btn btn-outline-primary btn-sm addfp" 
                         id="' . $row->emp_id . '" name="' . $row->emp_name_with_initial . '"><i class="fas fa-sign-in-alt"></i></button>';
                 }
 
-                if (Auth::user()->can('employee-edit')) {
+                if (in_array('employee-edit', $userPermissions)) {
                     $btn .= '<button style="margin:1px;" data-toggle="tooltip" data-placement="bottom" title="Add Employee User Login Details" class="btn btn-outline-secondary btn-sm adduserlog" 
                         id="' . $row->emp_id . '" name="' . $row->emp_name_with_initial . '"><i class="fas fa-user"></i></button>';
                 }
 
-                if (Auth::user()->can('employee-delete')) {
+                if (in_array('employee-delete', $userPermissions)) {
                     $btn .= '<button style="margin:1px;" data-toggle="tooltip" data-placement="bottom" title="Delete Employee Details" class="btn btn-outline-danger btn-sm delete" id="' . $row->id . '"><i class="far fa-trash-alt"></i></button>';
                 }
 
@@ -223,8 +229,9 @@ class EmployeeController extends Controller
 
     public function employeelist()
     {
-        $permission = Auth::user()->can('employee-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-list', $userPermissions)) {
             abort(403);
         }
         $device = FingerprintDevice::orderBy('id', 'asc')->where('status', '=', 1)->get();
@@ -234,7 +241,7 @@ class EmployeeController extends Controller
             ->select('employees.*', 'employment_statuses.emp_status', 'branches.branch')
             ->get();
 
-        return view('Employee.employeeList', compact('employee', 'device'));
+        return view('Employee.employeeList', compact('employee', 'device','userPermissions'));
     }
 
 
@@ -279,11 +286,11 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        $permission = Auth::user()->can('employee-create');
-        if (!$permission) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-create', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
-
         $rules = array(
             'emp_id' => 'required|max:10|unique:employees,emp_id',
             'etfno' => 'required',
@@ -395,8 +402,9 @@ class EmployeeController extends Controller
      */
     public function show($id)
     {
-        $permission = Auth::user()->can('employee-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-list', $userPermissions)) {
             abort(403);
         }
 
@@ -415,7 +423,7 @@ class EmployeeController extends Controller
         $employeecat = DB::table('employee_category')->select('employee_category.*')->get();
 
         return view('Employee.viewEmployee', compact('job_categories', 'employee', 'id', 'jobtitles', 'employmentstatus', 'branch', 'shift_type', 'company', 'departments', 'attachments',
-            'employee_picture','employeecat'));
+            'employee_picture','employeecat','userPermissions'));
     }
 
     public function download_file($file)
@@ -433,8 +441,9 @@ class EmployeeController extends Controller
 
     public function showcontact($id)
     {
-        $permission = Auth::user()->can('employee-list');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-list', $userPermissions)) {
             abort(403);
         }
 
@@ -443,7 +452,7 @@ class EmployeeController extends Controller
             ->select('employees.*', 'employee_pictures.emp_pic_filename')
             ->where('id', $id)->first();
 
-        return view('Employee.contactDetails', compact('employee', 'id'));
+        return view('Employee.contactDetails', compact('employee', 'id','userPermissions'));
     }
 
     /**
@@ -454,8 +463,9 @@ class EmployeeController extends Controller
      */
     public function edit(REQUEST $request)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if (!$permission) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
             abort(403);
         }
 
@@ -624,8 +634,9 @@ class EmployeeController extends Controller
 
     public function editcontact(REQUEST $request)
     {
-        $permission = Auth::user()->can('employee-edit');
-        if ($permission == false) {
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-edit', $userPermissions)) {
             abort(403);
         }
 
@@ -682,11 +693,11 @@ class EmployeeController extends Controller
      */
     public function destroy($id)
     {
-        $permission = Auth::user()->can('employee-delete');
-        if ($permission == false) {
-            return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+        $userPermissions = $commen->Allpermission();
+        if (!in_array('employee-delete', $userPermissions)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
-
         DB::table('employees')
             ->where('id', $id)
             ->update(['deleted' => 1]);
