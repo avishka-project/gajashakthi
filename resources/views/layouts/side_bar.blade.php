@@ -416,7 +416,7 @@
                                 {{ __('Boardingfees') }}
                             </a>
                             @endif
-                            @if(in_array('Boardingfees-list',$userPermissions))
+                            @if(in_array('Accommodationfee-list',$userPermissions))
                             <a class="nav-link p-0 px-3 py-2 sidebar-text-color" id="Accommodationfees_link"
                                 href="{{ route('accommodationfees') }}">
                                 <div class="nav-link-icon"></div>
