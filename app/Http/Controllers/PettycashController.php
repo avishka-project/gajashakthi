@@ -515,6 +515,7 @@ class PettycashController extends Controller
         if ($matchingData->count() > 0) {
             return response()->json($matchingData);
         } 
+       
     }
     public function pettycashgetempname(Request $request) {
         $searchTerm = $request->input('search');
@@ -525,11 +526,16 @@ class PettycashController extends Controller
                        ->orWhere('emp_fullname', 'like', '%' . $searchTerm . '%')
                        ->orWhere('emp_name_with_initial', 'like', '%' . $searchTerm . '%');
             })
-            ->limit(1)
+            ->limit(20)
             ->get();
     
         if ($matchingData->count() > 0) {
             return response()->json($matchingData);
+        }
+        else {
+            $first5Items = DB::table('employees')
+                ->limit(5)->get();
+            return response()->json($first5Items);
         }
     }
     public function pettycashgetempnic(Request $request) {
@@ -545,6 +551,7 @@ class PettycashController extends Controller
         if ($matchingData->count() > 0) {
             return response()->json($matchingData);
         }
+      
     }
 
     public function pettycashgetVat(Request $request){
@@ -648,7 +655,7 @@ class PettycashController extends Controller
         $categorySummary .= '
         <tr>
             <td style="font-size: 14px;" class="text-left;text-align:left;"><b>' . $rowlist->pettycash_category . '</b></td>
-            <td style="font-size: 14px;text-align:center;"><b>' . number_format(($rowlist->after_vat_sum),2) . '</b></td>
+            <td style="font-size: 14px;text-align:right;"><b>' . number_format(($rowlist->after_vat_sum),2) . '</b></td>
         </tr>
         
         ';
@@ -661,7 +668,7 @@ class PettycashController extends Controller
                 <td style="font-size:11px; border:2px solid black; text-align:center;height: 25px;" class="text-center">' . $count . '</td>
                 <td colspan="3" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . $rowlist->bill_date . '</td>
                 <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . $rowlist->emp_type . '</td>
-                <td colspan="6" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . ($rowlist->emp_type == "Reg_Emp" ? ($rowlist->emp_id == null ? '' : $rowlist->service_no . '-' . $rowlist->emp_name_with_initial) : ($rowlist->non_reg_emp == null ? '' : $rowlist->non_reg_emp)) . '</td>
+                <td colspan="6" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . ($rowlist->emp_type == "Reg_Emp" ? ($rowlist->emp_id == null ? '' : $rowlist->emp_name_with_initial) : ($rowlist->non_reg_emp == null ? '' : $rowlist->non_reg_emp)) . '</td>
                 <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . $rowlist->bill_no . '</td>
                 <td colspan="5" style="font-size:11px; border:2px solid black; black; text-align:left;padding-left:4px;padding-bottom:4px;height: 25px;" class="text-justify">' . $rowlist->description . '</td>
                 <td colspan="2" style="font-size:11px; border:2px solid black; black; text-align:center;height: 25px;" class="text-center">' . number_format(($rowlist->vat_precentage)) . '</td>
@@ -822,7 +829,7 @@ class PettycashController extends Controller
             '.$categorySummary.'
             <tr>
             <td style="font-size: 14px;border-top:1px solid black;" class="text-left"><b>Total</b></td>
-            <td style="font-size: 14px;border-top:1px solid black;border-bottom:1px dashed black;text-align: center;"><b>' . number_format(($afterVatTotalSum),2) . '</b></td>
+            <td style="font-size: 14px;border-top:1px solid black;border-bottom:1px dashed black;text-align: right;"><b>' . number_format(($afterVatTotalSum),2) . '</b></td>
             </tr>
             <tr>
             <td></td>

@@ -19,7 +19,7 @@
  */
 
 // DB table to use
-$table = 'vats';
+$table = 'fixed_assets';
 
 // Table's primary key
 $primaryKey = 'id';
@@ -30,11 +30,23 @@ $primaryKey = 'id';
 // indexes
 $columns = array(
 	array( 'db' => '`u`.`id`', 'dt' => 'id', 'field' => 'id' ),
-	array( 'db' => '`u`.`fromdate`', 'dt' => 'fromdate', 'field' => 'fromdate' ),
-	array( 'db' => '`u`.`vat`', 'dt' => 'vat', 'field' => 'vat' ),
-	array( 'db' => '`u`.`tax`', 'dt' => 'tax', 'field' => 'tax' ),
-	array( 'db' => '`u`.`nbt`', 'dt' => 'nbt', 'field' => 'nbt' ),
-	array( 'db' => '`u`.`sscl`', 'dt' => 'sscl', 'field' => 'sscl' ),
+	array( 'db' => '`ca`.`asset_category`', 'dt' => 'asset_category', 'field' => 'asset_category' ),
+	array( 'db' => '`pa`.`name`', 'dt' => 'name', 'field' => 'name' ),
+	array( 'db' => '`emp`.`service_no`', 'dt' => 'service_no', 'field' => 'service_no' ),
+	array( 'db' => '`emp`.`emp_name_with_initial`', 'dt' => 'emp_name_with_initial', 'field' => 'emp_name_with_initial' ),
+	array( 'db' => '`u`.`code`', 'dt' => 'code', 'field' => 'code' ),
+	array( 'db' => '`u`.`region`', 'dt' => 'region', 'field' => 'region' ),
+	array( 'db' => '`u`.`department`', 'dt' => 'department', 'field' => 'department' ),
+	array( 'db' => '`u`.`clientbranch`', 'dt' => 'clientbranch', 'field' => 'clientbranch' ),
+	array( 'db' => '`u`.`opening_value`', 'dt' => 'opening_value', 'field' => 'opening_value' ),
+	array( 'db' => '`u`.`dateofpurchase`', 'dt' => 'dateofpurchase', 'field' => 'dateofpurchase' ),
+	array( 'db' => '`u`.`rate`', 'dt' => 'rate', 'field' => 'rate' ),
+	array( 'db' => '`u`.`addition_deletion`', 'dt' => 'addition_deletion', 'field' => 'addition_deletion' ),
+	array( 'db' => '`u`.`closing_value`', 'dt' => 'closing_value', 'field' => 'closing_value' ),
+	array( 'db' => '`u`.`acc_dep_2022`', 'dt' => 'acc_dep_2022', 'field' => 'acc_dep_2022' ),
+	array( 'db' => '`u`.`dep_2023`', 'dt' => 'dep_2023', 'field' => 'dep_2023' ),
+	array( 'db' => '`u`.`acc_dep_2023`', 'dt' => 'acc_dep_2023', 'field' => 'acc_dep_2023' ),
+	array( 'db' => '`u`.`writtendown_2023`', 'dt' => 'writtendown_2023', 'field' => 'writtendown_2023' ),
 	array( 'db' => '`u`.`approve_01`', 'dt' => 'approve_01', 'field' => 'approve_01' ),
 	array( 'db' => '`u`.`approve_02`', 'dt' => 'approve_02', 'field' => 'approve_02' ),
 	array( 'db' => '`u`.`approve_03`', 'dt' => 'approve_03', 'field' => 'approve_03' ),
@@ -59,7 +71,10 @@ $sql_details = array(
 // require( 'ssp.class.php' );
 require('ssp.customized.class.php' );
 
-$joinQuery = "FROM `vats` AS `u`";
+$joinQuery = "FROM `fixed_assets` AS `u` 
+LEFT JOIN `assetcategories` AS `ca` ON (`ca`.`id` = `u`.`asset_category_id`)
+LEFT JOIN `assetparticulars` AS `pa` ON (`pa`.`id` = `u`.`particular_id`)
+LEFT JOIN `employees` AS `emp` ON (`emp`.`id` = `u`.`employee_id`)";
 
 $extraWhere = "`u`.`status` IN (1, 2)";
 

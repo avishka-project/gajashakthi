@@ -160,7 +160,9 @@
                                                         <input type="number" step="any" class="text-right w-100 border-0" name="unit_price[]"/>
                                                     </td>
                                                     <td class="align-middle p-1 text-right total-price">0</td>
-                                                    <td id="vatprecentage" name="vatprecentage[]" class="align-middle p-1 text-right vatprecentage">0</td>
+                                                    <td class="align-middle p-1 text-right">
+                                                        <input type="number" step="any" class="text-right w-100 border-0" name="vatprecentage[]" value="0"/>
+                                                    </td>
                                                     <td id="vatamount" name="vatamount[]" class="align-middle p-1 text-right vatamount">0</td>
                                                     <td id="aftervat" name="aftervat[] "class="align-middle p-1 text-right aftervat">0</td>
                                                     <td class="align-middle p-1 text-center">
@@ -709,7 +711,7 @@
                             qty: $(this).find("[name='qty[]']").val(),
                             unitPrice: $(this).find("[name='unit_price[]']").val(),
                             total: $(this).find(".total-price").text(),
-                            vatprecentage: $(this).find(".vatprecentage").text(),
+                            vatprecentage: $(this).find("[name='vatprecentage[]']").val(),
                             vatamount: $(this).find(".vatamount").text(),
                             aftervat: $(this).find(".aftervat").text()
                         };
@@ -809,7 +811,7 @@
                             qty: $(this).find("[name='edit_qty[]']").val(),
                             unitPrice: $(this).find("[name='edit_unit_price[]']").val(),
                             total: $(this).find("[name='edit_total[]']").val(),
-                            vatprecentage: $(this).find(".edit_vatprecentage").text(),
+                            vatprecentage: $(this).find("[name='edit_vatprecentage[]']").val(),
                             vatamount: $(this).find(".edit_vatamount").text(),
                             aftervat: $(this).find(".edit_aftervat").text(),
                             edit_insertstatus: $(this).find("[name='edit_insertstatus[]']").val(),
@@ -1635,7 +1637,7 @@
 			$(this).find('.total-price').text(parseFloat(row_total))
 
         // vat calculate
-        var vatprecentage = $(this).find("[name='vatprecentage[]']").text()
+        var vatprecentage = $(this).find("[name='vatprecentage[]']").val()
         var vatamount=row_total*(vatprecentage/100);
         $(this).find('.vatamount').text(parseFloat(vatamount))
         var aftervat=(parseFloat(row_total))+(parseFloat(vatamount));
@@ -1697,7 +1699,9 @@
                 <input type="number" step="any" class="text-right w-100 border-0" id="unit_price${rowCounter}" name="unit_price[]"/>
             </td>
             <td class="align-middle p-1 text-right total-price">0</td>
-            <td id="vatprecentage${rowCounter}" name="vatprecentage[]" class="align-middle p-1 text-right vatprecentage">0</td>
+            <td class="align-middle p-1">
+                <input type="number" step="any" class="text-right w-100 border-0" id="vatprecentage${rowCounter}" name="vatprecentage[]" value="0"/>
+            </td>
             <td id="vatamount${rowCounter}" name="vatamount[]" class="align-middle p-1 text-right vatamount">0</td>
             <td id="aftervat${rowCounter}" name="aftervat[]" class="align-middle p-1 text-right aftervat">0</td>
             <td class="align-middle p-1 text-center">
@@ -1739,6 +1743,7 @@
 
     const qtyInput = $(`#qty${rowCounter}`);
     const unitPriceInput = $(`#unit_price${rowCounter}`);
+    const vatprecentage = $(`#vatprecentage${rowCounter}`);
 
     qtyInput.on('input keyup', function (e) {
         calculate();
@@ -1748,9 +1753,14 @@
         calculate();
     });
 
+    vatprecentage.on('input keyup', function (e) {
+        calculate();
+    });
+
     // Trigger keyup events initially to calculate when the values are changed
     qtyInput.trigger('keyup');
     unitPriceInput.trigger('keyup');
+    vatprecentage.trigger('keyup');
 
     getVatDateInputChange();
    
@@ -1759,7 +1769,7 @@
 		if($('#item-list .po-item').length > 0){
 			$('#item-list .po-item').each(function(){
 				var tr = $(this)
-				tr.find('[name="qty[]"],[name="unit_price[]"]').on('input keypress',function(e){
+				tr.find('[name="qty[]"],[name="unit_price[]"],[name="vatprecentage[]"]').on('input keypress',function(e){
 					calculate()
 				})
 				$('#item-list tfoot').find('[name="discount_amount"],[name="tax_percentage"]').on('input keypress',function(e){
@@ -1863,7 +1873,9 @@ let editrowCounter =1000;
                 <td><input style="width:150%" type="number" name="edit_qty[]" id="qty${editrowCounter}" value="0" onkeyup="editsum(this.value, ${editrowCounter})"></td>
                 <td><input style="width:150%" type="number" name="edit_unit_price[]" id="unit_price${editrowCounter}" value="0" onkeyup="editsum(this.value, ${editrowCounter})"></td>
                 <td><input style="width:150%" type="text" name="edit_total[]" id="total${editrowCounter}" value="0" readonly></td>  
-                <td id="edit_vatprecentage${editrowCounter}" name="edit_vatprecentage[]" class="align-middle p-1 text-right edit_vatprecentage">0</td>
+                <td class="align-middle p-1">
+                <input type="number" step="any" class="text-right w-100 border-0" id="edit_vatprecentage${editrowCounter}" name="edit_vatprecentage[]" value="0" onkeyup="editsum(this.value, ${editrowCounter})"/>
+                </td>
                 <td id="edit_vatamount${editrowCounter}" name="edit_vatamount[]" class="align-middle p-1 text-right edit_vatamount">0</td>
                 <td id="edit_aftervat${editrowCounter}" name="edit_aftervat[]" class="align-middle p-1 text-right edit_aftervat">0</td>
                 <td class="d-none"><input type="text" name="edit_insertstatus[]" id="edit_insertstatus${editrowCounter}" value="NewData"></td>  
@@ -1909,7 +1921,7 @@ var total=qty*unitPrice;
 $('#total' + rowCounter).val(total)
 
 // calculate vat
-        var vatprecentage = parseFloat($('#edit_vatprecentage' + rowCounter).text());
+        var vatprecentage = parseFloat($('#edit_vatprecentage' + rowCounter).val());
         var vatamount=total*(vatprecentage/100);
         $('#edit_vatamount' + rowCounter).text(vatamount);
         var aftervat=(parseFloat(total))+(parseFloat(vatamount));
@@ -1963,7 +1975,7 @@ function updatefunc(){
                     });
 
                     ajaxRequest.done(function (data) {
-                        $('[name="vatprecentage[]"]').text(data.result);
+                        $('[name="vatprecentage[]"]').val(data.result);
                     });
 
                     ajaxRequest.then(function () {
@@ -1990,7 +2002,7 @@ function updatefunc(){
                     });
 
                     ajaxRequest.done(function (data) {
-                        $('[name="edit_vatprecentage[]"]').text(data.result);
+                        $('[name="edit_vatprecentage[]"]').val(data.result);
                     });
 
                     ajaxRequest.then(function () {

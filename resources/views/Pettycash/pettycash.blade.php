@@ -1161,7 +1161,8 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         descriptionTextarea.id = "description" + Counter;
         descriptionTextarea.name = "description" + Counter;
         descriptionCell.appendChild(descriptionTextarea);
-        descriptionTextarea.style.width = "100%";
+        // descriptionTextarea.style.width = "100%";
+         descriptionTextarea.style.height = "27px";
         newRow.appendChild(descriptionCell);
 
          // Add the "Vat." column with a specific width (55%)
@@ -1172,7 +1173,7 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
         vatInput.name = "vat" + Counter;
         vatInput.style.width = "80px";
         vatCell.style.width = "80px";
-        vatInput.readOnly = true;
+        // vatInput.readOnly = true;
         vatCell.appendChild(vatInput);
         // rsCell.style.width = "55%";
         newRow.appendChild(vatCell);
@@ -1268,7 +1269,7 @@ var thirdapprovelstatus = $('#thirdapprovelstatus').val();
 
 
     // Add 20 rows initially
-    for (var i = 0; i < 20; i++) {
+    for (var i = 0; i < 1; i++) {
         addRow();
     }
 
@@ -1401,6 +1402,7 @@ dateInput.addEventListener("change", function() {
         descriptionTextarea.id = "description" + Counter;
         descriptionTextarea.name = "description" + Counter;
         descriptionCell.appendChild(descriptionTextarea);
+        descriptionTextarea.style.height = "27px";
         descriptionTextarea.value = rowData.description;
         // descriptionTextarea.style.width = "100%";
         newRow.appendChild(descriptionCell);
@@ -1414,7 +1416,7 @@ dateInput.addEventListener("change", function() {
         vatInput.value = rowData.vat_precentage;
         vatInput.style.width = "80px";
         vatCell.style.width = "80px";
-        vatInput.readOnly = true;
+        // vatInput.readOnly = true;
         vatCell.appendChild(vatInput);
         // rsCell.style.width = "55%";
         newRow.appendChild(vatCell);
@@ -1664,6 +1666,7 @@ dateInput.addEventListener("change", function() {
         var descriptionTextarea = document.createElement("textarea");
         descriptionTextarea.id = "description" + Counter1;
         descriptionTextarea.name = "description" + Counter1;
+        descriptionTextarea.style.height = "27px";
         descriptionCell.appendChild(descriptionTextarea);
         // descriptionTextarea.style.width = "100%";
         newRow.appendChild(descriptionCell);
@@ -1676,7 +1679,7 @@ dateInput.addEventListener("change", function() {
         vatInput.name = "vat" + Counter1;
         vatInput.style.width = "80px";
         vatCell.style.width = "80px";
-        vatInput.readOnly = true;
+        // vatInput.readOnly = true;
         vatCell.appendChild(vatInput);
         // rsCell.style.width = "55%";
         newRow.appendChild(vatCell);
@@ -1920,6 +1923,7 @@ dateInput.addEventListener("change", function() {
         descriptionCell.appendChild(descriptionTextarea);
         descriptionTextarea.value = rowData.description;
         descriptionTextarea.readOnly = true;
+        descriptionTextarea.style.height = "27px";
         descriptionTextarea.style.border = "none";
         // descriptionTextarea.style.width = "100%";
         newRow.appendChild(descriptionCell);
@@ -2175,6 +2179,7 @@ for (var i = 0; i < app_array.length; i++) {
         descriptionTextarea.name = "view_description" + Counter;
         descriptionCell.appendChild(descriptionTextarea);
         descriptionTextarea.value = rowData.description;
+        descriptionTextarea.style.height = "27px";
         descriptionTextarea.readOnly = true;
         descriptionTextarea.style.border = "none";
         // descriptionTextarea.style.width = "100%";

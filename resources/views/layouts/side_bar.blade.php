@@ -203,11 +203,20 @@
                             @endif
                         </nav>
                     </div>
+                    @if(in_array('Newbusinessproposal-list',$userPermissions))
                     <a class="nav-link p-0 px-3 py-2 sidebar-text-color" id="newbusinessproposal_link"
                         href="{{ route('newbusinessproposal') }}">
                         <div class="nav-link-icon"></div>
                         {{ __('New Business') }}
                     </a>
+                    @endif
+                    @if(in_array('Quotation-list',$userPermissions))
+                    <a class="nav-link p-0 px-3 py-2 sidebar-text-color" id="quotation_link"
+                        href="{{ route('quotation') }}">
+                        <div class="nav-link-icon"></div>
+                        {{ __('Quotation') }}
+                    </a>
+                    @endif
 
                     <a class="nav-link p-0 px-3 py-1 collapsed sidebar-text-color" href="javascript:void(0);"
                         data-toggle="collapse" data-target="#collapfixassets" aria-expanded="false"
@@ -217,6 +226,18 @@
                     </a>
                     <div class="collapse" id="collapfixassets">
                         <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                            @if(in_array('Assetcategory-list',$userPermissions))
+                            <a class="nav-link p-0 px-3 py-1 sidebar-text-color" id="assetcategory_link"
+                                href="{{ route('assetcategory')}}"> Asset Category</a>
+                             @endif
+                            @if(in_array('Assetparticular-list',$userPermissions))
+                            <a class="nav-link p-0 px-3 py-1 sidebar-text-color" id="assetparticular_link"
+                                href="{{ route('assetparticular')}}"> Asset Particular</a>
+                             @endif
+                             @if(in_array('Fixedasset-list',$userPermissions))
+                             <a class="nav-link p-0 px-3 py-1 sidebar-text-color" id="fixedasset_link"
+                                 href="{{ route('fixedasset')}}"> Fixed Assets</a>
+                              @endif
                         </nav>
                     </div>
 
@@ -421,6 +442,27 @@
                                 href="{{ route('accommodationfees') }}">
                                 <div class="nav-link-icon"></div>
                                 {{ __('Accommodation Fee') }}
+                            </a>
+                            @endif
+                            @if(in_array('Salaryadvances-list',$userPermissions))
+                            <a class="nav-link p-0 px-3 py-2 sidebar-text-color" id="Salaryadvances_link"
+                                href="{{ route('salaryadvance') }}">
+                                <div class="nav-link-icon"></div>
+                                {{ __('Salary Advances') }}
+                            </a>
+                            @endif
+                            @if(in_array('Employeeloans-list',$userPermissions))
+                            <a class="nav-link p-0 px-3 py-2 sidebar-text-color" id="Employeeloans_link"
+                                href="{{ route('employeeloan') }}">
+                                <div class="nav-link-icon"></div>
+                                {{ __('Employee Loans') }}
+                            </a>
+                            @endif
+                            @if(in_array('Gratuityrequests-list',$userPermissions))
+                            <a class="nav-link p-0 px-3 py-2 sidebar-text-color" id="Gratuityrequests_link"
+                                href="{{ route('gratuityrequest') }}">
+                                <div class="nav-link-icon"></div>
+                                {{ __('Gratuity Requests') }}
                             </a>
                             @endif
                         </nav>

@@ -10,7 +10,7 @@ class Vat extends Model
 
     protected $fillable =[
 
-        'fromdate','todate','vat','tax','nbt','status','approve_status', 'approve_01', 'approve_01_time','approve_01_by',
+        'fromdate','todate','vat','tax','nbt','sscl','status','approve_status', 'approve_01', 'approve_01_time','approve_01_by',
         'approve_02', 'approve_02_time','approve_02_by',
         'approve_03', 'approve_03_time','approve_03_by',
         'reject','reject_comment','reject_time','reject_by',

@@ -72,6 +72,7 @@ class VatController extends Controller
         $vat->vat = $request->input('vat');
         $vat->tax = $request->input('tax');
         $vat->nbt = $request->input('nbt');
+        $vat->sscl = $request->input('sscl');
         $vat->status = '1';
         $vat->approve_status = '0';
         $vat->approve_01 = '0';
@@ -174,6 +175,7 @@ class VatController extends Controller
                 'vat' => $request->vat,
                 'tax' => $request->tax,
                 'nbt' => $request->nbt,
+                'sscl' => $request->sscl,
                 'approve_status' =>  '0',
                 'approve_01' =>  '0',
                 'approve_02' =>  '0',

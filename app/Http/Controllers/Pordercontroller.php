@@ -248,7 +248,7 @@ public function requestlist()
      $htmlTable .= '<td><input style="width:150%" type="number" name="edit_qty[]" id="qty' . $uniqueIdentifier . '" value="' . $row->qty . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')"></td>';
      $htmlTable .= '<td><input style="width:150%" type="number" name="edit_unit_price[]" id="unit_price' . $uniqueIdentifier . '" value="' . $row->unit_price . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')"></td>';
      $htmlTable .= '<td><input style="width:150%" type="text" name="edit_total[]" id="total' . $uniqueIdentifier . '" value="' . $total . '" readonly></td>';
-     $htmlTable .= '<td id="edit_vatprecentage' . $uniqueIdentifier . '" name="edit_vatprecentage[]" class="align-middle p-1 text-right edit_vatprecentage">' . $row->vat_precentage . '</td>';
+     $htmlTable .= '<td class="align-middle p-1 text-right"><input style="width:150%" type="number" name="edit_vatprecentage[]" id="edit_vatprecentage' . $uniqueIdentifier . '" value="' . $row->vat_precentage . '" onkeyup="editsum(this.value, '.$uniqueIdentifier.')"></td>';
      $htmlTable .= '<td id="edit_vatamount' . $uniqueIdentifier . '" name="edit_vatamount[]" class="align-middle p-1 text-right edit_vatamount">' . $row->vat_amount . '</td>';
      $htmlTable .= '<td id="edit_aftervat' . $uniqueIdentifier . '" name="edit_aftervat[]" class="align-middle p-1 text-right edit_aftervat">' . $row->total_after_vat . '</td>';
      $htmlTable .= '<td class="d-none"><input type="text" name="edit_insertstatus[]" id="edit_insertstatus' . $uniqueIdentifier . '" value="ExistingData"></td>';

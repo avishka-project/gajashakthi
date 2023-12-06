@@ -65,7 +65,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header p-2">
-                    <h5 class="modal-title" id="staticBackdropLabel">View Good Recieve Note</h5>
+                    <h5 class="viewmodal-title" id="staticBackdropLabel">View Good Recieve Note</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -86,9 +86,10 @@
                     </div>
                     <div class="row">
                         <div class="col-12" style="font-weight: bold">
-                            <div id="invoiceno"></div>
-                            <div id="dispatchno"></div>
-                            <div id="viewbatchno"></div>
+                            <div id="view_grnno"></div>
+                            <div id="view_porderno"></div>
+                            <div id="view_dispatchno"></div>
+                            <div id="view_viewbatchno"></div>
                         </div>
                     </div>
                     <br>
@@ -132,6 +133,110 @@
         </div>
     </div>
 
+    <!-- Modal Area Start -->
+    <div class="modal fade" id="billModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header p-2">
+                    <h5 class="billmodal-title" id="staticBackdropLabel">Bill</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 text-right">
+                            <div id="bill_suppliername"></div>
+                            <div id="bill_suppliercontact"></div>
+                            <div id="bill_supplieremail"></div>
+                            <div id="bill_supplieraddress"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12" style="font-weight: bold">
+                            <div id="bill_grnno"></div>
+                            <div id="bill_porderno"></div>
+                            <div id="bill_dispatchno"></div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                 
+                        <div class="col-3">
+                            <label class="small font-weight-bold text-dark">Date*</label>
+                            <input type="date" id="bill_date" name="bill_date"
+                                class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-3">
+                            <label class="small font-weight-bold text-dark">Bill Date*</label>
+                            <input type="date" id="bill_billdate" name="bill_billdate"
+                                class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-3">
+                            <label class="small font-weight-bold text-dark">Ref. No*</label>
+                            <input type="text" id="refno" name="refno"
+                            class="form-control form-control-sm" required readonly>
+                        </div>
+                        <div class="col-3">
+                            <label class="small font-weight-bold text-dark">Terms*</label>
+                            <input type="text" id="bill_terms" name="bill_terms"
+                                class="form-control form-control-sm"  readonly>
+                        </div>
+      
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                        <label class="small font-weight-bold text-dark">Memo*</label>
+                            <textarea type="text" id="memo" name="memo"
+                                class="form-control form-control-sm" ></textarea>
+                            </div>
+                        </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="center-block fix-width scroll-inner">
+                            <table class="table table-striped table-bordered table-sm small nowrap display" id="bill_tableorder">
+                                <thead>
+                                    <tr>
+                                        <th>Item Code</th>
+                                        <th>Item</th>
+                                        <th>Unit Price</th>
+                                        <th>Qty</th>
+                                        <th class="text-right">Total</th>
+                                        <th class="px-1 py-1 text-center">Vat(%)</th>
+                                        <th class="text-right">Vat(Amount)</th>
+                                        <th class="text-right">Vat+Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bill_tableorderlist"></tbody>
+                                <tfoot>
+                                    <tr style="font-weight: bold;font-size: 15px">
+                                        <td class="text-right" colspan="7">Sub Total:</td>
+                                        <td id="bill_subtotalField" class="text-right">0</td>
+                                    </tr>
+                                    <tr style="font-weight: bold;font-size: 15px">
+                                        <td class="text-right" colspan="7">Discount:</td>
+                                        <td id="bill_discountField" class="text-right">0</td>
+                                    </tr>
+                                    <tr style="font-weight: bold;font-size: 15px">
+                                        <td class="text-right" colspan="7">Total:</td>
+                                        <td id="bill_totalField" class="text-right">0</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="billhidden_id" id="billhidden_id" />
+                <div class="modal-footer p-2">
+                    <button type="button" name="print_button" id="print_button"
+                        class="btn btn-primary px-3 btn-sm">Print</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="modal fade" id="formModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -148,10 +253,7 @@
                         <div class="col-12">
                             <span id="form_result"></span>
                             <form method="post" id="formTitle" class="form-horizontal">
-                                {{ csrf_field() }}
-                               
-
-
+                                {{ csrf_field() }}                  
                                 <div class="form-row mb-1">
                                     <div class="col-5">
                                         <div class="form-row mb-1">
@@ -160,7 +262,7 @@
                                             <select name="porder" id="porder" class="form-control form-control-sm">
                                                 <option value="">Select Porder</option>
                                                 @foreach($porders as $porder)
-                                                <option value="{{$porder->id}}">POD-0000{{$porder->id}}</option>
+                                                <option value="{{$porder->id}}">POD-{{$porder->id}}</option>
                                                 @endforeach
                                             </select>
                                             </div>
@@ -329,7 +431,7 @@
                                         <select name="edit_porder" id="edit_porder" class="form-control form-control-sm" readonly>
                                             <option value="">Select Porder</option>
                                             @foreach($porders as $porder)
-                                            <option value="{{$porder->id}}">POD-0000{{$porder->id}}</option>
+                                            <option value="{{$porder->id}}">POD-{{$porder->id}}</option>
                                             @endforeach
                                         </select>
                                         </div>
@@ -547,7 +649,7 @@
                                         <select name="app_porder" id="app_porder" class="form-control form-control-sm" readonly>
                                             <option value="">Select Porder</option>
                                             @foreach($porders as $porder)
-                                            <option value="{{$porder->id}}">POD-0000{{$porder->id}}</option>
+                                            <option value="{{$porder->id}}">POD-{{$porder->id}}</option>
                                             @endforeach
                                         </select>
                                         </div>
@@ -1454,6 +1556,7 @@
 
         });
 
+        // view modal details
         $(document).on('click', '.view', function () {
             var id = $(this).attr('id');
             var total = 0;
@@ -1564,7 +1667,6 @@
                     id: id
                 },
                 success: function (data) {
-                    $('#porderno').text('POD-' + (data.result[0].porder_id==null?"Direct GRN":data.result[0].porder_id));
 
                     $('#view_subtotalField').text((data.result[0].sub_total).toFixed(2)),
                     $('#view_discountField').text((data.result[0].discount).toFixed(2)),
@@ -1588,9 +1690,9 @@
                     $('#supplieraddress').text(data.result[0].address1 + ', ' + data.result[0]
                         .address2 + ', ' + data.result[0].city);
 
-                        $('#invoiceno').text(data.result[0].grnid?'Invoice No: '+data.result[0].grnid:'Invoice No: ');
-                        $('#dispatchno').text(data.result[0].dispatch_no?'Dispatch No: '+data.result[0].dispatch_no:'Dispatch No: ');
-                        $('#viewbatchno').text('Batch No: '+data.result[0].batch_no); 
+                        $('#view_porderno').text('Purchase No: POD-' + (data.result[0].porder_id==null?"Direct GRN":data.result[0].porder_id));
+                        $('#view_grnno').text(data.result[0].grnid?'GRN No: GRN-'+data.result[0].grnid:'GRN No: ');
+                        $('#view_viewbatchno').text('Batch No: '+data.result[0].batch_no); 
                 }
             })
 
@@ -1598,6 +1700,156 @@
 
         });
 
+
+        // bill modal details
+        $(document).on('click', '.bill', function () {
+            var id = $(this).attr('id');
+            $('#billhidden_id').val(id);
+            var total = 0;
+
+            $('#bill_tableorder').DataTable({
+
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    "url": "{!! route('grnview') !!}",
+                    "data": {
+                        id: id,
+                        _token: "{{ csrf_token() }}"
+                    },
+
+                },
+                searching: false,
+                lengthChange: false,
+                paging: false,
+                info: false,
+                columns: [
+                    {
+                        data: 'itemcode',
+                        name: 'itemcode'
+                    },
+                    {
+                        data: 'inventoryname',
+                        render: function (data, type, row) {
+                            var inventoryname = row.inventoryname;
+                            var uniform_size = (row.uniform_size==null?"":row.uniform_size+'"');
+                            return inventoryname + ' ' + uniform_size;
+                        }
+                    },
+                    {
+                        data: 'unit_price',
+                        name: 'unit_price'
+                    },
+                    {
+                        data: 'qty',
+                        name: 'qty'
+                    },
+                    {
+                        data: 'total',
+                        name: 'total',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                // Format the number to 2 decimal places and align it to the right
+                                return parseFloat(data).toFixed(2);
+                            }
+                            return data;
+                        },
+                        className: 'text-right' // Apply a CSS class for right alignment
+                    },
+                    {
+                        data: 'vat_precentage',
+                        name: 'vat_precentage',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                // Format the number to 2 decimal places and align it to the right
+                                return parseFloat(data).toFixed(2);
+                            }
+                            return data;
+                        },
+                        className: 'text-right' // Apply a CSS class for right alignment
+                    },
+                    {
+                        data: 'vat_amount',
+                        name: 'vat_amount',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                // Format the number to 2 decimal places and align it to the right
+                                return parseFloat(data).toFixed(1);
+                            }
+                            return data;
+                        },
+                        className: 'text-right' // Apply a CSS class for right alignment
+                    },
+                    {
+                        data: 'total_after_vat',
+                        name: 'total_after_vat',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                // Format the number to 2 decimal places and align it to the right
+                                return parseFloat(data).toFixed(2);
+                            }
+                            return data;
+                        },
+                        className: 'text-right' // Apply a CSS class for right alignment
+                    },
+                ],     
+                "bDestroy": true,
+                "order": [
+                    [2, "desc"]
+                ]
+            });
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+
+            $.ajax({
+                url: '{!! route("grnviewDetails") !!}',
+                type: 'POST',
+                dataType: "json",
+                data: {
+                    id: id
+                },
+                success: function (data) {
+
+                    $('#bill_subtotalField').text((data.result[0].sub_total).toFixed(2)),
+                    $('#bill_discountField').text((data.result[0].discount).toFixed(2)),
+                    $('#bill_totalField').text((data.result[0].total).toFixed(2)),
+                    $('#bill_suppliername').text(data.result[0].supplier_name);
+
+                    var contacts = '';
+                    data.result[0].contacts.forEach(function (contact) {
+                        contacts += contact.contact + ' / ';
+                    });
+                    contacts = contacts.slice(0, -2);
+                    $('#bill_suppliercontact').text(contacts);
+
+                    var emails = '';
+                    data.result[0].contacts.forEach(function (email) {
+                        emails += email.email + ' / ';
+                    });
+                    emails = emails.slice(0, -2);
+                    $('#bill_supplieremail').text(emails);
+
+                    $('#bill_supplieraddress').text(data.result[0].address1 + ', ' + data.result[0]
+                        .address2 + ', ' + data.result[0].city);
+
+                        $('#bill_porderno').text('Purchase No: POD-' + (data.result[0].porder_id==null?"Direct GRN":data.result[0].porder_id));
+                        $('#bill_grnno').text(data.result[0].grnid?'GRN No: GRN-'+data.result[0].grnid:'GRN No: ');
+
+                        $('#bill_date').val(data.maindata[0].grn_date);
+                        $('#bill_billdate').val(data.maindata[0].bill_date);
+                        $('#bill_terms').val(data.maindata[0].terms);
+
+                        refNo(data.result[0].porder_id,data.result[0].grnid);
+                }
+            })
+
+            $('#billModal').modal('show');
+
+        });
     });
 
     $(document).ready(function () {
@@ -2196,6 +2448,106 @@ function calculate1(){
         updateEditTotal1();
 }
 
+
+// create RefNO
+var pid='';
+var gid='';
+var ref='';
+function refNo(porder_id,grn_id){
+    pid=porder_id;
+    gid=grn_id;
+        // console.log(porder_id,grn_id);
+        $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    })
+
+                    var ajaxRequest = $.ajax({
+                        url: '{!! route("grnbillrefnoget") !!}',
+                        type: 'POST',
+                        dataType: "json",
+                        data: { 
+                            porder_id: porder_id,
+                            grn_id: grn_id,
+                        },
+                    });
+
+                    ajaxRequest.done(function (data) {
+                        $('#refno').val(data.result);
+                        ref=data.result;
+                    });
+
+                    ajaxRequest.then(function () {
+                        calculate1();
+                    });
+
+    }
+
+// Print Bill
+$('#print_button').click(function () {
+    var id_hidden = $('#billhidden_id').val();
+    var memo = $('#memo').val();
+
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $.ajax({
+        url: '{!! route("grnbillprint") !!}',
+        type: 'POST',
+        dataType: "json", // Set the response type to 'text' as you want to display the PDF in a new tab
+        data: {
+            id: id_hidden,
+            pid:pid,
+            gid:gid,
+            ref:ref,
+            memo:memo
+        },
+        success: function (data) {
+            // Create a Blob containing the PDF data
+            var pdfBlob = base64toBlob(data.pdf, 'application/pdf');
+
+            // Create a URL for the Blob
+            var pdfUrl = URL.createObjectURL(pdfBlob);
+
+            // Trigger a download of the PDF file in the browser
+            var a = document.createElement('a');
+            a.href = pdfUrl;
+            a.download = 'Bill.pdf'; // Set the desired filename
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        },
+                error: function () {
+                    console.log('PDF request failed.');
+                }
+            });
+        });
+
+        function base64toBlob(base64Data, contentType) {
+            contentType = contentType || '';
+            var sliceSize = 1024;
+            var byteCharacters = atob(base64Data);
+            var byteArrays = [];
+
+            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                var slice = byteCharacters.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+
+            return new Blob(byteArrays, {
+                type: contentType
+            });
+        }
 </script>
 </body>
 

@@ -51,7 +51,10 @@ in_array('Newbusinessproposal-list',$userPermissions)
       || in_array('InventoryList-list',$userPermissions)
       || in_array('Return-list',$userPermissions)
       || in_array('ApproveReturn-list',$userPermissions)
-      || in_array('Stock-list',$userPermissions))
+      || in_array('Quotation-list',$userPermissions)
+      || in_array('Assetcategory-list',$userPermissions)
+      || in_array('Assetparticular-list',$userPermissions)
+      || in_array('Fixedasset-list',$userPermissions))
 
       <div class="dropdown">
         <a id="inventorylink" role="button" data-toggle="dropdown" class="btn navbtncolor" data-target="#" href="#">
@@ -105,6 +108,7 @@ in_array('Newbusinessproposal-list',$userPermissions)
               </a>
         <ul class="dropdown-menu multi-level dropdownmenucolor" role="menu" aria-labelledby="dropdownMenu">
           @if(in_array('Newbusinessproposal-list',$userPermissions))<li><a class="dropdown-item" href="{{ route('newbusinessproposal') }}">New Bussiness</a></li>@endif
+          @if(in_array('Quotation-list',$userPermissions))<li><a class="dropdown-item" href="{{ route('quotation') }}">Quotation</a></li>@endif
         </ul>
       </div>
       @endif
@@ -114,7 +118,9 @@ in_array('Newbusinessproposal-list',$userPermissions)
                   Fixed Asset Management <span class="caret"></span>
               </a>
         <ul class="dropdown-menu multi-level dropdownmenucolor" role="menu" aria-labelledby="dropdownMenu">
-          <li><a class="dropdown-item" href="#">Fixed Asset Management</a></li>
+          @if(in_array('Assetcategory-list',$userPermissions))<li><a class="dropdown-item" href="{{ route('assetcategory') }}">Asset Category</a></li>@endif
+          @if(in_array('Assetparticular-list',$userPermissions))<li><a class="dropdown-item" href="{{ route('assetparticular') }}">Asset Particular</a></li>@endif
+          @if(in_array('Fixedasset-list',$userPermissions))<li><a class="dropdown-item" href="{{ route('fixedasset') }}">Fixed Assets</a></li>@endif
         </ul>
       </div>
 

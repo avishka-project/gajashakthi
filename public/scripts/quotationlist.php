@@ -19,7 +19,7 @@
  */
 
 // DB table to use
-$table = 'vats';
+$table = 'quotations';
 
 // Table's primary key
 $primaryKey = 'id';
@@ -30,11 +30,9 @@ $primaryKey = 'id';
 // indexes
 $columns = array(
 	array( 'db' => '`u`.`id`', 'dt' => 'id', 'field' => 'id' ),
-	array( 'db' => '`u`.`fromdate`', 'dt' => 'fromdate', 'field' => 'fromdate' ),
-	array( 'db' => '`u`.`vat`', 'dt' => 'vat', 'field' => 'vat' ),
-	array( 'db' => '`u`.`tax`', 'dt' => 'tax', 'field' => 'tax' ),
-	array( 'db' => '`u`.`nbt`', 'dt' => 'nbt', 'field' => 'nbt' ),
-	array( 'db' => '`u`.`sscl`', 'dt' => 'sscl', 'field' => 'sscl' ),
+	array( 'db' => '`u`.`document_no`', 'dt' => 'document_no', 'field' => 'document_no' ),
+	array( 'db' => '`u`.`date`', 'dt' => 'date', 'field' => 'date' ),
+	array( 'db' => '`u`.`client_name`', 'dt' => 'client_name', 'field' => 'client_name' ),
 	array( 'db' => '`u`.`approve_01`', 'dt' => 'approve_01', 'field' => 'approve_01' ),
 	array( 'db' => '`u`.`approve_02`', 'dt' => 'approve_02', 'field' => 'approve_02' ),
 	array( 'db' => '`u`.`approve_03`', 'dt' => 'approve_03', 'field' => 'approve_03' ),
@@ -59,9 +57,10 @@ $sql_details = array(
 // require( 'ssp.class.php' );
 require('ssp.customized.class.php' );
 
-$joinQuery = "FROM `vats` AS `u`";
+$joinQuery = "FROM `quotations` AS `u`";
 
 $extraWhere = "`u`.`status` IN (1, 2)";
+
 
 echo json_encode(
 	SSP::simple( $_POST, $sql_details, $table, $primaryKey, $columns, $joinQuery, $extraWhere)

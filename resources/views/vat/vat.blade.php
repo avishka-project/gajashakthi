@@ -5,12 +5,7 @@
 <main>
     <div class="page-header page-header-light bg-white shadow">
         <div class="container-fluid">
-            <div class="page-header-content py-3">
-                <h1 class="page-header-title">
-                    <div class="page-header-icon"><i class="fas fa-car"></i></div>
-                    <span><b>Vat</b></span>
-                </h1>
-            </div>
+            @include('layouts.corporate_nav_bar')
         </div>
     </div>
     <br>
@@ -38,6 +33,7 @@
                                         <th>Vat (%)</th>
                                         <th>Tax (%)</th>
                                         <th>NBT (%)</th>
+                                        <th>SSCL (%)</th>
                                         <th>Approval Status</th>
                                         <th class="text-right">Action</th>
                                     </tr>
@@ -96,6 +92,12 @@
                                     <div class="col-12">
                                         <label class="small font-weight-bold text-dark">NBT (%)*</label>
                                         <input type="text" name="nbt" id="nbt" value="0"
+                                            class="form-control form-control-sm" required />
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="small font-weight-bold text-dark">SSCL (%)*</label>
+                                        <input type="text" name="sscl" id="sscl" value="0"
                                             class="form-control form-control-sm" required />
                                     </div>
 
@@ -179,6 +181,11 @@
                             <input type="text" name="app_nbt" id="app_nbt" class="form-control form-control-sm"
                                 required readonly/>
                         </div>
+                        <div class="col-12">
+                            <label class="small font-weight-bold text-dark">SSCL (%)*</label>
+                            <input type="text" name="app_sscl" id="app_sscl" class="form-control form-control-sm"
+                                required readonly/>
+                        </div>
                     </div>
                         <input type="hidden" name="app_hidden_id" id="app_hidden_id" />
                         <input type="hidden" name="app_level" id="app_level" value="1" />
@@ -250,8 +257,8 @@
         var deletecheck = {{$deletepermission}};
 
 
-        $('#collapseCorporation').addClass('show');
-        $('#vat_link').addClass('active');
+        $("#companylink").addClass('navbtnactive');
+   $('#corporate_link').addClass('active');
 
         $('#dataTable').DataTable({
             "destroy": true,
@@ -310,6 +317,10 @@
                 },
                 {
                     "data": "nbt",
+                    "className": 'text-dark'
+                },
+                {
+                    "data": "sscl",
                     "className": 'text-dark'
                 },
                 {
@@ -457,6 +468,7 @@
                     $('#vat').val(data.result.vat);
                     $('#tax').val(data.result.tax);
                     $('#nbt').val(data.result.nbt);
+                    $('#sscl').val(data.result.sscl);
 
                     $('#hidden_id').val(id);
                     $('.modal-title').text('Edit Vat');
@@ -524,6 +536,7 @@
                     $('#app_vat').val(data.result.vat);
                     $('#app_tax').val(data.result.tax);
                     $('#app_nbt').val(data.result.nbt);
+                    $('#app_sscl').val(data.result.sscl);
 
                     $('#app_hidden_id').val(id_approve);
                     $('#app_level').val('1');
@@ -556,6 +569,7 @@
                     $('#app_vat').val(data.result.vat);
                     $('#app_tax').val(data.result.tax);
                     $('#app_nbt').val(data.result.nbt);
+                    $('#app_sscl').val(data.result.sscl);
 
                     $('#app_hidden_id').val(id_approve);
                     $('#app_level').val('2');
@@ -588,6 +602,7 @@
                     $('#app_vat').val(data.result.vat);
                     $('#app_tax').val(data.result.tax);
                     $('#app_nbt').val(data.result.nbt);
+                    $('#app_sscl').val(data.result.sscl);
 
                     $('#app_hidden_id').val(id_approve);
                     $('#app_level').val('3');

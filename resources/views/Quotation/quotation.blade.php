@@ -14,9 +14,9 @@
             <div class="card-body p-0 p-2">
                 <div class="row">
                     <div class="col-12">
-                        @if(in_array('Newbusinessproposal-create',$userPermissions))
+                        @if(in_array('Quotation-create',$userPermissions))
                         <button type="button" class="btn btn-outline-primary btn-sm fa-pull-right" name="create_record"
-                            id="create_record" onclick="getdocno();"><i class="fas fa-plus mr-2"></i>Add New Business Proposal</button>
+                            id="create_record" onclick="getdocno();"><i class="fas fa-plus mr-2"></i>Add New Quotation</button>
                             @endif
                     </div>
                     <div class="col-12">
@@ -28,7 +28,6 @@
                             <thead>
                                 <tr>
                                     <th>ID </th>
-                                    <th>Employee</th>
                                     <th>Date</th>
                                     <th>Document No</th>
                                     <th>Client Name</th>
@@ -52,7 +51,7 @@
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header p-2">
-                    <h5 class="modal-title" id="staticBackdropLabel">Add New Business Proposal</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Add New Quotation</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -63,14 +62,7 @@
                             <span id="form_result"></span>
                             <form method="post" id="formTitle" class="form-horizontal">
                                 {{ csrf_field() }}
-                                <div class="form-row mb-1">
-                                    <div class="col-3">
-                                        <label class="small font-weight-bold text-dark">Employee*</label><br>
-                                        <select name="employee" id="employee" class="form-control form-control-sm">
-                                            <option value="">Select Employee</option>
-
-                                        </select>
-                                    </div>
+                                <div class="form-row mb-1"> 
                                     <div class="col-3">
                                         <label class="small font-weight-bold text-dark">Date*</label>
                                         <input type="date" id="date" name="date" class="form-control form-control-sm"
@@ -129,7 +121,7 @@
                                             <tr>
                                                 <th></th>
                                                 <th>Shift Rate</th>
-                                                <th>Salary Rate</th>
+                                                <th></th>
                                                 @foreach($holidays as $holiday)
                                                 <th colspan="2" id="{{$holiday->id}}" class="text-center">
                                                     {{$holiday->name}}
@@ -164,7 +156,7 @@
                                                         jobtitle_id="{{$title->id}}"
                                                         style="width: 70px;border: none; background-color: transparent"
                                                         id="{{$title->id}}_salaryrate" name="{{$title->id}}_salaryrate"
-                                                        value="">
+                                                        value="" disabled>
                                                 </td>
                                                 @foreach($holidays as $holiday)
                                                 <td class="text-center">
@@ -230,31 +222,7 @@
                                                 </th>
                                                 @endforeach
                                             </tr>
-                                            <tr class="line-break">
-                                                <td colspan="5">&nbsp;</td>
-                                            </tr>
-                                            <tr style="font-weight: bold;background-color: darkseagreen;color: black;">
-                                                <td class="text-right">Cost Per Shift:</td>
-                                                <td></td>
-                                                <td></td>
-                                                @foreach($holidays as $holiday)
-                                                <th id="{{$holiday->name}}_daycostshift" class="text-center costshift">0
-                                                </th>
-                                                <th id="{{$holiday->name}}_nightcostshift"
-                                                    class="text-center costshift">0
-                                                </th>
-                                                @endforeach
-                                            </tr>
-                                            <tr style="font-weight: bold;background-color: darkseagreen;;color: black;">
-                                                <td class="text-right">Cost Per Day:</td>
-                                                <td></td>
-                                                <td></td>
-                                                @foreach($holidays as $holiday)
-                                                <th></th>
-                                                <th id="{{$holiday->name}}_costperday" class="text-center costperday">0
-                                                </th>
-                                                @endforeach
-                                            </tr>
+                                           
                                         </tfoot>
 
                                     </table>
@@ -316,47 +284,6 @@
                                             </table>
                                         </div>
                                     </div>
-
-                                    <div class="col-6">
-                                        <label class="small font-weight-bold text-dark"><b>Summary / Gross
-                                                Profit*</b></label>
-                                        <div class="center-block fix-width scroll-inner">
-                                            <table
-                                                class="table table-striped table-bordered table-sm small nowrap display"
-                                                style="width: 100%;color: black;background-color: lightskyblue;" id="price_summary">
-                                                <tbody>
-                                                    <tr>
-                                                        <td></td>
-                                                        <td>Monthly</td>
-                                                        <td>Yearly</td>
-                                                        <td>Period(24 Month)</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Sales</td>
-                                                        <td id="monthlysales"></td>
-                                                        <td id="yearlysales"></td>
-                                                        <td id="periodsales"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Cost</td>
-                                                        <td id="monthlycost"></td>
-                                                        <td id="yearlycost"></td>
-                                                        <td id="periodcost"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Gross Profit</td>
-                                                        <td id="monthlygrossprofit"></td>
-                                                        <td id="yearlygrossprofit"></td>
-                                                        <td id="periodgrossprofit"></td>
-                                                    </tr>
-                                                </tbody>
-
-                                                <tbody>
-
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="form-group mt-3">
                                     <button type="button" onclick="assignInputFieldValues()" name="btncreateorder" id="btncreateorder"
@@ -381,7 +308,7 @@
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header p-2">
-                <h5 class="modal-title2" id="staticBackdropLabel">Edit New Business Proposal</h5>
+                <h5 class="modal-title2" id="staticBackdropLabel">Edit New Quotation</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -393,13 +320,6 @@
                         <form method="post" id="formTitle2" class="form-horizontal">
                             {{ csrf_field() }}
                             <div class="form-row mb-1">
-                                <div class="col-3">
-                                    <label class="small font-weight-bold text-dark">Employee*</label><br>
-                                    <select name="employee2" id="employee2" class="form-control form-control-sm">
-                                        <option value="">Select Employee</option>
-
-                                    </select>
-                                </div>
                                 <div class="col-3">
                                     <label class="small font-weight-bold text-dark">Date*</label>
                                     <input type="date" id="date2" name="date2" class="form-control form-control-sm"
@@ -458,7 +378,7 @@
                                         <tr>
                                             <th></th>
                                             <th>Shift Rate</th>
-                                            <th>Salary Rate</th>
+                                            <th></th>
                                             @foreach($holidays as $holiday)
                                             <th colspan="2" id="{{$holiday->id}}" class="text-center">
                                                 {{$holiday->name}}
@@ -515,31 +435,6 @@
                                             <th></th>
                                             <th id="{{$holiday->name}}_priceperday2" class="text-center priceperday">
                                                 0
-                                            </th>
-                                            @endforeach
-                                        </tr>
-                                        <tr class="line-break">
-                                            <td colspan="5">&nbsp;</td>
-                                        </tr>
-                                        <tr style="font-weight: bold;background-color: darkseagreen;color: black;">
-                                            <td class="text-right">Cost Per Shift:</td>
-                                            <td></td>
-                                            <td></td>
-                                            @foreach($holidays as $holiday)
-                                            <th id="{{$holiday->name}}_daycostshift2" class="text-center costshift">0
-                                            </th>
-                                            <th id="{{$holiday->name}}_nightcostshift2"
-                                                class="text-center costshift">0
-                                            </th>
-                                            @endforeach
-                                        </tr>
-                                        <tr style="font-weight: bold;background-color: rgb(141, 170, 141);color: black;">
-                                            <td class="text-right">Cost Per Day:</td>
-                                            <td></td>
-                                            <td></td>
-                                            @foreach($holidays as $holiday)
-                                            <th></th>
-                                            <th id="{{$holiday->name}}_costperday2" class="text-center costperday">0
                                             </th>
                                             @endforeach
                                         </tr>
@@ -605,46 +500,6 @@
                                     </div>
                                 </div>
 
-                                <div class="col-6">
-                                    <label class="small font-weight-bold text-dark"><b>Summary / Gross
-                                            Profit*</b></label>
-                                    <div class="center-block fix-width scroll-inner">
-                                        <table
-                                            class="table table-striped table-bordered table-sm small nowrap display"
-                                            style="width: 100%;color: black;background-color: lightskyblue;" id="price_summary">
-                                            <tbody>
-                                                <tr>
-                                                    <td></td>
-                                                    <td>Monthly</td>
-                                                    <td>Yearly</td>
-                                                    <td>Period(24 Month)</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Sales</td>
-                                                    <td id="monthlysales2"></td>
-                                                    <td id="yearlysales2"></td>
-                                                    <td id="periodsales2"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Cost</td>
-                                                    <td id="monthlycost2"></td>
-                                                    <td id="yearlycost2"></td>
-                                                    <td id="periodcost2"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Gross Profit</td>
-                                                    <td id="monthlygrossprofit2"></td>
-                                                    <td id="yearlygrossprofit2"></td>
-                                                    <td id="periodgrossprofit2"></td>
-                                                </tr>
-                                            </tbody>
-
-                                            <tbody>
-
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
                             </div>
                             <div class="form-group mt-3">
                                 <button type="button" onclick="assignInputFieldValues2()" name="btncreateorder2" id="btncreateorder2"
@@ -669,7 +524,7 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
         <div class="modal-header p-2">
-            <h5 class="app_modal-title" id="staticBackdropLabel">Approvel New Business Proposal</h5>
+            <h5 class="app_modal-title" id="staticBackdropLabel">Approvel New Quotation</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -681,13 +536,6 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                     <form method="post" id="app_formTitle" class="form-horizontal">
                         {{ csrf_field() }}
                         <div class="form-row mb-1">
-                            <div class="col-3">
-                                <label class="small font-weight-bold text-dark">Employee*</label><br>
-                                <select name="app_employee" id="app_employee" class="form-control form-control-sm" readonly>
-                                    <option value="">Select Employee</option>
-
-                                </select>
-                            </div>
                             <div class="col-3">
                                 <label class="small font-weight-bold text-dark">Date*</label>
                                 <input type="date" id="app_date" name="app_date" class="form-control form-control-sm"
@@ -746,7 +594,7 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                     <tr>
                                         <th></th>
                                         <th>Shift Rate</th>
-                                        <th>Salary Rate</th>
+                                        <th></th>
                                         @foreach($holidays as $holiday)
                                         <th colspan="2" id="{{$holiday->id}}" class="text-center">
                                             {{$holiday->name}}
@@ -803,31 +651,6 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                         <th></th>
                                         <th id="app_{{$holiday->name}}_priceperday" class="text-center priceperday">
                                             0
-                                        </th>
-                                        @endforeach
-                                    </tr>
-                                    <tr class="line-break">
-                                        <td colspan="5">&nbsp;</td>
-                                    </tr>
-                                    <tr style="font-weight: bold;background-color: darkseagreen;color: black;">
-                                        <td class="text-right">Cost Per Shift:</td>
-                                        <td></td>
-                                        <td></td>
-                                        @foreach($holidays as $holiday)
-                                        <th id="app_{{$holiday->name}}_daycostshift" class="text-center costshift">0
-                                        </th>
-                                        <th id="app_{{$holiday->name}}_nightcostshift"
-                                            class="text-center costshift">0
-                                        </th>
-                                        @endforeach
-                                    </tr>
-                                    <tr style="font-weight: bold;background-color: rgb(141, 170, 141);color: black;">
-                                        <td class="text-right">Cost Per Day:</td>
-                                        <td></td>
-                                        <td></td>
-                                        @foreach($holidays as $holiday)
-                                        <th></th>
-                                        <th id="app_{{$holiday->name}}_costperday" class="text-center costperday">0
                                         </th>
                                         @endforeach
                                     </tr>
@@ -888,47 +711,6 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                     </table>
                                 </div>
                             </div>
-
-                            <div class="col-6">
-                                <label class="small font-weight-bold text-dark"><b>Summary / Gross
-                                        Profit*</b></label>
-                                <div class="center-block fix-width scroll-inner">
-                                    <table
-                                        class="table table-striped table-bordered table-sm small nowrap display"
-                                        style="width: 100%;color: black;background-color: lightskyblue;" id="price_summary">
-                                        <tbody>
-                                            <tr>
-                                                <td></td>
-                                                <td>Monthly</td>
-                                                <td>Yearly</td>
-                                                <td>Period(24 Month)</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sales</td>
-                                                <td id="app_monthlysales"></td>
-                                                <td id="app_yearlysales"></td>
-                                                <td id="app_periodsales"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Cost</td>
-                                                <td id="app_monthlycost"></td>
-                                                <td id="app_yearlycost"></td>
-                                                <td id="app_periodcost"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Gross Profit</td>
-                                                <td id="app_monthlygrossprofit"></td>
-                                                <td id="app_yearlygrossprofit"></td>
-                                                <td id="app_periodgrossprofit"></td>
-                                            </tr>
-                                        </tbody>
-
-                                        <tbody>
-
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
                         </div>
  
                         <input type="hidden" name="app_level" id="app_level" value="1" />
@@ -953,7 +735,7 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
         <div class="modal-header p-2">
-            <h5 class="view_modal-title" id="staticBackdropLabel">View New Business Proposal</h5>
+            <h5 class="view_modal-title" id="staticBackdropLabel">View New Quotation</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -965,13 +747,6 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                     <form method="post" id="app_formTitle" class="form-horizontal">
                         {{ csrf_field() }}
                         <div class="form-row mb-1">
-                            <div class="col-3">
-                                <label class="small font-weight-bold text-dark">Employee*</label><br>
-                                <select name="view_employee" id="view_employee" style="border: none;" class="form-control form-control-sm" readonly>
-                                    <option value="">Select Employee</option>
-
-                                </select>
-                            </div>
                             <div class="col-3">
                                 <label class="small font-weight-bold text-dark">Date*</label>
                                 <input type="date" id="view_date" name="view_date" style="border: none;" class="form-control form-control-sm"
@@ -1030,7 +805,7 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                     <tr>
                                         <th></th>
                                         <th>Shift Rate</th>
-                                        <th>Salary Rate</th>
+                                        <th></th>
                                         @foreach($holidays as $holiday)
                                         <th colspan="2" id="{{$holiday->id}}" class="text-center">
                                             {{$holiday->name}}
@@ -1090,31 +865,6 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                         </th>
                                         @endforeach
                                     </tr>
-                                    <tr class="line-break">
-                                        <td colspan="5">&nbsp;</td>
-                                    </tr>
-                                    <tr style="font-weight: bold;background-color: darkseagreen;color: black;">
-                                        <td class="text-right">Cost Per Shift:</td>
-                                        <td></td>
-                                        <td></td>
-                                        @foreach($holidays as $holiday)
-                                        <th id="view_{{$holiday->name}}_daycostshift" class="text-center costshift">0
-                                        </th>
-                                        <th id="view_{{$holiday->name}}_nightcostshift"
-                                            class="text-center costshift">0
-                                        </th>
-                                        @endforeach
-                                    </tr>
-                                    <tr style="font-weight: bold;background-color: darkseagreen;color: black;">
-                                        <td class="text-right">Cost Per Day:</td>
-                                        <td></td>
-                                        <td></td>
-                                        @foreach($holidays as $holiday)
-                                        <th></th>
-                                        <th id="view_{{$holiday->name}}_costperday" class="text-center costperday">0
-                                        </th>
-                                        @endforeach
-                                    </tr>
                                 </tfoot>
 
                             </table>
@@ -1163,47 +913,6 @@ aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                                 <td id="view_monthlyfinalprice"></td>
                                                 <td id="view_yearlyfinalprice"></td>
                                                 <td id="view_periodfinalprice"></td>
-                                            </tr>
-                                        </tbody>
-
-                                        <tbody>
-
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <div class="col-6">
-                                <label class="small font-weight-bold text-dark"><b>Summary / Gross
-                                        Profit*</b></label>
-                                <div class="center-block fix-width scroll-inner">
-                                    <table
-                                        class="table table-striped table-bordered table-sm small nowrap display"
-                                        style="width: 100%;color: black;background-color: lightskyblue;" id="price_summary">
-                                        <tbody>
-                                            <tr>
-                                                <td></td>
-                                                <td>Monthly</td>
-                                                <td>Yearly</td>
-                                                <td>Period(24 Month)</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sales</td>
-                                                <td id="view_monthlysales"></td>
-                                                <td id="view_yearlysales"></td>
-                                                <td id="view_periodsales"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Cost</td>
-                                                <td id="view_monthlycost"></td>
-                                                <td id="view_yearlycost"></td>
-                                                <td id="view_periodcost"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Gross Profit</td>
-                                                <td id="view_monthlygrossprofit"></td>
-                                                <td id="view_yearlygrossprofit"></td>
-                                                <td id="view_periodgrossprofit"></td>
                                             </tr>
                                         </tbody>
 
@@ -1385,7 +1094,7 @@ function assignInputFieldValues2() {
                 "processing": true,
                 "serverSide": true,
                 ajax: {
-                    url: scripturl + '/newbusinesslist.php',
+                    url: scripturl + '/quotationlist.php',
 
                     type: "POST", // you can use GET
                     data: {
@@ -1399,10 +1108,10 @@ function assignInputFieldValues2() {
                 [10, 25, 50, 'All'],
             ],
             "buttons": [
-                { extend: 'csv', className: 'btn btn-success btn-sm', title: 'New Business Proposal', text: '<i class="fas fa-file-csv mr-2"></i> CSV', },
+                { extend: 'csv', className: 'btn btn-success btn-sm', title: 'Quotation', text: '<i class="fas fa-file-csv mr-2"></i> CSV', },
                 { 
                     extend: 'print', 
-                    title: 'New Business Proposal',
+                    title: 'Quotation',
                     className: 'btn btn-primary btn-sm', 
                     text: '<i class="fas fa-print mr-2"></i> Print',
                     customize: function ( win ) {
@@ -1418,17 +1127,6 @@ function assignInputFieldValues2() {
                         "data": "id",
                         "className": 'text-dark'
                     }, 
-                    {
-                        "data": null,
-                        "className": 'text-dark',
-                        "render": function (data, type, full, meta) { 
-                            if ((data.service_no == '') || (data.service_no== null)) {
-                                return '';
-                            } else {
-                                return data.service_no + '-' + data.emp_name_with_initial;
-                            }
-                        }
-                    },
                     {
                         "data": "date",
                         "className": 'text-dark'
@@ -1478,9 +1176,9 @@ function assignInputFieldValues2() {
                     }
                         if (statuscheck) {
                                 if (full['status'] == 1) {
-                                    button += ' <a href="newbusinessproposalstatus/' + full['id'] + '/2 " onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
+                                    button += ' <a href="quotationstatus/' + full['id'] + '/2 " onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
                                 } else {
-                                    button += '&nbsp;<a href="newbusinessproposalstatus/' + full['id'] + '/1 "  onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
+                                    button += '&nbsp;<a href="quotationstatus/' + full['id'] + '/1 "  onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
                                 }
                         }
                         if (deletecheck) {
@@ -1501,7 +1199,7 @@ function assignInputFieldValues2() {
 
 
         $('#create_record').click(function () {
-            $('.modal-title').text('Add New Business Proposal');
+            $('.modal-title').text('Add New Quotation');
             $('#action_button').html('Add');
             $('#action').val('Add');
             $('#form_result').html('');
@@ -1513,7 +1211,6 @@ function assignInputFieldValues2() {
 
             $('#btncreateorder').click(function () {
             var documentno = $('#documentno').val();
-            var employee = $('#employee').val();
             var date = $('#date').val();
             var clientname = $('#clientname').val();
             var address = $('#address').val();
@@ -1522,14 +1219,14 @@ function assignInputFieldValues2() {
             var holidays = $('#holidays').val();
             var specialholidays = $('#specialholidays').val();
 
-            if (employee == '' || date == '' || clientname == '' || address == '' || fromdate == '' || todate == '') {
+            if (date == '' || clientname == '' || address == '' || fromdate == '' || todate == '') {
 
                 $("#submitBtn").click();
                 titleArrays = {};
                 rateArrays = {};
             } else {
-              console.log(titleArrays);
-            console.log(rateArrays);
+            //   console.log(titleArrays);
+            // console.log(rateArrays);
 
                 $.ajax({
                     method: "POST",
@@ -1539,7 +1236,6 @@ function assignInputFieldValues2() {
                         DetailsArrays: titleArrays,
                         RateArrays: rateArrays,
                         documentno:documentno,
-                        employee: employee,
                         date: date,
                         clientname: clientname,
                         address: address,
@@ -1549,7 +1245,7 @@ function assignInputFieldValues2() {
                         specialholidays: specialholidays,
 
                     },
-                    url: "{{ route('newbusinessproposalinsert') }}",
+                    url: "{{ route('quotationinsert') }}",
                     success: function (result) {
                         if (result.status == 1) {
                             location.reload();
@@ -1579,18 +1275,13 @@ function assignInputFieldValues2() {
             })
 
             $.ajax({
-                url: '{!! route("newbusinessproposaledit") !!}',
+                url: '{!! route("quotationedit") !!}',
                 type: 'POST',
                 dataType: "json",
                 data: {
                     id: id
                 },
                 success: function (data) {
-                    var empid = data.result.mainData.empid;
-                    var empname = (data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
-                    var newOption = new Option(empname, empid, true, true);
-                    $('#employee2').append(newOption).trigger('change');
-
                     $('#date2').val(data.result.mainData.date);
                     $('#documentno2').val(data.result.mainData.document_no);
                     $('#clientname2').val(data.result.mainData.client_name);
@@ -1603,7 +1294,7 @@ function assignInputFieldValues2() {
                     $('#requestdetaillist2').html(data.result.requestdata);
 
                     $('#hidden_id2').val(id);
-                    $('.modal-title2').text('Edit New Business Proposal');
+                    $('.modal-title2').text('Edit New Quotation');
                     $('#btncreateorder2').html('Update');
                     $('#formModal2').modal('show');
                     editgetVatDateInputChange();
@@ -1618,7 +1309,6 @@ function assignInputFieldValues2() {
         // update btn
         $('#btncreateorder2').click(function () {
             var documentno = $('#documentno2').val();
-            var employee = $('#employee2').val();
             var date = $('#date2').val();
             var clientname = $('#clientname2').val();
             var address = $('#address2').val();
@@ -1628,7 +1318,7 @@ function assignInputFieldValues2() {
             var specialholidays = $('#specialholidays2').val();
             var hidden_id = $('#hidden_id2').val();
 
-            if (employee == '' || date == '' || clientname == '' || address == '' || fromdate == '' || todate == '') {
+            if (date == '' || clientname == '' || address == '' || fromdate == '' || todate == '') {
 
                 $("#submitBtn2").click();
                 titleArrays2 = {};
@@ -1645,7 +1335,6 @@ function assignInputFieldValues2() {
                         DetailsArrays: titleArrays2,
                         RateArrays: rateArrays2,
                         documentno:documentno,
-                        employee: employee,
                         date: date,
                         clientname: clientname,
                         address: address,
@@ -1656,7 +1345,7 @@ function assignInputFieldValues2() {
                         hidden_id: hidden_id,
 
                     },
-                    url: "{{ route('newbusinessproposalupdate') }}",
+                    url: "{{ route('quotationupdate') }}",
                     success: function (result) {
                         if (result.status == 1) {
                             location.reload();
@@ -1687,7 +1376,7 @@ function assignInputFieldValues2() {
                 }
             })
             $.ajax({
-                url: '{!! route("newbusinessproposaldelete") !!}',
+                url: '{!! route("quotationdelete") !!}',
                 type: 'POST',
                 dataType: "json",
                 data: {
@@ -1719,18 +1408,13 @@ function assignInputFieldValues2() {
             })
 
             $.ajax({
-                url: '{!! route("newbusinessapprovel_details") !!}',
+                url: '{!! route("quotationapprovel_details") !!}',
                 type: 'POST',
                 dataType: "json",
                 data: {
                     id: id_approve
                 },
                 success: function (data) {
-                    var empid = data.result.mainData.empid;
-                    var empname = (data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
-                    var newOption = new Option(empname, empid, true, true);
-                    $('#app_employee').append(newOption).trigger('change');
-
                     $('#app_date').val(data.result.mainData.date);
                     $('#app_documentno').val(data.result.mainData.document_no);
                     $('#app_clientname').val(data.result.mainData.client_name);
@@ -1763,18 +1447,14 @@ function assignInputFieldValues2() {
             })
 
             $.ajax({
-                url: '{!! route("newbusinessapprovel_details") !!}',
+                url: '{!! route("quotationapprovel_details") !!}',
                 type: 'POST',
                 dataType: "json",
                 data: {
                     id: id_approve
                 },
                 success: function (data) {
-                    var empid = data.result.mainData.empid;
-                    var empname = (data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
-                    var newOption = new Option(empname, empid, true, true);
-                    $('#app_employee').append(newOption).trigger('change');
-
+                   
                     $('#app_date').val(data.result.mainData.date);
                     $('#app_documentno').val(data.result.mainData.document_no);
                     $('#app_clientname').val(data.result.mainData.client_name);
@@ -1807,18 +1487,14 @@ function assignInputFieldValues2() {
             })
 
             $.ajax({
-                url: '{!! route("newbusinessapprovel_details") !!}',
+                url: '{!! route("quotationapprovel_details") !!}',
                 type: 'POST',
                 dataType: "json",
                 data: {
                     id: id_approve
                 },
                 success: function (data) {
-                    var empid = data.result.mainData.empid;
-                    var empname = (data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
-                    var newOption = new Option(empname, empid, true, true);
-                    $('#app_employee').append(newOption).trigger('change');
-
+                  
                     $('#app_date').val(data.result.mainData.date);
                     $('#app_documentno').val(data.result.mainData.document_no);
                     $('#app_clientname').val(data.result.mainData.client_name);
@@ -1852,7 +1528,7 @@ function assignInputFieldValues2() {
                 }
             })
             $.ajax({
-                url: '{!! route("newbusinessproposalapprove") !!}',
+                url: '{!! route("quotationapprove") !!}',
                 type: 'POST',
                 dataType: "json",
                 data: {
@@ -1881,18 +1557,14 @@ function assignInputFieldValues2() {
             })
 
             $.ajax({
-                url: '{!! route("newbusinessview_details") !!}',
+                url: '{!! route("quotationview_details") !!}',
                 type: 'POST',
                 dataType: "json",
                 data: {
                     id: id_approve
                 },
                 success: function (data) {
-                    var empid = data.result.mainData.empid;
-                    var empname = (data.result.mainData.service_no+"-"+data.result.mainData.emp_name_with_initial);
-                    var newOption = new Option(empname, empid, true, true);
-                    $('#view_employee').append(newOption).trigger('change');
-
+                   
                     $('#view_date').val(data.result.mainData.date);
                     $('#view_documentno').val(data.result.mainData.document_no);
                     $('#view_clientname').val(data.result.mainData.client_name);
@@ -1934,14 +1606,14 @@ function assignInputFieldValues2() {
         })
 
         $.ajax({
-            url: '{!! route("newbusinessdocno") !!}',
+            url: '{!! route("quotationdocno") !!}',
             type: 'POST',
             dataType: "json",
             // data: {
             //     id: supplierID
             // },
             success: function (data) {
-                $('#documentno').val('NBP-' + data.result);
+                $('#documentno').val('QUO-' + data.result);
 
             }
         })
@@ -1959,7 +1631,7 @@ function assignInputFieldValues2() {
                     })
 
                     var ajaxRequest = $.ajax({
-                        url: '{!! route("newbusinessgetvat") !!}',
+                        url: '{!! route("quotationgetvat") !!}',
                         type: 'POST',
                         dataType: "json",
                         data: { date: value },
@@ -1987,7 +1659,7 @@ function assignInputFieldValues2() {
                     })
 
                     var ajaxRequest = $.ajax({
-                        url: '{!! route("newbusinessgetvat") !!}',
+                        url: '{!! route("quotationgetvat") !!}',
                         type: 'POST',
                         dataType: "json",
                         data: { date: value },
@@ -2015,7 +1687,7 @@ function assignInputFieldValues2() {
                     })
 
                     var ajaxRequest = $.ajax({
-                        url: '{!! route("newbusinessgetvat") !!}',
+                        url: '{!! route("quotationgetvat") !!}',
                         type: 'POST',
                         dataType: "json",
                         data: { date: value },
@@ -2043,7 +1715,7 @@ function assignInputFieldValues2() {
                     })
 
                     var ajaxRequest = $.ajax({
-                        url: '{!! route("newbusinessgetvat") !!}',
+                        url: '{!! route("quotationgetvat") !!}',
                         type: 'POST',
                         dataType: "json",
                         data: { date: value },
@@ -2174,25 +1846,7 @@ function assignInputFieldValues2() {
             holidayTotals[holidayName].totalshift = totalShift;
 
 //------------------------------------------------------------------------------------------------------------------------------------
-            // Calculate cost_per_shift
-            var costshiftvalue = $('#' + jobtitle + '_salaryrate').val();
-            var costprice_per_shift = costshiftvalue * inputValue;
-            
-            // Accumulate cost_per_shift for each holiday
-            if (time === 'day') {
-                holidayTotals[holidayName].daycostTotal += costprice_per_shift;
-            } else if (time === 'night') {
-                holidayTotals[holidayName].nightcostTotal += costprice_per_shift;
-            }
 
-           // Update day and night cost per shift (assuming these are HTML elements)
-            $('#' + holidayName + '_daycostshift').text(holidayTotals[holidayName].daycostTotal);
-            $('#' + holidayName + '_nightcostshift').text(holidayTotals[holidayName].nightcostTotal);
-
-            // Calculate total cost shift
-            var costtotalShift = holidayTotals[holidayName].daycostTotal + holidayTotals[holidayName].nightcostTotal;
-            holidayTotals[holidayName].totalcostshift = costtotalShift;
-   
 
         });
         // console.log(holidayTotals);
@@ -2206,13 +1860,6 @@ function assignInputFieldValues2() {
 
             document.getElementById(holidayName + '_priceperday').textContent = holidayTotals[holidayName].totalshift.toFixed(2);
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-            document.getElementById(holidayName + '_daycostshift').textContent = holidayTotals[holidayName].daycostTotal.toFixed(2);
-            document.getElementById(holidayName + '_nightcostshift').textContent = holidayTotals[holidayName].nightcostTotal.toFixed(2);
-
-            document.getElementById(holidayName + '_costperday').textContent = holidayTotals[holidayName].totalcostshift.toFixed(2);
-
-//----------------------------------------------------------------------------------------------------------------------------------------------------------
 
         }
     }
@@ -2298,58 +1945,6 @@ function calculatPrice(){
       //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-      // Gross Profit calculation
-      $('#monthlysales').text(totalmonthlysale.toFixed(2));
-      $('#yearlysales').text(totalyearlysale.toFixed(2));
-      $('#periodsales').text(totalrangesale.toFixed(2));
-
-      var holidaycostprice = 0;
-      var specialdaycostprice = 0;
-      var weekdaycostprice = 0;
-      var saturdaycostprice = 0;
-      var sundaycostprice = 0;
-   
-      holidaycostprice = parseFloat(document.getElementById('Holidays_costperday').textContent);
-      specialdaycostprice = parseFloat(document.getElementById('Special Days_costperday').textContent);
-      weekdaycostprice = parseFloat(document.getElementById('Normal Week Days_costperday').textContent);
-      saturdaycostprice = parseFloat(document.getElementById('Saturdays_costperday').textContent);
-      sundaycostprice = parseFloat(document.getElementById('Sundays_costperday').textContent);
-
-      // monthly cost calculaton
-      var weekdaymonthlycostprice=(weekdaycostprice*(22-totaldays)).toFixed(2);
-      var saturdaymonthlcostyprice=(saturdaycostprice*(4)).toFixed(2);
-      var sundaymonthlycostprice=(sundaycostprice*(4)).toFixed(2);
-      var holidaymonthlycostprice=(holidaycostprice*(holidays)).toFixed(2);
-      var specialholidaymonthlycostprice=(specialdaycostprice*(specialholidays)).toFixed(2);
-
-      var totalmonthlycost=parseFloat(weekdaymonthlycostprice)+parseFloat(saturdaymonthlcostyprice)+parseFloat(sundaymonthlycostprice)+parseFloat(holidaymonthlycostprice)+parseFloat(specialholidaymonthlycostprice);
-      totalmonthlycost.toFixed(2);
-      $('#monthlycost').text(totalmonthlycost.toFixed(2));
-
-      // yearly cost calculaton
-     var totalyearlycost=totalmonthlycost*12;
-     $('#yearlycost').text(totalyearlycost.toFixed(2));
-
-     // range sales calculaton
-    //  var costfromdate = new Date($('#fromdate').val());
-    //   var costtodate = new Date($('#todate').val());
-    //   var costtimeDifference = costtodate - costfromdate;
-    //   var costyearsDifference = costtimeDifference / (365 * 24 * 60 * 60 * 1000);
-    //   var costtotalrangesale = costyearsDifference * totalyearlycost;
-    //   $('#periodcost').text(costtotalrangesale.toFixed(2));
-
-    var costtotalrange = totalmonthlycost * 24;
-    $('#periodcost').text(costtotalrange.toFixed(2));
-
-
-    //   gross profit
-    var monthlygrossprofit=totalmonthlysale-totalmonthlycost;
-    var yearlygrossprofit=totalyearlysale-totalyearlycost;
-    var rangegrossprofit=totalrangesale-costtotalrange;
-
-    $('#monthlygrossprofit').text(monthlygrossprofit.toFixed(2));
-    $('#yearlygrossprofit').text(yearlygrossprofit.toFixed(2));
-    $('#periodgrossprofit').text(rangegrossprofit.toFixed(2));
 }
 </script>
 
@@ -2407,24 +2002,7 @@ function calculatPrice(){
             holidayTotals[holidayName].totalshift = totalShift;
 
 //------------------------------------------------------------------------------------------------------------------------------------
-            // Calculate cost_per_shift
-            var costshiftvalue = $('#' + jobtitle + '_salaryrate2').val();
-            var costprice_per_shift = costshiftvalue * inputValue;
-            
-            // Accumulate cost_per_shift for each holiday
-            if (time === 'day') {
-                holidayTotals[holidayName].daycostTotal += costprice_per_shift;
-            } else if (time === 'night') {
-                holidayTotals[holidayName].nightcostTotal += costprice_per_shift;
-            }
-
-           // Update day and night cost per shift (assuming these are HTML elements)
-            $('#' + holidayName + '_daycostshift2').text(holidayTotals[holidayName].daycostTotal);
-            $('#' + holidayName + '_nightcostshift2').text(holidayTotals[holidayName].nightcostTotal);
-
-            // Calculate total cost shift
-            var costtotalShift = holidayTotals[holidayName].daycostTotal + holidayTotals[holidayName].nightcostTotal;
-            holidayTotals[holidayName].totalcostshift = costtotalShift;
+        
    
 
         });
@@ -2439,13 +2017,6 @@ function calculatPrice(){
 
             document.getElementById(holidayName + '_priceperday2').textContent = holidayTotals[holidayName].totalshift.toFixed(2);
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-            document.getElementById(holidayName + '_daycostshift2').textContent = holidayTotals[holidayName].daycostTotal.toFixed(2);
-            document.getElementById(holidayName + '_nightcostshift2').textContent = holidayTotals[holidayName].nightcostTotal.toFixed(2);
-
-            document.getElementById(holidayName + '_costperday2').textContent = holidayTotals[holidayName].totalcostshift.toFixed(2);
-
-//----------------------------------------------------------------------------------------------------------------------------------------------------------
 
         }
         calculatPrice2();
@@ -2527,59 +2098,6 @@ function calculatPrice2(){
 
       //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-      // Gross Profit calculation
-      $('#monthlysales2').text(totalmonthlysale.toFixed(2));
-      $('#yearlysales2').text(totalyearlysale.toFixed(2));
-      $('#periodsales2').text(totalrangesale.toFixed(2));
-
-      var holidaycostprice = 0;
-      var specialdaycostprice = 0;
-      var weekdaycostprice = 0;
-      var saturdaycostprice = 0;
-      var sundaycostprice = 0;
-   
-      holidaycostprice = parseFloat(document.getElementById('Holidays_costperday2').textContent);
-      specialdaycostprice = parseFloat(document.getElementById('Special Days_costperday2').textContent);
-      weekdaycostprice = parseFloat(document.getElementById('Normal Week Days_costperday2').textContent);
-      saturdaycostprice = parseFloat(document.getElementById('Saturdays_costperday2').textContent);
-      sundaycostprice = parseFloat(document.getElementById('Sundays_costperday2').textContent);
-
-      // monthly cost calculaton
-      var weekdaymonthlycostprice=(weekdaycostprice*(22-totaldays)).toFixed(2);
-      var saturdaymonthlcostyprice=(saturdaycostprice*(4)).toFixed(2);
-      var sundaymonthlycostprice=(sundaycostprice*(4)).toFixed(2);
-      var holidaymonthlycostprice=(holidaycostprice*(holidays)).toFixed(2);
-      var specialholidaymonthlycostprice=(specialdaycostprice*(specialholidays)).toFixed(2);
-
-      var totalmonthlycost=parseFloat(weekdaymonthlycostprice)+parseFloat(saturdaymonthlcostyprice)+parseFloat(sundaymonthlycostprice)+parseFloat(holidaymonthlycostprice)+parseFloat(specialholidaymonthlycostprice);
-      totalmonthlycost.toFixed(2);
-      $('#monthlycost2').text(totalmonthlycost.toFixed(2));
-
-      // yearly cost calculaton
-     var totalyearlycost=totalmonthlycost*12;
-     $('#yearlycost2').text(totalyearlycost.toFixed(2));
-
-     // range sales calculaton
-    //  var costfromdate = new Date($('#fromdate').val());
-    //   var costtodate = new Date($('#todate').val());
-    //   var costtimeDifference = costtodate - costfromdate;
-    //   var costyearsDifference = costtimeDifference / (365 * 24 * 60 * 60 * 1000);
-    //   var costtotalrangesale = costyearsDifference * totalyearlycost;
-    //   $('#periodcost').text(costtotalrangesale.toFixed(2));
-
-    var costtotalrange = totalmonthlycost * 24;
-    $('#periodcost2').text(costtotalrange.toFixed(2));
-
-
-    //   gross profit
-    var monthlygrossprofit=totalmonthlysale-totalmonthlycost;
-    var yearlygrossprofit=totalyearlysale-totalyearlycost;
-    var rangegrossprofit=totalrangesale-costtotalrange;
-
-    $('#monthlygrossprofit2').text(monthlygrossprofit.toFixed(2));
-    $('#yearlygrossprofit2').text(yearlygrossprofit.toFixed(2));
-    $('#periodgrossprofit2').text(rangegrossprofit.toFixed(2));
 }
 </script>
 
@@ -2637,25 +2155,7 @@ function calculatPrice2(){
             holidayTotals[holidayName].totalshift = totalShift;
 
 //------------------------------------------------------------------------------------------------------------------------------------
-            // Calculate cost_per_shift
-            var costshiftvalue = $('#app_' + jobtitle + '_salaryrate').val();
-            var costprice_per_shift = costshiftvalue * inputValue;
-            
-            // Accumulate cost_per_shift for each holiday
-            if (time === 'day') {
-                holidayTotals[holidayName].daycostTotal += costprice_per_shift;
-            } else if (time === 'night') {
-                holidayTotals[holidayName].nightcostTotal += costprice_per_shift;
-            }
 
-           // Update day and night cost per shift (assuming these are HTML elements)
-            $('#app_' + holidayName + '_daycostshift').text(holidayTotals[holidayName].daycostTotal);
-            $('#app_' + holidayName + '_nightcostshift').text(holidayTotals[holidayName].nightcostTotal);
-
-            // Calculate total cost shift
-            var costtotalShift = holidayTotals[holidayName].daycostTotal + holidayTotals[holidayName].nightcostTotal;
-            holidayTotals[holidayName].totalcostshift = costtotalShift;
-   
 
         });
         // console.log(holidayTotals);
@@ -2669,13 +2169,6 @@ function calculatPrice2(){
 
             document.getElementById('app_'+holidayName + '_priceperday').textContent = holidayTotals[holidayName].totalshift.toFixed(2);
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-            document.getElementById('app_'+holidayName + '_daycostshift').textContent = holidayTotals[holidayName].daycostTotal.toFixed(2);
-            document.getElementById('app_'+holidayName + '_nightcostshift').textContent = holidayTotals[holidayName].nightcostTotal.toFixed(2);
-
-            document.getElementById('app_'+holidayName + '_costperday').textContent = holidayTotals[holidayName].totalcostshift.toFixed(2);
-
-//----------------------------------------------------------------------------------------------------------------------------------------------------------
 
         }
         app_calculatPrice();
@@ -2757,59 +2250,6 @@ function app_calculatPrice(){
 
       //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-      // Gross Profit calculation
-      $('#app_monthlysales').text(totalmonthlysale.toFixed(2));
-      $('#app_yearlysales').text(totalyearlysale.toFixed(2));
-      $('#app_periodsales').text(totalrangesale.toFixed(2));
-
-      var holidaycostprice = 0;
-      var specialdaycostprice = 0;
-      var weekdaycostprice = 0;
-      var saturdaycostprice = 0;
-      var sundaycostprice = 0;
-   
-      holidaycostprice = parseFloat(document.getElementById('app_Holidays_costperday').textContent);
-      specialdaycostprice = parseFloat(document.getElementById('app_Special Days_costperday').textContent);
-      weekdaycostprice = parseFloat(document.getElementById('app_Normal Week Days_costperday').textContent);
-      saturdaycostprice = parseFloat(document.getElementById('app_Saturdays_costperday').textContent);
-      sundaycostprice = parseFloat(document.getElementById('app_Sundays_costperday').textContent);
-
-      // monthly cost calculaton
-      var weekdaymonthlycostprice=(weekdaycostprice*(22-totaldays)).toFixed(2);
-      var saturdaymonthlcostyprice=(saturdaycostprice*(4)).toFixed(2);
-      var sundaymonthlycostprice=(sundaycostprice*(4)).toFixed(2);
-      var holidaymonthlycostprice=(holidaycostprice*(holidays)).toFixed(2);
-      var specialholidaymonthlycostprice=(specialdaycostprice*(specialholidays)).toFixed(2);
-
-      var totalmonthlycost=parseFloat(weekdaymonthlycostprice)+parseFloat(saturdaymonthlcostyprice)+parseFloat(sundaymonthlycostprice)+parseFloat(holidaymonthlycostprice)+parseFloat(specialholidaymonthlycostprice);
-      totalmonthlycost.toFixed(2);
-      $('#app_monthlycost').text(totalmonthlycost.toFixed(2));
-
-      // yearly cost calculaton
-     var totalyearlycost=totalmonthlycost*12;
-     $('#app_yearlycost').text(totalyearlycost.toFixed(2));
-
-     // range sales calculaton
-    //  var costfromdate = new Date($('#fromdate').val());
-    //   var costtodate = new Date($('#todate').val());
-    //   var costtimeDifference = costtodate - costfromdate;
-    //   var costyearsDifference = costtimeDifference / (365 * 24 * 60 * 60 * 1000);
-    //   var costtotalrangesale = costyearsDifference * totalyearlycost;
-    //   $('#periodcost').text(costtotalrangesale.toFixed(2));
-
-    var costtotalrange = totalmonthlycost * 24;
-    $('#app_periodcost').text(costtotalrange.toFixed(2));
-
-
-    //   gross profit
-    var monthlygrossprofit=totalmonthlysale-totalmonthlycost;
-    var yearlygrossprofit=totalyearlysale-totalyearlycost;
-    var rangegrossprofit=totalrangesale-costtotalrange;
-
-    $('#app_monthlygrossprofit').text(monthlygrossprofit.toFixed(2));
-    $('#app_yearlygrossprofit').text(yearlygrossprofit.toFixed(2));
-    $('#app_periodgrossprofit').text(rangegrossprofit.toFixed(2));
 }
 </script>
 
@@ -2867,25 +2307,7 @@ function app_calculatPrice(){
             holidayTotals[holidayName].totalshift = totalShift;
 
 //------------------------------------------------------------------------------------------------------------------------------------
-            // Calculate cost_per_shift
-            var costshiftvalue = $('#view_' + jobtitle + '_salaryrate').val();
-            var costprice_per_shift = costshiftvalue * inputValue;
-            
-            // Accumulate cost_per_shift for each holiday
-            if (time === 'day') {
-                holidayTotals[holidayName].daycostTotal += costprice_per_shift;
-            } else if (time === 'night') {
-                holidayTotals[holidayName].nightcostTotal += costprice_per_shift;
-            }
-
-           // Update day and night cost per shift (assuming these are HTML elements)
-            $('#view_' + holidayName + '_daycostshift').text(holidayTotals[holidayName].daycostTotal);
-            $('#view_' + holidayName + '_nightcostshift').text(holidayTotals[holidayName].nightcostTotal);
-
-            // Calculate total cost shift
-            var costtotalShift = holidayTotals[holidayName].daycostTotal + holidayTotals[holidayName].nightcostTotal;
-            holidayTotals[holidayName].totalcostshift = costtotalShift;
-   
+          
 
         });
         // console.log(holidayTotals);
@@ -2899,13 +2321,6 @@ function app_calculatPrice(){
 
             document.getElementById('view_'+holidayName + '_priceperday').textContent = holidayTotals[holidayName].totalshift.toFixed(2);
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-            document.getElementById('view_'+holidayName + '_daycostshift').textContent = holidayTotals[holidayName].daycostTotal.toFixed(2);
-            document.getElementById('view_'+holidayName + '_nightcostshift').textContent = holidayTotals[holidayName].nightcostTotal.toFixed(2);
-
-            document.getElementById('view_'+holidayName + '_costperday').textContent = holidayTotals[holidayName].totalcostshift.toFixed(2);
-
-//----------------------------------------------------------------------------------------------------------------------------------------------------------
 
         }
         view_calculatPrice();
@@ -2987,71 +2402,20 @@ function view_calculatPrice(){
 
       //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-      // Gross Profit calculation
-      $('#view_monthlysales').text(totalmonthlysale.toFixed(2));
-      $('#view_yearlysales').text(totalyearlysale.toFixed(2));
-      $('#view_periodsales').text(totalrangesale.toFixed(2));
-
-      var holidaycostprice = 0;
-      var specialdaycostprice = 0;
-      var weekdaycostprice = 0;
-      var saturdaycostprice = 0;
-      var sundaycostprice = 0;
-   
-      holidaycostprice = parseFloat(document.getElementById('view_Holidays_costperday').textContent);
-      specialdaycostprice = parseFloat(document.getElementById('view_Special Days_costperday').textContent);
-      weekdaycostprice = parseFloat(document.getElementById('view_Normal Week Days_costperday').textContent);
-      saturdaycostprice = parseFloat(document.getElementById('view_Saturdays_costperday').textContent);
-      sundaycostprice = parseFloat(document.getElementById('view_Sundays_costperday').textContent);
-
-      // monthly cost calculaton
-      var weekdaymonthlycostprice=(weekdaycostprice*(22-totaldays)).toFixed(2);
-      var saturdaymonthlcostyprice=(saturdaycostprice*(4)).toFixed(2);
-      var sundaymonthlycostprice=(sundaycostprice*(4)).toFixed(2);
-      var holidaymonthlycostprice=(holidaycostprice*(holidays)).toFixed(2);
-      var specialholidaymonthlycostprice=(specialdaycostprice*(specialholidays)).toFixed(2);
-
-      var totalmonthlycost=parseFloat(weekdaymonthlycostprice)+parseFloat(saturdaymonthlcostyprice)+parseFloat(sundaymonthlycostprice)+parseFloat(holidaymonthlycostprice)+parseFloat(specialholidaymonthlycostprice);
-      totalmonthlycost.toFixed(2);
-      $('#view_monthlycost').text(totalmonthlycost.toFixed(2));
-
-      // yearly cost calculaton
-     var totalyearlycost=totalmonthlycost*12;
-     $('#view_yearlycost').text(totalyearlycost.toFixed(2));
-
-     // range sales calculaton
-    //  var costfromdate = new Date($('#fromdate').val());
-    //   var costtodate = new Date($('#todate').val());
-    //   var costtimeDifference = costtodate - costfromdate;
-    //   var costyearsDifference = costtimeDifference / (365 * 24 * 60 * 60 * 1000);
-    //   var costtotalrangesale = costyearsDifference * totalyearlycost;
-    //   $('#periodcost').text(costtotalrangesale.toFixed(2));
-
-    var costtotalrange = totalmonthlycost * 24;
-    $('#view_periodcost').text(costtotalrange.toFixed(2));
-
-
-    //   gross profit
-    var monthlygrossprofit=totalmonthlysale-totalmonthlycost;
-    var yearlygrossprofit=totalyearlysale-totalyearlycost;
-    var rangegrossprofit=totalrangesale-costtotalrange;
-
-    $('#view_monthlygrossprofit').text(monthlygrossprofit.toFixed(2));
-    $('#view_yearlygrossprofit').text(yearlygrossprofit.toFixed(2));
-    $('#view_periodgrossprofit').text(rangegrossprofit.toFixed(2));
 }
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+
+
 <script>
     function printModal() {
         var date=$('#view_date').val()
-
    // Options for html2pdf
   var pdfOptions = {
-    filename: 'New Business Proposal('+date+').pdf',
+    filename: 'Quotation('+date+').pdf',
     image: { type: 'png', quality: 1.0 },
     html2canvas: { scale: 2 },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }

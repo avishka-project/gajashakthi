@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Commen;
-use App\Newbusinessproposal;
-use App\Newbusinessproposal_ratedetail;
-use App\Newbusinessproposaldetail;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Quotation;
+use App\Quotation_ratedetail;
+use App\Quotationdetail;
+use Auth;
+use Carbon\Carbon;
+use Datatables;
+use DB;
 use PDF;
-use Yajra\Datatables\Facades\Datatables;
 
-class Newbusinessproposalcontroller extends Controller
+class QuotationController extends Controller
 {
     public function __construct()
     {
@@ -43,16 +44,16 @@ class Newbusinessproposalcontroller extends Controller
         if (in_array('Approve-Level-03', $userPermissions)) {
             $approvel03permission = 1;
         } 
-        if (in_array('Newbusinessproposal-list', $userPermissions)) {
+        if (in_array('Quotation-list', $userPermissions)) {
             $listpermission = 1;
         } 
-        if (in_array('Newbusinessproposal-edit', $userPermissions)) {
+        if (in_array('Quotation-edit', $userPermissions)) {
             $editpermission = 1;
         } 
-        if (in_array('Newbusinessproposal-status', $userPermissions)) {
+        if (in_array('Quotation-status', $userPermissions)) {
             $statuspermission = 1;
         } 
-        if (in_array('Newbusinessproposal-delete', $userPermissions)) {
+        if (in_array('Quotation-delete', $userPermissions)) {
             $deletepermission = 1;
         } 
         
@@ -76,38 +77,36 @@ class Newbusinessproposalcontroller extends Controller
          ->where('holiday_types.id', 6)
          ->get();
 
-        return view('Newbusinessproposal.newbusinessproposal',compact('employees','titles', 'holidays', 'shifttypes','subcustomer','specialholidays','approvel01permission','approvel02permission','approvel03permission','listpermission','editpermission','deletepermission','statuspermission','userPermissions'));
+        return view('Quotation.quotation',compact('employees','titles', 'holidays', 'shifttypes','subcustomer','specialholidays','approvel01permission','approvel02permission','approvel03permission','listpermission','editpermission','deletepermission','statuspermission','userPermissions'));
     }
-
     
     public function insert(Request $request){
         
         $commen= new Commen();
         $userPermissions = $commen->Allpermission();
-        if (!in_array('Newbusinessproposal-create', $userPermissions)) {
+        if (!in_array('Quotation-create', $userPermissions)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         } 
 
-        $mobilebillpayment = new Newbusinessproposal();
-        $mobilebillpayment->document_no = $request->input('documentno');
-        $mobilebillpayment->employee_id = $request->input('employee'); 
-        $mobilebillpayment->date = $request->input('date'); 
-        $mobilebillpayment->client_name = $request->input('clientname');
-        $mobilebillpayment->client_address = $request->input('address');
-        $mobilebillpayment->fromdate = $request->input('fromdate');
-        $mobilebillpayment->todate = $request->input('todate');
-        $mobilebillpayment->holidays = $request->input('holidays');
-        $mobilebillpayment->special_holidays = $request->input('specialholidays');
-        $mobilebillpayment->status = '1';
-        $mobilebillpayment->approve_status = '0';
-        $mobilebillpayment->approve_01 = '0';
-        $mobilebillpayment->approve_02 = '0';
-        $mobilebillpayment->approve_03 = '0';
-        $mobilebillpayment->create_by = Auth::id();
-        $mobilebillpayment->update_by = '0';
-        $mobilebillpayment->save();
+        $quotation = new Quotation();
+        $quotation->document_no = $request->input('documentno');
+        $quotation->date = $request->input('date'); 
+        $quotation->client_name = $request->input('clientname');
+        $quotation->client_address = $request->input('address');
+        $quotation->fromdate = $request->input('fromdate');
+        $quotation->todate = $request->input('todate');
+        $quotation->holidays = $request->input('holidays');
+        $quotation->special_holidays = $request->input('specialholidays');
+        $quotation->status = '1';
+        $quotation->approve_status = '0';
+        $quotation->approve_01 = '0';
+        $quotation->approve_02 = '0';
+        $quotation->approve_03 = '0';
+        $quotation->create_by = Auth::id();
+        $quotation->update_by = '0';
+        $quotation->save();
 
-        $requestID = $mobilebillpayment->id;
+        $requestID = $quotation->id;
 
         $DetailsArrays = $request->input('DetailsArrays');
 
@@ -118,16 +117,16 @@ class Newbusinessproposalcontroller extends Controller
                 $holiday = $dataObject['holiday'];
                 $value = $dataObject['value'];
                 
-                $newbusinessproposaldetail = new Newbusinessproposaldetail();
-                $newbusinessproposaldetail->newbusinessproposals_id = $requestID;
-                $newbusinessproposaldetail->job_title_id = $jobtitle;
-                $newbusinessproposaldetail->count = $value;
-                $newbusinessproposaldetail->shift_id = $shift;
-                $newbusinessproposaldetail->holiday_id = $holiday;
-                $newbusinessproposaldetail->status = '1';
-                $newbusinessproposaldetail->create_by = Auth::id();
-                $newbusinessproposaldetail->update_by = '0';
-                $newbusinessproposaldetail->save();
+                $quotationdetail = new Quotationdetail();
+                $quotationdetail->quotation_id = $requestID;
+                $quotationdetail->job_title_id = $jobtitle;
+                $quotationdetail->count = $value;
+                $quotationdetail->shift_id = $shift;
+                $quotationdetail->holiday_id = $holiday;
+                $quotationdetail->status = '1';
+                $quotationdetail->create_by = Auth::id();
+                $quotationdetail->update_by = '0';
+                $quotationdetail->save();
                 }
         }
         $RateArrays = $request->input('RateArrays');
@@ -137,19 +136,19 @@ class Newbusinessproposalcontroller extends Controller
                 $rateType = $dataObject['rateType'];
                 $value = $dataObject['value'];
 
-                $newbusinessproposal_ratedetail = new Newbusinessproposal_ratedetail();
-                $newbusinessproposal_ratedetail->newbusinessproposals_id = $requestID;
-                $newbusinessproposal_ratedetail->job_title_id = $jobtitle;
-                $newbusinessproposal_ratedetail->rate_type = $rateType;
-                $newbusinessproposal_ratedetail->value = $value;
-                $newbusinessproposal_ratedetail->status = '1';
-                $newbusinessproposal_ratedetail->create_by = Auth::id();
-                $newbusinessproposal_ratedetail->update_by = '0';
-                $newbusinessproposal_ratedetail->save();
+                $quotation_ratedetail = new Quotation_ratedetail();
+                $quotation_ratedetail->quotation_id = $requestID;
+                $quotation_ratedetail->job_title_id = $jobtitle;
+                $quotation_ratedetail->rate_type = $rateType;
+                $quotation_ratedetail->value = $value;
+                $quotation_ratedetail->status = '1';
+                $quotation_ratedetail->create_by = Auth::id();
+                $quotation_ratedetail->update_by = '0';
+                $quotation_ratedetail->save();
             }
         }
       
-        return response()->json(['status' => 1, 'message' => 'Business Proposal is successfully Inserted']);
+        return response()->json(['status' => 1, 'message' => 'Quotation is successfully Inserted']);
 
     }
 
@@ -186,7 +185,7 @@ class Newbusinessproposalcontroller extends Controller
                             }
                         }
 
-                        $permission = $user->can('Newbusinessproposal-edit');
+                        $permission = $user->can('Quotation-edit');
                         if($permission){
                             if($row->approve_status == 0){
                             $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
@@ -196,7 +195,7 @@ class Newbusinessproposalcontroller extends Controller
                         $btn .= ' <button name="view" id="'.$row->id.'" class="view btn btn-outline-secondary btn-sm" type="submit"><i class="fas fa-eye"></i></button>';
                     }
 
-                    $permission = $user->can('Newbusinessproposal-status');
+                    $permission = $user->can('Quotation-status');
                         if($permission){
                             if($row->status == 1){
                                 $btn .= ' <a href="'.route('newbusinessproposalstatus', ['id' => $row->id, 'stasus' => 2]) .'" onclick="return deactive_confirm()" target="_self" class="btn btn-outline-success btn-sm mr-1 "><i class="fas fa-check"></i></a>';
@@ -204,7 +203,7 @@ class Newbusinessproposalcontroller extends Controller
                                 $btn .= '&nbsp;<a href="'.route('newbusinessproposalstatus', ['id' => $row->id, 'stasus' => 1]) .'" onclick="return active_confirm()" target="_self" class="btn btn-outline-warning btn-sm mr-1 "><i class="fas fa-times"></i></a>';
                             }
                         }
-                        $permission = $user->can('Newbusinessproposal-delete');
+                        $permission = $user->can('Quotation-delete');
                         if($permission){
                             $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
@@ -217,19 +216,18 @@ class Newbusinessproposalcontroller extends Controller
     }
 
     public function edit(Request $request){
-        $user = Auth::user();
-        $permission =$user->can('Newbusinessproposal-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Quotation-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
 
         $id = Request('id');
         if (request()->ajax()){
-        $data = DB::table('newbusinessproposals')
-        ->leftjoin('employees', 'newbusinessproposals.employee_id', '=', 'employees.id')
-        ->select('newbusinessproposals.*','employees.id AS empid','employees.service_no','employees.emp_name_with_initial')
-        ->where('newbusinessproposals.id', $id)
-        ->get(); 
+            $data = DB::table('quotations')
+            ->select('quotations.*')
+            ->where('quotations.id', $id)
+            ->get(); 
 
 
        $requestlist = $this->reqestcountlist($id); 
@@ -246,15 +244,15 @@ class Newbusinessproposalcontroller extends Controller
 
         $recordID =$id ;
 
-       $datadetails = DB::table('newbusinessproposals')
-       ->leftjoin('newbusinessproposaldetails', 'newbusinessproposaldetails.newbusinessproposals_id', '=', 'newbusinessproposals.id')
-       ->leftjoin('job_titles', 'newbusinessproposaldetails.job_title_id', '=', 'job_titles.id')
-       ->leftjoin('holiday_types', 'newbusinessproposaldetails.holiday_id', '=', 'holiday_types.id')
-       ->leftjoin('shift_types', 'newbusinessproposaldetails.shift_id', '=', 'shift_types.id')
-       ->select('newbusinessproposals.*', 'job_titles.title AS title','job_titles.id AS title_id', 'holiday_types.name', 'shift_types.shift_name AS shift_name','shift_types.id AS shift_id','newbusinessproposaldetails.count AS count','newbusinessproposaldetails.holiday_id AS holiday_id','newbusinessproposaldetails.shift_id AS shift_id','newbusinessproposaldetails.job_title_id', DB::raw('(newbusinessproposaldetails.id) AS newbusinessproposaldetailsID'))
-       ->where('newbusinessproposaldetails.newbusinessproposals_id', $recordID)
-       ->whereIn('newbusinessproposaldetails.status', [1, 2])
-       ->get(); 
+        $datadetails = DB::table('quotations')
+        ->leftjoin('quotationdetails', 'quotationdetails.quotation_id', '=', 'quotations.id')
+        ->leftjoin('job_titles', 'quotationdetails.job_title_id', '=', 'job_titles.id')
+        ->leftjoin('holiday_types', 'quotationdetails.holiday_id', '=', 'holiday_types.id')
+        ->leftjoin('shift_types', 'quotationdetails.shift_id', '=', 'shift_types.id')
+        ->select('quotations.*', 'job_titles.title AS title','job_titles.id AS title_id', 'holiday_types.name', 'shift_types.shift_name AS shift_name','shift_types.id AS shift_id','quotationdetails.count AS count','quotationdetails.holiday_id AS holiday_id','quotationdetails.shift_id AS shift_id','quotationdetails.job_title_id', DB::raw('(quotationdetails.id) AS quotationdetailsID'))
+        ->where('quotationdetails.quotation_id', $recordID)
+        ->whereIn('quotationdetails.status', [1, 2])
+        ->get(); 
        
 
        $holidays = DB::table('holiday_types')
@@ -262,14 +260,14 @@ class Newbusinessproposalcontroller extends Controller
     ->where('id', '!=', 6)
     ->get();
 
-$titles = DB::table('job_titles')
+    $titles = DB::table('job_titles')
     ->select('job_titles.*')
     ->whereIn('job_titles.id', [3,7,9,23,26, 27, 28, 29, 30, 31])
     ->get();
 
-$rates = DB::table('newbusinessproposal_ratedetails')
-    ->select('newbusinessproposal_ratedetails.*')
-    ->where('newbusinessproposal_ratedetails.newbusinessproposals_id', $recordID)
+    $rates = DB::table('quotation_ratedetails')
+    ->select('quotation_ratedetails.*')
+    ->where('quotation_ratedetails.quotation_id', $recordID)
     ->get();
 
 $htmlTable = '';
@@ -283,7 +281,7 @@ foreach ($titles as $title) {
             $htmlTable .= '<td class="text-center"><input type="number" class="text-center rate-input2" onkeyup="calculateTotal2()" rate_type2="shiftrate" jobtitle_id2="' . $title->id . '" style="width: 70px;border: none; background-color: transparent" id="' . $title->id .'_shiftrate2" name="' . $title->id .'_shiftrate2" value="'.$rate->value.'"></td>';
         }
         else{
-            $htmlTable .= '<td class="text-center"><input type="number" class="text-center rate-input2" onkeyup="calculateTotal2()" rate_type2="salaryrate" jobtitle_id2="' . $title->id . '" style="width: 70px;border: none; background-color: transparent" id="' . $title->id . '_salaryrate2" name="' . $title->id. '_salaryrate2" value="'.$rate->value.'"></td>';
+            $htmlTable .= '<td class="text-center"><input type="number" class="text-center rate-input2" onkeyup="calculateTotal2()" rate_type2="salaryrate" jobtitle_id2="' . $title->id . '" style="width: 70px;border: none; background-color: transparent" id="' . $title->id . '_salaryrate2" name="' . $title->id. '_salaryrate2" value="'.$rate->value.'" disabled></td>';
         }
     }
     }
@@ -315,11 +313,10 @@ return $htmlTable;
    }
 
     public function update(Request $request){
-        $user = Auth::user();
-       
-        $permission =$user->can('Newbusinessproposal-edit');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+        $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Quotation-edit', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
        
             $current_date_time = Carbon::now()->toDateTimeString();
@@ -343,16 +340,16 @@ return $htmlTable;
                 'updated_at' => $current_date_time,
             );
 
-            Newbusinessproposal::findOrFail($id)
+            Quotation::findOrFail($id)
         ->update($form_data);
 
         $hidden_id = $request->input('hidden_id');
 
-        DB::table('newbusinessproposaldetails')
-        ->where('newbusinessproposals_id', $hidden_id)
+        DB::table('quotationdetails')
+        ->where('quotation_id', $hidden_id)
         ->delete();
-        DB::table('newbusinessproposal_ratedetails')
-        ->where('newbusinessproposals_id', $hidden_id)
+        DB::table('quotation_ratedetails')
+        ->where('quotation_id', $hidden_id)
         ->delete();
 
         $DetailsArrays = $request->input('DetailsArrays');
@@ -364,8 +361,8 @@ return $htmlTable;
                 $holiday = $dataObject['holiday'];
                 $value = $dataObject['value'];
                 
-                $newbusinessproposaldetail = new Newbusinessproposaldetail();
-                $newbusinessproposaldetail->newbusinessproposals_id = $hidden_id;
+                $newbusinessproposaldetail = new Quotationdetail();
+                $newbusinessproposaldetail->quotation_id = $hidden_id;
                 $newbusinessproposaldetail->job_title_id = $jobtitle;
                 $newbusinessproposaldetail->count = $value;
                 $newbusinessproposaldetail->shift_id = $shift;
@@ -383,8 +380,8 @@ return $htmlTable;
                 $rateType = $dataObject['rateType'];
                 $value = $dataObject['value'];
 
-                $newbusinessproposal_ratedetail = new Newbusinessproposal_ratedetail();
-                $newbusinessproposal_ratedetail->newbusinessproposals_id = $hidden_id;
+                $newbusinessproposal_ratedetail = new Quotation_ratedetail();
+                $newbusinessproposal_ratedetail->quotation_id = $hidden_id;
                 $newbusinessproposal_ratedetail->job_title_id = $jobtitle;
                 $newbusinessproposal_ratedetail->rate_type = $rateType;
                 $newbusinessproposal_ratedetail->value = $value;
@@ -396,16 +393,15 @@ return $htmlTable;
         }
       
         
-        return response()->json(['status' => 1, 'message' => 'Business Proposal is Successfully Updated']);
+        return response()->json(['status' => 1, 'message' => 'Quotation is Successfully Updated']);
     }
 
     public function delete(Request $request){
 
-        $user = Auth::user();
-      
-        $permission =$user->can('Newbusinessproposal-delete');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Quotation-delete', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
         
             $id = Request('id');
@@ -415,10 +411,10 @@ return $htmlTable;
             'update_by' => Auth::id(),
             'updated_at' => $current_date_time,
         );
-        Newbusinessproposal::findOrFail($id)
+        Quotation::findOrFail($id)
         ->update($form_data);
 
-        return response()->json(['success' => 'Business Proposal is successfully Deleted']);
+        return response()->json(['success' => 'Quotation is successfully Deleted']);
 
     }
 
@@ -431,10 +427,9 @@ return $htmlTable;
 
         $id = Request('id');
         if (request()->ajax()){
-        $data = DB::table('newbusinessproposals')
-        ->leftjoin('employees', 'newbusinessproposals.employee_id', '=', 'employees.id')
-        ->select('newbusinessproposals.*','employees.id AS empid','employees.service_no','employees.emp_name_with_initial')
-        ->where('newbusinessproposals.id', $id)
+        $data = DB::table('quotations')
+        ->select('quotations.*')
+        ->where('quotations.id', $id)
         ->get(); 
 
 
@@ -452,14 +447,14 @@ return $htmlTable;
 
         $recordID =$id ;
 
-       $datadetails = DB::table('newbusinessproposals')
-       ->leftjoin('newbusinessproposaldetails', 'newbusinessproposaldetails.newbusinessproposals_id', '=', 'newbusinessproposals.id')
-       ->leftjoin('job_titles', 'newbusinessproposaldetails.job_title_id', '=', 'job_titles.id')
-       ->leftjoin('holiday_types', 'newbusinessproposaldetails.holiday_id', '=', 'holiday_types.id')
-       ->leftjoin('shift_types', 'newbusinessproposaldetails.shift_id', '=', 'shift_types.id')
-       ->select('newbusinessproposals.*', 'job_titles.title AS title','job_titles.id AS title_id', 'holiday_types.name', 'shift_types.shift_name AS shift_name','shift_types.id AS shift_id','newbusinessproposaldetails.count AS count','newbusinessproposaldetails.holiday_id AS holiday_id','newbusinessproposaldetails.shift_id AS shift_id','newbusinessproposaldetails.job_title_id', DB::raw('(newbusinessproposaldetails.id) AS newbusinessproposaldetailsID'))
-       ->where('newbusinessproposaldetails.newbusinessproposals_id', $recordID)
-       ->whereIn('newbusinessproposaldetails.status', [1, 2])
+       $datadetails = DB::table('quotations')
+       ->leftjoin('quotationdetails', 'quotationdetails.quotation_id', '=', 'quotations.id')
+       ->leftjoin('job_titles', 'quotationdetails.job_title_id', '=', 'job_titles.id')
+       ->leftjoin('holiday_types', 'quotationdetails.holiday_id', '=', 'holiday_types.id')
+       ->leftjoin('shift_types', 'quotationdetails.shift_id', '=', 'shift_types.id')
+       ->select('quotations.*', 'job_titles.title AS title','job_titles.id AS title_id', 'holiday_types.name', 'shift_types.shift_name AS shift_name','shift_types.id AS shift_id','quotationdetails.count AS count','quotationdetails.holiday_id AS holiday_id','quotationdetails.shift_id AS shift_id','quotationdetails.job_title_id', DB::raw('(quotationdetails.id) AS quotationdetailsID'))
+       ->where('quotationdetails.quotation_id', $recordID)
+       ->whereIn('quotationdetails.status', [1, 2])
        ->get(); 
        
 
@@ -473,9 +468,9 @@ $titles = DB::table('job_titles')
     ->whereIn('job_titles.id', [3,7,9,23,26, 27, 28, 29, 30, 31])
     ->get();
 
-$rates = DB::table('newbusinessproposal_ratedetails')
-    ->select('newbusinessproposal_ratedetails.*')
-    ->where('newbusinessproposal_ratedetails.newbusinessproposals_id', $recordID)
+$rates = DB::table('quotation_ratedetails')
+    ->select('quotation_ratedetails.*')
+    ->where('quotation_ratedetails.quotation_id', $recordID)
     ->get();
 
 $htmlTable = '';
@@ -522,16 +517,16 @@ return $htmlTable;
    public function view_details(Request $request){
     $commen= new Commen();
             $userPermissions = $commen->Allpermission();
-            if (!in_array('Newbusinessproposal-list', $userPermissions)) {
+            if (!in_array('Quotation-list', $userPermissions)) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
+
     $id = Request('id');
     if (request()->ajax()){
-    $data = DB::table('newbusinessproposals')
-    ->leftjoin('employees', 'newbusinessproposals.employee_id', '=', 'employees.id')
-    ->select('newbusinessproposals.*','employees.id AS empid','employees.service_no','employees.emp_name_with_initial')
-    ->where('newbusinessproposals.id', $id)
-    ->get(); 
+        $data = DB::table('quotations')
+        ->select('quotations.*')
+        ->where('quotations.id', $id)
+        ->get(); 
 
 
    $requestlist = $this->view_reqestcountlist($id); 
@@ -548,15 +543,16 @@ private function view_reqestcountlist($id){
 
     $recordID =$id ;
 
-   $datadetails = DB::table('newbusinessproposals')
-   ->leftjoin('newbusinessproposaldetails', 'newbusinessproposaldetails.newbusinessproposals_id', '=', 'newbusinessproposals.id')
-   ->leftjoin('job_titles', 'newbusinessproposaldetails.job_title_id', '=', 'job_titles.id')
-   ->leftjoin('holiday_types', 'newbusinessproposaldetails.holiday_id', '=', 'holiday_types.id')
-   ->leftjoin('shift_types', 'newbusinessproposaldetails.shift_id', '=', 'shift_types.id')
-   ->select('newbusinessproposals.*', 'job_titles.title AS title','job_titles.id AS title_id', 'holiday_types.name', 'shift_types.shift_name AS shift_name','shift_types.id AS shift_id','newbusinessproposaldetails.count AS count','newbusinessproposaldetails.holiday_id AS holiday_id','newbusinessproposaldetails.shift_id AS shift_id','newbusinessproposaldetails.job_title_id', DB::raw('(newbusinessproposaldetails.id) AS newbusinessproposaldetailsID'))
-   ->where('newbusinessproposaldetails.newbusinessproposals_id', $recordID)
-   ->whereIn('newbusinessproposaldetails.status', [1, 2])
-   ->get(); 
+    $datadetails = DB::table('quotations')
+       ->leftjoin('quotationdetails', 'quotationdetails.quotation_id', '=', 'quotations.id')
+       ->leftjoin('job_titles', 'quotationdetails.job_title_id', '=', 'job_titles.id')
+       ->leftjoin('holiday_types', 'quotationdetails.holiday_id', '=', 'holiday_types.id')
+       ->leftjoin('shift_types', 'quotationdetails.shift_id', '=', 'shift_types.id')
+       ->select('quotations.*', 'job_titles.title AS title','job_titles.id AS title_id', 'holiday_types.name', 'shift_types.shift_name AS shift_name','shift_types.id AS shift_id','quotationdetails.count AS count','quotationdetails.holiday_id AS holiday_id','quotationdetails.shift_id AS shift_id','quotationdetails.job_title_id', DB::raw('(quotationdetails.id) AS quotationdetailsID'))
+       ->where('quotationdetails.quotation_id', $recordID)
+       ->whereIn('quotationdetails.status', [1, 2])
+       ->get(); 
+       
    
 
    $holidays = DB::table('holiday_types')
@@ -569,10 +565,10 @@ $titles = DB::table('job_titles')
 ->whereIn('job_titles.id', [3,7,9,23,26, 27, 28, 29, 30, 31])
 ->get();
 
-$rates = DB::table('newbusinessproposal_ratedetails')
-->select('newbusinessproposal_ratedetails.*')
-->where('newbusinessproposal_ratedetails.newbusinessproposals_id', $recordID)
-->get();
+$rates = DB::table('quotation_ratedetails')
+    ->select('quotation_ratedetails.*')
+    ->where('quotation_ratedetails.quotation_id', $recordID)
+    ->get();
 
 $htmlTable = '';
 
@@ -623,6 +619,7 @@ return $htmlTable;
             return response()->json(['error' => 'Unauthorized'], 401);
         }  
        
+       
         $id = Request('id');
          $applevel = Request('applevel');
          $current_date_time = Carbon::now()->toDateTimeString();
@@ -634,10 +631,10 @@ return $htmlTable;
                 'approve_01_time' => $current_date_time,
                 'approve_01_by' => Auth::id(),
             );
-            Newbusinessproposal::findOrFail($id)
+            Quotation::findOrFail($id)
             ->update($form_data);
 
-            return response()->json(['success' => 'Region is successfully Approved']);
+            return response()->json(['success' => 'Quotation is successfully Approved']);
 
          }elseif($applevel == 2){
             $form_data = array(
@@ -645,10 +642,10 @@ return $htmlTable;
                 'approve_02_time' => $current_date_time,
                 'approve_02_by' => Auth::id(),
             );
-            Newbusinessproposal::findOrFail($id)
+            Quotation::findOrFail($id)
            ->update($form_data);
 
-            return response()->json(['success' => 'Region is successfully Approved']);
+            return response()->json(['success' => 'Quotation is successfully Approved']);
 
          }else{
             $form_data = array(
@@ -657,42 +654,39 @@ return $htmlTable;
                 'approve_03_time' => $current_date_time,
                 'approve_03_by' => Auth::id(),
             );
-            Newbusinessproposal::findOrFail($id)
+            Quotation::findOrFail($id)
             ->update($form_data);
 
-           return response()->json(['success' => 'Region is successfully Approved']);
+           return response()->json(['success' => 'Quotation is successfully Approved']);
           }
     }
 
 
     public function status($id,$statusid){
-        $user = Auth::user();
-       
-       
-        $permission =$user->can('Newbusinessproposal-status');
-        if(!$permission) {
-                return response()->json(['error' => 'UnAuthorized'], 401);
+            $commen= new Commen();
+            $userPermissions = $commen->Allpermission();
+            if (!in_array('Quotation-status', $userPermissions)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
-
 
         if($statusid == 1){
             $form_data = array(
                 'status' =>  '1',
                 'update_by' => Auth::id(),
             );
-            Newbusinessproposal::findOrFail($id)
+            Quotation::findOrFail($id)
             ->update($form_data);
     
-            return redirect()->route('newbusinessproposal');
+            return redirect()->route('quotation');
         } else{
             $form_data = array(
                 'status' =>  '2',
                 'update_by' => Auth::id(),
             );
-            Newbusinessproposal::findOrFail($id)
+            Quotation::findOrFail($id)
             ->update($form_data);
     
-            return redirect()->route('newbusinessproposal');
+            return redirect()->route('quotation');
         }
 
     }
@@ -723,8 +717,8 @@ return $htmlTable;
     }
     public function getdocno(Request $request){
     
-        $data1 = DB::table('newbusinessproposals')
-        ->select('newbusinessproposals.*')
+        $data1 = DB::table('quotations')
+        ->select('quotations.*')
         ->get(); 
         $rowCount = count($data1);
     

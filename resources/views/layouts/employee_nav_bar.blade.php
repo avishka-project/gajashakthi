@@ -65,7 +65,9 @@
     @if(in_array('Deaddonation-list',$userPermissions)|| in_array('Deaddonationallocation-list',$userPermissions)
     || in_array('Deaddonationincomplete-list',$userPermissions)|| in_array('Deaddonationlastallocation-list',$userPermissions)
     || in_array('Deaddonationdetail-list',$userPermissions)|| in_array('allocation-list',$userPermissions)
-    || in_array('Travelrequest-list',$userPermissions)|| in_array('Boardingfees-list',$userPermissions))
+    || in_array('Travelrequest-list',$userPermissions)|| in_array('Boardingfees-list',$userPermissions)
+    || in_array('Salaryadvances-list',$userPermissions) || in_array('Employeeloans-list',$userPermissions)
+    || in_array('Gratuityrequests-list',$userPermissions))
 <div class="dropdown">
 <a  role="button" data-toggle="dropdown" class="btn navbtncolor" data-target="#" href="#" id="employeerequest">
     Employee Request <span class="caret"></span></a>
@@ -97,6 +99,15 @@
         @endif
         @if(in_array('Boardingfees-list',$userPermissions))
         <li><a class="dropdown-item" href="{{ route('boardingfees')}}" id="boardingfees_link">Boardingfees</a></li>
+        @endif
+        @if(in_array('Salaryadvances-list',$userPermissions))
+        <li><a class="dropdown-item" href="{{ route('salaryadvance')}}" id="Salaryadvances_link">Salary Advances</a></li>
+        @endif
+        @if(in_array('Employeeloans-list',$userPermissions))
+        <li><a class="dropdown-item" href="{{ route('employeeloan')}}" id="Employeeloans_link">Employee Loans</a></li>
+        @endif
+        @if(in_array('Gratuityrequests-list',$userPermissions))
+        <li><a class="dropdown-item" href="{{ route('gratuityrequest')}}" id="Gratuityrequests_link">Gratuity Requests</a></li>
         @endif
 
     </ul>

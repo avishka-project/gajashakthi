@@ -8,11 +8,13 @@ use App\Grndetail;
 use App\inventory_list_price_summary;
 use App\Porder;
 use App\Porderdetail;
+use App\Purchase_grn_bill;
 use App\Stock;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PDF;
 use Yajra\Datatables\Facades\Datatables;
 
 class GRNcontroller extends Controller
@@ -41,9 +43,13 @@ class GRNcontroller extends Controller
         ->where('suppliers.approve_status', 1)
         ->get();
 
-        $porders = DB::table('porders')->select('porders.*')
+        $porders = DB::table('porders')
+        ->leftjoin('porderdetails', 'porderdetails.porder_id', '=', 'porders.id')
+        ->select('porders.*')
         ->whereIn('porders.status', [1, 2])
         ->where('porders.approve_status', 1)
+        ->whereColumn('porderdetails.qty', '!=', 'grn_issue_qty')
+        ->groupBy('porders.id')
         // ->where('porders.grn_status', 0)
         ->get();
         return view('GRN.grn', compact('items','suppliers','porders','stores','userPermissions'));
@@ -225,6 +231,10 @@ public function requestlist()
             $commen= new Commen();
             $userPermissions = $commen->Allpermission();
 
+            if(in_array('Grn-create',$userPermissions)){
+            $btn .= ' <button title="Bill" name="bill" id="'.$row->id.'" class="bill btn btn-outline-warning btn-sm"
+            role="button"><i class="fas fa-file-invoice"></i></button>';
+            }
                     if(in_array('Approve-Level-01',$userPermissions)){
                         if($row->approve_01 == 0){
                             $btn .= ' <button name="appL1" id="'.$row->id.'" class="appL1 btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
@@ -239,6 +249,7 @@ public function requestlist()
                              $btn .= ' <button name="delete" id="'.$row->id.'" class="delete btn btn-outline-danger btn-sm"><i class="far fa-trash-alt"></i></button>';
                         }
                     }
+
                     if(in_array('Approve-Level-03',$userPermissions)){
                         if($row->approve_02 == 1 && $row->approve_03 == 0 ){
                             $btn .= ' <button name="appL3" id="'.$row->id.'" batch_no="'.$row->batch_no.'" porder_id="'.$row->porder_id.'" class="appL3 btn btn-outline-info btn-sm" type="submit"><i class="fas fa-level-up-alt"></i></button>';
@@ -251,7 +262,7 @@ public function requestlist()
                        $btn .= ' <button name="view" id="'.$row->id.'" class="view btn btn-outline-secondary btn-sm"
                        role="button"><i class="fa fa-eye"></i></button>';
                        }
-
+                      
                     // $permission = $user->can('Porder-edit');
                     // if($permission){
                     //     $btn .= ' <button name="edit" id="'.$row->id.'" class="edit btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-pencil-alt"></i></button>';
@@ -896,7 +907,7 @@ public function viewDetails(Request $request){
         $suppliers[] = $supplier; // Add the supplier array to the suppliers array
     }
 
-    return response()->json(['result' => $suppliers,$data]);
+    return response()->json(['result' => $suppliers,'maindata' =>$data]);
 }
 
 public function getbatchno(Request $request){
@@ -1017,5 +1028,373 @@ public function getbatchno(Request $request){
        return $htmlTable;
 
    }
+
+   public function grnbillrefnoget(Request $request){
+    $porder_id = Request('porder_id');
+    $grn_id = Request('grn_id');
+
+
+    $data1 = DB::table('purchase_grn_bills')
+    ->select('purchase_grn_bills.*')
+    ->where('purchase_grn_bills.purchase_id', $porder_id)
+    ->where('purchase_grn_bills.grn_id', $grn_id)
+    ->get(); 
+    $rowCount = count($data1);
+    $refno='';
+    if ($rowCount == 1) {
+        $refno=date('dmY').'1';
+        foreach ($data1 as $row) {
+
+            $refno=$row->refno;
+        }
+    }
+    else{
+
+        $refno=date('dmY'). $porder_id.$grn_id;
+    } 
+
+    return response() ->json(['result'=> $refno]);
+}
+
+
+
+   public function grnbillprint(Request $request){
+    $porder_id=$request->input('pid');
+    $grn_id=$request->input('gid');
+    $ref=$request->input('ref');
+    $memo=$request->input('memo');
+
+    $data1 = DB::table('purchase_grn_bills')
+    ->select('purchase_grn_bills.*')
+    ->where('purchase_grn_bills.purchase_id', $porder_id)
+    ->where('purchase_grn_bills.grn_id', $grn_id)
+    ->get(); 
+    $rowCount = count($data1);
+    if ($rowCount == 0) {
+        $purchase_grn_bill = new Purchase_grn_bill();
+        $purchase_grn_bill->purchase_id = $request->input('pid');
+        $purchase_grn_bill->grn_id = $request->input('gid');
+        $purchase_grn_bill->refno = $request->input('ref');
+        $purchase_grn_bill->created_by = Auth::id();
+        $purchase_grn_bill->save();
+    }
+
+    $id = $request->input('id');
+
+    $types = DB::table('grndetails')
+    ->leftjoin('inventorylists', 'grndetails.item_id', '=', 'inventorylists.id')
+    ->select('grndetails.*','inventorylists.name','inventorylists.inventorylist_id','inventorylists.uom','inventorylists.uniform_size')
+    ->whereIn('grndetails.status', [1, 2])
+    ->where('grndetails.grn_id', $id)
+    ->get();
+
+
+    $data = DB::table('grns')
+        ->leftJoin('suppliers', 'grns.supplier_id', '=', 'suppliers.id')
+        ->select('grns.*','grns.id as grnid','grns.porder_id as porder_id', 'suppliers.*','suppliers.supplier_name as supplier_name','suppliers.address1 as address1','suppliers.address2 as address2','suppliers.city as city')
+        ->where('grns.id', $id)
+        ->get();
+
+    $suppliers = [];
+    $contactNumbers = [];
+    $emails = [];
+    $tblinvoice='';
+    foreach ($data as $order) {
+        $supplier = (array) $order; // Convert the object to an array
+
+        // Retrieve all contact details for the current supplier
+        $contacts = DB::table('suppliercontacts')
+            ->where('suppliercontacts.supplier_id', $order->supplier_id)
+            ->select('suppliercontacts.*')
+            ->get();
+
+            foreach ($contacts as $contact) {
+                $contactNumbers[] = $contact->contact;
+                $emails[] = $contact->email;
+            }
+        
+
+        $supplier['contacts'] = $contacts; // Add contacts to the supplier array
+        $suppliers[] = $supplier; // Add the supplier array to the suppliers array
+    }
+
+    $date='';
+    $suppliername='';
+    $supplieraddress='';
+    $porderid='';
+    $totalcost='';
+    foreach ($data as $grnlist) {
+        $date = $grnlist->grn_date;
+        $billdate = $grnlist->bill_date;
+        $terms = $grnlist->terms;
+        $suppliername = $grnlist->supplier_name;
+        $supplieraddress = $grnlist->address1.', '.$grnlist->address2.', '.$grnlist->city;
+        $grnid = $grnlist->grnid;
+        $porderid = $grnlist->porder_id;
+        $sub_total = $grnlist->sub_total;
+        $discount_amount = $grnlist->discount;
+        $totalcost = $grnlist->total;
+    }
+    $count = 1;
+    
+    foreach ($types as $rowlist) {
+        $tblinvoice.='
+        <tr>
+        <td style="font-size:10px; border:1px solid black; text-align:center;" class="text-center">'. $count.'</td>
+        <td style="font-size:10px; border:1px solid black; text-align:center;" class="text-center">'.$rowlist->inventorylist_id.'</td>
+        <td colspan="4" style="padding-left: 5px;font-size:10px; border:1px solid black; text-align:left;" class="text-center">'.$rowlist->name.' '.($rowlist->uniform_size==null?"":$rowlist->uniform_size.'"').'</td>
+        <td colspan="2" style="font-size:10px; border:1px solid black; text-align:center;" class="text-center">'.$rowlist->uom.'</td>
+        <td style="font-size:10px; border:1px solid black; text-align:center;" class="text-right">'.$rowlist->qty.'</td>
+        <td colspan="2" style="font-size:10px; border:1px solid black; text-align:right;" class="text-right">'.number_format(($rowlist->unit_price), 2).'</td>
+        <td colspan="2" style="font-size:10px; border:1px solid black; text-align:right;" class="totalrawcost text-right">'.number_format(($rowlist->qty * $rowlist->unit_price), 2).'</td>    
+        <td style="font-size:10px; border:1px solid black; text-align:right;" class="text-right">'.number_format(($rowlist->vat_precentage), 1).'</td>
+        <td colspan="2" style="font-size:10px; border:1px solid black; text-align:right;" class="text-right">'.number_format(($rowlist->vat_amount), 2).'</td>
+        <td colspan="2" style="font-size:10px; border:1px solid black; text-align:right;" class="text-right">'.number_format(($rowlist->total_after_vat), 2).'</td>         
+    </tr>
+        
+        ';
+        $count++;
+    }
+
+
+    $contactview = '';
+    foreach ($contactNumbers as $conlist) {
+        $contactview .= $conlist . '/';
+    } 
+    $contactview = rtrim($contactview, '/');
+
+    
+    $emailview = '';
+    foreach ($emails as $emaillist) {
+        $emailview .= $emaillist . '/';
+    } 
+    $emailview = rtrim($emailview, '/');
+
+    $html='';
+
+$html ='
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+    <title>Purchase order</title>
+    <style media="print">
+        * {
+            font-family: "Fira Mono", monospace;
+        }
+
+        table,
+        tr,
+        th,
+        td {
+            font-family: "Fira Mono", monospace;
+        }
+
+        img {
+            width: 200px;
+            height: 100px;
+        }
+
+        @page {
+            size: 80mm 100mm;
+            /* Set the print size width to 80mm and height to 100mm */
+        }
+
+        body {
+            width: 80mm;
+            /* Set the body width to 80mm */
+        }
+
+        #DivIdToPrint {
+            border: 1px solid black;
+            padding: 10px;
+            width: 100%;
+            /* Set the div width to 100% */
+        }
+    </style>
+    <style>
+        * {
+            font-family: "Fira Mono", monospace;
+        }
+
+        table,
+        tr,
+        th,
+        td {
+            font-family: "Fira Mono", monospace;
+        }
+
+        img {
+            width: 100px;
+            height: 100px;
+        }
+
+        #DivIdToPrint {
+            width: 100%;
+            /* Set the div width to 100% */
+        }
+    </style>
+    <style>
+        * {
+            font-family: "Cutive Mono", monospace;
+        }
+
+        table,
+        tr,
+        th,
+        td {
+            font-family: "Cutive Mono", monospace;
+        }
+
+        img {
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="DivIdToPrint">
+        <table style="width:100%;">
+            <tr >
+            
+                <td style="padding-left: 35%; font-size:6px;" colspan="3">
+                    <h6 class="font-weight-light" style="margin-top:0;margin-bottom:0;">
+                        
+                    </h6>
+                </td>
+            </tr>
+            <tr>
+            <td style="text-align: left;width:20px;"><img id="logo" src="./images/logogaja.png" width="50" alt="Logo"></td>
+            <td style="text-align: center; font-size:14px; padding-top: 5px; padding-right: 120px" colspan="2">
+            <h3 style="margin-left:0px;">Gajashakthi Security Service (Pvt) Ltd</h3>
+            <h5 class="font-weight-light">Bill</h5>
+            </td>
+        </tr>
+            <tr>
+                <td colspan="2"  style="text-align: left; font-size:12px;">Date: '.$date.'</td>
+                <td style="padding-left:130px; font-size:12px;text-align: right;">GRN No: GRN-'. $grnid.'</td>
+            </tr>
+            <tr>
+                <td  colspan="2" style="text-align: left; font-size:12px;">Supplier: '. $suppliername.'</td>
+                <td style="padding-left:130px; font-size:12px;text-align: right;">Purchase No: PO-'. $porderid.'</td>
+            </tr>
+            <tr>
+            <td colspan="2" style="text-align: left; font-size:12px;">Contact No: '.$contactview.'</td>
+            <td style="padding-left:130px; font-size:12px;text-align: right;">Bill Date: '. $billdate.'</td>
+        </tr>
+        <tr>
+        <td colspan="2" style="text-align: left; font-size:12px;">Email: '. $emailview.'</td>
+        <td style="padding-left:130px; font-size:12px;text-align: right;">Ref.No: '.$ref.'</td>
+    </tr>
+    <tr>
+    <td colspan="2" style="text-align: left; font-size:12px;">Address: '.$supplieraddress.'</td>
+    <td style="padding-left:130px; font-size:12px;text-align: right;">Terms: '. $terms.'</td>
+</tr>
+            <tr>
+                <td style="text-align: center; margin-bottom:50px" colspan="3">
+                    <table class="tg" style="table-layout: fixed; width: 100%" cellspacing="0" cellpadding="0">
+                        <tr style="text-align:right; font-weight:bold; font-size:5px;">
+                        <td style="text-align: center; font-size:14px;border:1px solid black;">#</td>
+                            <td style="text-align: center; font-size:14px;border:1px solid black;">Item Code</td>
+                            <td colspan="4" style="text-align: center; font-size:14px;border:1px solid black;">Item Name</td>
+                            <td colspan="2" style="text-align: center; font-size:12px;border:1px solid black;">UOM</td>
+                            <td style="text-align: center; font-size:12px;border:1px solid black;">Qty</td>
+                            <td colspan="2" style="text-align: center; font-size:12px;border:1px solid black;">Unite Price</td>
+                            <td colspan="2" style="text-align: center; font-size:12px;border:1px solid black;">Total</td>
+                            <td style="text-align: center; font-size:12px;border:1px solid black;">Vat(%)</td>
+                            <td colspan="2" style="text-align: center; font-size:12px;border:1px solid black;">Vat (Amount)</td>
+                            <td colspan="2" style="text-align: center; font-size:12px;border:1px solid black;">Vat + Total</td>
+                        </tr>
+                        <tbody>
+                            '.$tblinvoice.'
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                        <td colspan="16" style="text-align: right;border:1px solid black;text-align:right;font-size:11px;" class="text-right"><b>Sub Total : </b></td>
+                        <td colspan="2" style="text-align: right;border:1px solid black;text-align:right;font-size:11px;" class="text-right"><b>'.number_format(($sub_total),2).'</b></td>
+                        </tr>
+                        <tr>
+                        <td colspan="16" style="text-align: right;border:1px solid black;text-align:right;font-size:11px;" class="text-right"><b>Discount : </b></td>
+                        <td colspan="2" style="text-align: right;border:1px solid black;text-align:right;font-size:11px;" class="text-right"><b>'.number_format(($discount_amount),2).'</b></td>
+                        </tr>
+                        <tr>
+                        <td colspan="16" style="text-align: right;border:1px solid black;text-align:right;font-size:11px;" class="text-right"><b>Total : </b></td>
+                        <td colspan="2" style="text-align: right;border:1px solid black;text-align:right;font-size:11px;" class="text-right"><b>'.number_format(($totalcost),2).'</b></td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td style=font-size: 12px; padding-top: 5px; padding-right: 10px" colspan="2">
+
+                </td>
+            </tr>
+
+            <tr>
+            <td colspan="3" style="padding-top: 5px; font-size:12px;">'.$memo.'</td>
+        </tr>
+
+            <tr>
+            <td colspan="3" style="padding-top: 5px; font-size:12px;">Checked By : -----------------</td>
+        </tr>
+
+            <tr>
+            <td style=font-size: 12px; padding-top: 5px; padding-right: 10px" colspan="2">
+
+            </td>
+        </tr>
+            <tr style="margin-top:5px;">
+                <td style="text-align: center; font-size:7px; padding-top: 10px; padding-right: 50px" colspan="3">
+                    <span style="font-size: 7px; font-weight: bold;">Thank You! Come
+                        again!</span><br>
+            </tr>
+           
+        </tr>
+        </table>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</body>
+
+</html>';
+
+// echo $html;
+
+// $pdf = PDF::loadHTML($html);
+
+// // Generate a unique filename
+// $filename = 'Purchase_Order_' . uniqid() . '.pdf';
+
+// // Save the PDF with the custom filename to the default storage path
+// $pdf->save(public_path('storage/purchase_order_pdf/' . $filename));
+
+// // Generate the URL to the PDF file
+// $pdfUrl = asset('storage/purchase_order_pdf/' . $filename);
+
+// // Open a new tab with the PDF URL using JavaScript
+// echo '<script>window.open("' . $pdfUrl . '", "_blank");</script>';
+// // return response()->json(['success' => true, 'url' => $pdfUrl]);
+
+$pdf = PDF::loadHTML($html)->setPaper('legal', 'portrait');
+$pdfContent = $pdf->output();
+
+$pdfBase64 = base64_encode($pdfContent);
+
+$responseData = [
+    'pdf' => $pdfBase64,
+    'message' => 'PDF generated successfully',
+];
+
+// Return the JSON response
+return response()->json($responseData);
+
+}
    
 }

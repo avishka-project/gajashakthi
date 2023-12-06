@@ -18,6 +18,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
+Route::get('/corporatedashboard' ,'ReportdashboardController@index')->name('corporatedashboard');
 Route::get('/reportdashboard' ,'ReportdashboardController@index')->name('reportdashboard');
 Route::get('/payrolldashboard' ,'PayrolldashboardController@index')->name('payrolldashboard');
 Route::get('/administratordashboard' ,'AdministratordashboardController@index')->name('administratordashboard');
@@ -913,6 +914,8 @@ Route::get('/grnview', 'GRNcontroller@view')->name('grnview');
 Route::post('/grnviewDetails', 'GRNcontroller@viewDetails')->name('grnviewDetails');
 Route::post('/grnporderdetails' ,'GRNcontroller@porderdetails')->name('grnporderdetails');
 Route::post('/grneditwithoutporder' ,'GRNcontroller@editwithoutporder')->name('grneditwithoutporder');
+Route::post('/grnbillprint', 'GRNcontroller@grnbillprint')->name('grnbillprint');
+Route::post('/grnbillrefnoget', 'GRNcontroller@grnbillrefnoget')->name('grnbillrefnoget');
 
 
 // Porder controller routes
@@ -935,7 +938,6 @@ Route::post('/porderviewDetails', 'Pordercontroller@viewDetails')->name('porderv
 Route::post('/porderprint', 'Pordercontroller@porderprint')->name('porderprint');
 Route::post('/pordergetitemdetail', 'Pordercontroller@pordergetitemdetail')->name('pordergetitemdetail');
 Route::post('/pordergetitemname', 'Pordercontroller@pordergetitemname')->name('pordergetitemname');
-
 Route::post('/pordercashgetvat' ,'Pordercontroller@pordercashgetvat')->name('pordercashgetvat');
 
 // Vehicle Service & Repair controller routes
@@ -968,7 +970,99 @@ Route::post('/newbusinessproposalupdate' ,'Newbusinessproposalcontroller@update'
 Route::post('/newbusinessproposaldelete' ,'Newbusinessproposalcontroller@delete')->name('newbusinessproposaldelete');
 Route::post('/newbusinessproposalapprove' ,'Newbusinessproposalcontroller@approve')->name('newbusinessproposalapprove');
 Route::get('/newbusinessproposalstatus/{id}/{stasus}','Newbusinessproposalcontroller@status')->name('newbusinessproposalstatus');
+Route::post('/newbusinessgetvat' ,'Newbusinessproposalcontroller@newbusinessgetvat')->name('newbusinessgetvat');
+Route::post('/newbusinessdocno', 'Newbusinessproposalcontroller@getdocno')->name('newbusinessdocno');
+Route::post('/newbusinessapprovel_details' ,'Newbusinessproposalcontroller@approvel_details')->name('newbusinessapprovel_details');
+Route::post('/newbusinessview_details' ,'Newbusinessproposalcontroller@view_details')->name('newbusinessview_details');
+Route::post('/newbusinessgetprint' ,'Newbusinessproposalcontroller@print')->name('newbusinessgetprint');
 
+// Assetcategory controller routes
+Route::get('assetcategory/' ,'AssetcategoryController@index')->name('assetcategory');
+Route::get('/assetcategorylist' ,'AssetcategoryController@requestlist')->name('assetcategorylist');
+Route::post('/assetcategoryinsert' ,'AssetcategoryController@insert')->name('assetcategoryinsert');
+Route::post('/assetcategoryedit' ,'AssetcategoryController@edit')->name('assetcategoryedit');
+Route::post('/assetcategoryupdate' ,'AssetcategoryController@update')->name('assetcategoryupdate');
+Route::post('/assetcategorydelete' ,'AssetcategoryController@delete')->name('assetcategorydelete');
+Route::post('/assetcategoryapprove' ,'AssetcategoryController@approve')->name('assetcategoryapprove');
+Route::get('/assetcategorystatus/{id}/{stasus}','AssetcategoryController@status')->name('assetcategorystatus');
+
+// Assetparticular controller routes
+Route::get('/assetparticular' ,'AssetparticularController@index')->name('assetparticular');
+Route::get('/assetparticularlist' ,'AssetparticularController@requestlist')->name('assetparticularlist');
+Route::post('/assetparticularinsert' ,'AssetparticularController@insert')->name('assetparticularinsert');
+Route::post('/assetparticularedit' ,'AssetparticularController@edit')->name('assetparticularedit');
+Route::post('/assetparticularupdate' ,'AssetparticularController@update')->name('assetparticularupdate');
+Route::post('/assetparticulardelete' ,'AssetparticularController@delete')->name('assetparticulardelete');
+Route::post('/assetparticularapprove' ,'AssetparticularController@approve')->name('assetparticularapprove');
+Route::get('/assetparticularstatus/{id}/{stasus}','AssetparticularController@status')->name('assetparticularstatus');
+
+// Fixedasset controller routes
+Route::get('/fixedasset' ,'FixedassetController@index')->name('fixedasset');
+Route::get('/fixedassetlist' ,'FixedassetController@requestlist')->name('fixedassetlist');
+Route::post('/fixedassetinsert' ,'FixedassetController@insert')->name('fixedassetinsert');
+Route::post('/fixedassetedit' ,'FixedassetController@edit')->name('fixedassetedit');
+Route::post('/fixedassetupdate' ,'FixedassetController@update')->name('fixedassetupdate');
+Route::post('/fixedassetdelete' ,'FixedassetController@delete')->name('fixedassetdelete');
+Route::post('/fixedassetapprove' ,'FixedassetController@approve')->name('fixedassetapprove');
+Route::get('/fixedassetstatus/{id}/{stasus}','FixedassetController@status')->name('fixedassetstatus');
+Route::get('/fixedassetgetparticularfilter/{categoryId}', 'FixedassetController@getparticularfilter')->name('fixedassetgetparticularfilter');
+Route::post('/fixedassetgetempdetails' ,'FixedassetController@empdetails')->name('fixedassetgetempdetails');
+Route::post('/fixedassetGetItemCode' ,'FixedassetController@getitemcode')->name('fixedassetGetItemCode');
+
+// Quotation controller routes
+Route::get('/quotation' ,'QuotationController@index')->name('quotation');
+Route::get('/quotationlist' ,'QuotationController@requestlist')->name('quotationlist');
+Route::post('/quotationinsert' ,'QuotationController@insert')->name('quotationinsert');
+Route::post('/quotationedit' ,'QuotationController@edit')->name('quotationedit');
+Route::post('/quotationupdate' ,'QuotationController@update')->name('quotationupdate');
+Route::post('/quotationdelete' ,'QuotationController@delete')->name('quotationdelete');
+Route::post('/quotationapprove' ,'QuotationController@approve')->name('quotationapprove');
+Route::get('/quotationstatus/{id}/{stasus}','QuotationController@status')->name('quotationstatus');
+Route::post('/quotationgetvat' ,'QuotationController@newbusinessgetvat')->name('quotationgetvat');
+Route::post('/quotationdocno', 'QuotationController@getdocno')->name('quotationdocno');
+Route::post('/quotationapprovel_details' ,'QuotationController@approvel_details')->name('quotationapprovel_details');
+Route::post('/quotationview_details' ,'QuotationController@view_details')->name('quotationview_details');
+Route::post('/quotationgetprint' ,'QuotationController@print')->name('quotationgetprint');
+
+// Salaryadvances Request controller routes
+Route::get('/salaryadvance' ,'SalaryadvancesController@index')->name('salaryadvance');
+Route::get('/salaryadvancelist' ,'SalaryadvancesController@requestlist')->name('salaryadvancelist');
+Route::post('/salaryadvanceinsert' ,'SalaryadvancesController@insert')->name('salaryadvanceinsert');
+Route::post('/salaryadvanceedit' ,'SalaryadvancesController@edit')->name('salaryadvanceedit');
+Route::post('/salaryadvanceupdate' ,'SalaryadvancesController@update')->name('salaryadvanceupdate');
+Route::post('/salaryadvancedelete' ,'SalaryadvancesController@delete')->name('salaryadvancedelete');
+Route::post('/salaryadvanceapprove' ,'SalaryadvancesController@approve')->name('salaryadvanceapprove');
+Route::post('/salaryadvancedetailedit' ,'SalaryadvancesController@editlist')->name('salaryadvancedetailedit');
+Route::post('/salaryadvancedetaildelete' ,'SalaryadvancesController@deletelist')->name('travelsalaryadvancedelete');
+Route::post('/salaryadvancedetailapprovel_details' ,'SalaryadvancesController@approvel_details')->name('salaryadvancedetailapprovel_details');
+Route::get('/salaryadvancestatus/{id}/{stasus}','SalaryadvancesController@status')->name('salaryadvancestatus');
+
+// Employeeloans Request controller routes
+Route::get('/employeeloan' ,'EmployeeloansController@index')->name('employeeloan');
+Route::get('/employeeloanlist' ,'EmployeeloansController@requestlist')->name('employeeloanlist');
+Route::post('/employeeloaninsert' ,'EmployeeloansController@insert')->name('employeeloaninsert');
+Route::post('/employeeloanedit' ,'EmployeeloansController@edit')->name('employeeloanedit');
+Route::post('/employeeloanupdate' ,'EmployeeloansController@update')->name('employeeloanupdate');
+Route::post('/employeeloandelete' ,'EmployeeloansController@delete')->name('employeeloandelete');
+Route::post('/employeeloanapprove' ,'EmployeeloansController@approve')->name('employeeloanapprove');
+Route::post('/employeeloandetailedit' ,'EmployeeloansController@editlist')->name('employeeloandetailedit');
+Route::post('/employeeloandetaildelete' ,'EmployeeloansController@deletelist')->name('employeeloandetaildelete');
+Route::post('/employeeloandetailapprovel_details' ,'EmployeeloansController@approvel_details')->name('employeeloandetailapprovel_details');
+Route::get('/employeeloanstatus/{id}/{stasus}','EmployeeloansController@status')->name('employeeloanstatus');
+Route::post('/employeeloanGetAllEmployee' ,'EmployeeloansController@GetAllEmployee')->name('employeeloanGetAllEmployee');
+
+// Gratuityrequests Request controller routes
+Route::get('/gratuityrequest' ,'GratuityrequestsController@index')->name('gratuityrequest');
+Route::get('/gratuityrequestlist' ,'GratuityrequestsController@requestlist')->name('gratuityrequestlist');
+Route::post('/gratuityrequestinsert' ,'GratuityrequestsController@insert')->name('gratuityrequestinsert');
+Route::post('/gratuityrequestedit' ,'GratuityrequestsController@edit')->name('gratuityrequestedit');
+Route::post('/gratuityrequestupdate' ,'GratuityrequestsController@update')->name('gratuityrequestupdate');
+Route::post('/gratuityrequestdelete' ,'GratuityrequestsController@delete')->name('gratuityrequestdelete');
+Route::post('/gratuityrequestapprove' ,'GratuityrequestsController@approve')->name('gratuityrequestapprove');
+Route::post('/gratuityrequestdetailedit' ,'GratuityrequestsController@editlist')->name('gratuityrequestdetailedit');
+Route::post('/gratuityrequestdetaildelete' ,'GratuityrequestsController@deletelist')->name('gratuityrequestdetaildelete');
+Route::post('/gratuityrequestdetailapprovel_details' ,'GratuityrequestsController@approvel_details')->name('gratuityrequestdetailapprovel_details');
+Route::get('/gratuityrequeststatus/{id}/{stasus}','GratuityrequestsController@status')->name('gratuityrequeststatus');
 
 // Travel Request controller routes
 Route::get('/travelrequest' ,'Travelrequestcontroller@index')->name('travelrequest');
