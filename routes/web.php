@@ -818,6 +818,7 @@ Route::post('/issuedetailapprovel_details' ,'Issuecontroller@approvel_details')-
 Route::get('/issuestatus/{id}/{stasus}','Issuecontroller@status')->name('issuestatus');
 Route::post('/issuegetsearchempinfo', 'Issuecontroller@getsearchempinfo')->name('issuegetsearchempinfo');
 Route::post('/getsaleprice', 'Issuecontroller@getsaleprice')->name('getsaleprice');
+Route::post('/getlocationinselect2' ,'Issuecontroller@getlocationinselect2')->name('getlocationinselect2');
 
 Route::get('/getitemToIssue/{store_id}', 'Issuecontroller@getitem')->name('getitemToIssue');
 Route::get('/getbatchnoToIssue/{itemId}/{store_id}', 'Issuecontroller@getBachno')->name('getbatchnoToIssue');

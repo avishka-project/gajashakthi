@@ -31,7 +31,7 @@ $primaryKey = 'id';
 $columns = array(
 	array( 'db' => '`u`.`id`', 'dt' => 'id', 'field' => 'id' ),
 	array( 'db' => '`u`.`issuing`', 'dt' => 'issuing', 'field' => 'issuing' ),
-	array( 'db' => '`u`.`month`', 'dt' => 'month', 'field' => 'month' ),
+	array( 'db' => '`u`.`date`', 'dt' => 'date', 'field' => 'date' ),
 	array( 'db' => '`u`.`issue_type`', 'dt' => 'issue_type', 'field' => 'issue_type' ),
 	array( 'db' => '`u`.`payment_type`', 'dt' => 'payment_type', 'field' => 'payment_type' ),
 	array( 'db' => '`u`.`remark`', 'dt' => 'remark', 'field' => 'remark' ),

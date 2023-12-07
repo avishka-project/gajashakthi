@@ -98,7 +98,7 @@ class Issuecontroller extends Controller
         $issue->location_id = $request->input('location');
         $issue->department_id = $request->input('department');
         $issue->employee_id = $request->input('employee');
-        $issue->month = $request->input('month');
+        $issue->date = $request->input('month');
         $issue->issue_type = $request->input('issuetype');
         $issue->payment_type = $request->input('paymenttype');
         $issue->remark = $request->input('remark');
@@ -225,7 +225,8 @@ class Issuecontroller extends Controller
         $id = Request('id');
         if (request()->ajax()){
         $data = DB::table('issues')
-        ->select('issues.*')
+        ->leftjoin('customerbranches', 'issues.location_id', '=', 'customerbranches.id')
+        ->select('issues.*','customerbranches.id AS locationid','customerbranches.branch_name AS locationname')
         ->where('issues.id', $id)
         ->get(); 
 
@@ -310,7 +311,7 @@ return response() ->json(['result'=>  $responseData]);
                 'location_id' =>  $request->input('location'),
                 'department_id' =>  $request->input('department'),
                 'employee_id' =>  $request->input('editempid'),
-                'month' =>  $request->input('month'),
+                'date' =>  $request->input('month'),
                 'issue_type' =>  $request->input('issuetype'),
                 'payment_type' =>  $request->input('paymenttype'),
                 'remark' =>  $request->input('remark'),
@@ -417,7 +418,8 @@ return response() ->json(['result'=>  $responseData]);
         $id = Request('id');
         if (request()->ajax()){
         $data = DB::table('issues')
-        ->select('issues.*')
+        ->leftjoin('customerbranches', 'issues.location_id', '=', 'customerbranches.id')
+        ->select('issues.*','customerbranches.branch_name AS customerbranch')
         ->where('issues.id', $id)
         ->get(); 
 
@@ -788,6 +790,27 @@ public function updateprice(Request $request){
   $pricesummary->save();
     return response()->json(['success' => 'Unite Price successfully Updated']);
 
+}
+
+public function getlocationinselect2(Request $request) {
+    $searchTerm = $request->input('search');
+
+    $matchingData = DB::table('customerbranches')
+        ->where(function ($query) use ($searchTerm) {
+            $query->where('branch_name', 'like', '%' . $searchTerm . '%')
+                   ->where('approve_status', 1)
+                   ->where('status', 1);
+        })
+        ->limit(100)
+        ->get();
+
+    if ($matchingData->count() > 0) {
+        return response()->json($matchingData);
+    } else {
+        $first5Items = DB::table('customerbranches')
+            ->limit(5)->get();
+        return response()->json($first5Items);
+    }
 }
 
 }

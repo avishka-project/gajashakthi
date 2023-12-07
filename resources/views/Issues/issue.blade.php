@@ -10,13 +10,8 @@
 </style>
 <main>
     <div class="page-header page-header-light bg-white shadow">
-    <div class="container-fluid">
-        <div class="page-header-content py-3">
-            <h1 class="page-header-title">
-                <div class="page-header-icon"><i class="fas fa-users"></i></div>
-                <span>Item Request</span>
-            </h1>
-        </div>
+        <div class="container-fluid">
+            @include('layouts.corporate_nav_bar')
         </div>
     </div>
     <br>
@@ -43,7 +38,7 @@
                                     <th>Department</th>
                                     <th>Employee</th>
                                     <th>Location</th>
-                                    <th>Month</th>
+                                    <th>Date</th>
                                     <th>Issue Type</th>
                                     <th>Payment Type</th>
                                     <th>Remark</th>
@@ -97,9 +92,6 @@
                                             <label class="small font-weight-bold text-dark">Location*</label>
                                             <select name="location" id="location" class="form-control form-control-sm">
                                                 <option value="">Select Location</option>
-                                                @foreach($locations as $location)
-                                                <option value="{{$location->id}}">{{$location->branch_name}}</option>
-                                                @endforeach
                                             </select>
                                         </div>
                                     </div>
@@ -141,8 +133,8 @@
                                 </div>
                                 <div class="form-row mb-1">
                                     <div class="col-6">
-                                        <label class="small font-weight-bold text-dark">Month*</label>
-                                        <input type="month" id="month" name="month" class="form-control form-control-sm"
+                                        <label class="small font-weight-bold text-dark">Date*</label>
+                                        <input type="date" id="month" name="month" class="form-control form-control-sm"
                                             required>
                                     </div>
                                 </div>
@@ -278,7 +270,7 @@
                                         <th>Item</th>
                                         <th>Asset Value</th>
                                         <th>Rate</th>
-                                        <th>QTy</th>
+                                        <th>Qty</th>
                                         <th>Total</th>
                                         <th class="d-none">ItemID</th>
                                         <th>Action</th>
@@ -409,13 +401,7 @@
                                     <div id="app_locationDiv" style="display: none;" class="col-12">
                                         <div class="col-12">
                                             <label class="small font-weight-bold text-dark">Location*</label>
-                                            <select name="app_location" id="app_location"
-                                                class="form-control form-control-sm" readonly>
-                                                <option value="">Select Location</option>
-                                                @foreach($locations as $location)
-                                                <option value="{{$location->id}}">{{$location->branch_name}}</option>
-                                                @endforeach
-                                            </select>
+                                            <input type="text" id="app_location" name="app_location" class="form-control form-control-sm" readonly>
                                         </div>
                                     </div>
                                     <div id="app_departmentDiv" style="display: none;" class="col-12">
@@ -451,8 +437,8 @@
                                 </div>
                                 <div class="form-row mb-1">
                                     <div class="col-6">
-                                        <label class="small font-weight-bold text-dark">Month*</label>
-                                        <input type="month" id="app_month" name="app_month"
+                                        <label class="small font-weight-bold text-dark">Date*</label>
+                                        <input type="date" id="app_month" name="app_month"
                                             class="form-control form-control-sm" readonly>
                                     </div>
                                 </div>
@@ -549,12 +535,7 @@
                                     <div id="view_locationDiv" style="display: none;" class="col-12">
                                         <div class="col-12">
                                             <label class="small font-weight-bold text-dark">Location*</label>
-                                            <select name="view_location" id="view_location" class="form-control form-control-sm" readonly>
-                                                <option value="">Select Location</option>
-                                                @foreach($locations as $location)
-                                                <option value="{{$location->id}}">{{$location->branch_name}}</option>
-                                                @endforeach
-                                            </select>
+                                            <input type="text" id="view_location" name="view_location" class="form-control form-control-sm" readonly>
                                         </div>
                                     </div>
                                     <div id="view_departmentDiv" style="display: none;" class="col-12">
@@ -591,8 +572,8 @@
                                 </div>
                                 <div class="form-row mb-1">
                                     <div class="col-6">
-                                        <label class="small font-weight-bold text-dark">Month*</label>
-                                        <input type="month" id="view_month" name="view_month"
+                                        <label class="small font-weight-bold text-dark">Date*</label>
+                                        <input type="date" id="view_month" name="view_month"
                                             class="form-control form-control-sm" readonly>
                                     </div>
                                 </div>
@@ -628,7 +609,7 @@
                                         <th>Item</th>
                                         <th>Asset Value</th>
                                         <th>Rate</th>
-                                        <th>QTy</th>
+                                        <th>Qty</th>
                                         <th>Total</th>
                                         <th class="d-none">ItemID</th>
                                         {{-- <th>Action</th> --}}
@@ -658,9 +639,8 @@
 
 <script>
     $(document).ready(function () {
-        $('#collapseCorporation').addClass('show');
-        $('#collapsgrninfo').addClass('show');
-        $('#issue_link').addClass('active');
+        $("#inventorylink").addClass('navbtnactive');
+        $('#corporate_link').addClass('active');
 
         var approvel01 = {{$approvel01permission}};
         var approvel02 = {{$approvel02permission}};
@@ -735,7 +715,7 @@
                     "className": 'text-dark'
                 },
                 {
-                    "data": "month",
+                    "data": "date",
                     "className": 'text-dark'
                 },
                 {
@@ -1000,9 +980,14 @@
                         $('#department').val(data.result.mainData.department_id);
                     } else {
                         $('#location').val(data.result.mainData.location_id);
+
+                        var locationid = data.result.mainData.locationid;
+                        var loationname = (data.result.mainData.locationname);
+                        var newOption = new Option(loationname, locationid, true, true);
+                        $('#location').append(newOption).trigger('change');
                     }
 
-                    $('#month').val(data.result.mainData.month);
+                    $('#month').val(data.result.mainData.date);
                     $('#remark').val(data.result.mainData.remark);
 
                     issueTypeValue = (data.result.mainData.issue_type);
@@ -1283,10 +1268,10 @@
                     } else if(data.result.mainData.issuing == "department"){
                         $('#app_department').val(data.result.mainData.department_id);
                     }else {
-                        $('#app_location').val(data.result.mainData.location_id);
+                        $('#app_location').val(data.result.mainData.customerbranch);
                     }
 
-                    $('#app_month').val(data.result.mainData.month);
+                    $('#app_month').val(data.result.mainData.date);
                     $('#app_remark').val(data.result.mainData.remark);
 
                     $('#app_tableorderlist').html(data.result.requestdata);
@@ -1330,10 +1315,10 @@
                     }else if(data.result.mainData.issuing == "department"){
                         $('#app_department').val(data.result.mainData.department_id);
                     } else {
-                        $('#app_location').val(data.result.mainData.location_id);
+                        $('#app_location').val(data.result.mainData.customerbranch);
                     }
 
-                    $('#app_month').val(data.result.mainData.month);
+                    $('#app_month').val(data.result.mainData.date);
                     $('#app_remark').val(data.result.mainData.remark);
 
                     $('#app_tableorderlist').html(data.result.requestdata);
@@ -1377,10 +1362,10 @@
                     }else if(data.result.mainData.issuing == "department"){
                         $('#app_department').val(data.result.mainData.department_id);
                     } else {
-                        $('#app_location').val(data.result.mainData.location_id);
+                        $('#app_location').val(data.result.mainData.customerbranch);
                     }
 
-                    $('#app_month').val(data.result.mainData.month);
+                    $('#app_month').val(data.result.mainData.date);
                     $('#app_remark').val(data.result.mainData.remark);
 
                     $('#app_tableorderlist').html(data.result.requestdata);
@@ -1502,10 +1487,10 @@ $.ajax({
                     else if(data.result.mainData.issuing == "department"){
                         $('#view_department').val(data.result.mainData.department_id);
                     } else {
-                        $('#view_location').val(data.result.mainData.location_id);
+                        $('#view_location').val(data.result.mainData.customerbranch);
                     }
 
-                    $('#view_month').val(data.result.mainData.month);
+                    $('#view_month').val(data.result.mainData.date);
                     $('#view_remark').val(data.result.mainData.remark);
 
                     $('#view_tableorderlist').html(data.result.requestdata);
@@ -1716,11 +1701,16 @@ $.ajax({
                 $("#selectTypeFirst").hide();
                 $("#PaymenttypeDiv").show();
 
-                
                 $("#location").prop("required", false);
                 $("#department").prop("required", false);
                 $("#employee").prop("required", true);
                 $("#employeeDiv input[name='issuetype']").prop("required", true);
+               
+                $("#paidRadio").prop("checked", true);
+                $("#cashRadio").prop("checked", false);
+                $("#loanRadio").prop("checked", true);
+                $("#cashRadioSection").show();
+                $("#loanRadioSection").show();
             } else if(selectedOption === "department"){
                 $("#departmentDiv").show();
                 $("#locationDiv").hide();
@@ -1912,12 +1902,40 @@ $.ajax({
             }
         });
 
+// location filter
+        $('#location').select2({
+            width: '100%',
+            minimumInputLength: 1,
+            ajax: {
+                url: '{!! route("getlocationinselect2") !!}',
+                type: 'POST',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        search: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.branch_name,
+                                id: item.id
+                            };
+                        })
+                    };
+                }
+            }
+        });
+
     });
+
 
     function idgetinserch() {
         var editempid = $('#employee').val();
         $('#editempid').val(editempid);
     };
+
 </script>
 <script>
     // normal request form reset
@@ -2336,6 +2354,7 @@ $('#usedquality').change(function () {
            
     }
     </script>
+    
 
 </body>
 
